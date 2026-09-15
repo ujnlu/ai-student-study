@@ -1,0 +1,448 @@
+// 小学 1-5 年级家用辅导站 · 数据模型
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ---------- 家庭 / 账号 ----------
+
+model Family {
+  id            String   @id @default(cuid())
+  name          String   @default("我家")
+  pinHash       String
+  dailyLimitMin Int      @default(60)
+  createdAt     DateTime @default(now())
+  children      Child[]
+  providers     AiProvider[]
+  assistants    AiAssistant[]
+  settings      FamilySetting[]
+}
+
+model FamilySetting {
+  id       String @id @default(cuid())
+  familyId String
+  key      String
+  value    String
+  family   Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@unique([familyId, key])
+}
+
+model Child {
+  id        String   @id @default(cuid())
+  familyId  String
+  name      String
+  avatar    String   @default("🐼")
+  grade     Int // 1-5
+  semester  Int      @default(1) // 1 上学期 2 下学期
+  region    String? // 省/市，如 "北京" "江苏-南京"
+  createdAt DateTime @default(now())
+  family    Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  textbooks     ChildTextbook[]
+  uploads       Upload[]
+  attempts      Attempt[]
+  mistakes      MistakeEntry[]
+  conversations Conversation[]
+  masteries     Mastery[]
+  sessions      StudySession[]
+  explanations  Explanation[]
+  practiceSets  PracticeSet[]
+}
+
+// ---------- 教材 / 知识体系 ----------
+
+model Subject {
+  id        String @id // math | chinese | english
+  name      String
+  sortOrder Int    @default(0)
+
+  textbookVersions TextbookVersion[]
+  childTextbooks   ChildTextbook[]
+  knowledgePoints  KnowledgePoint[]
+  problems         Problem[]
+  uploads          Upload[]
+  textbooks        Textbook[]
+}
+
+/// 教材版本，如 人教版 / 北师大版 / 苏教版；可按学科细分
+model TextbookVersion {
+  id        String   @id @default(cuid())
+  subjectId String
+  code      String // renjiao | beishida | sujiao ...
+  name      String
+  publisher String?
+  regions   String? // 常见使用地区，逗号分隔，仅作提示
+  isBuiltin Boolean  @default(true)
+  createdAt DateTime @default(now())
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  childTextbooks  ChildTextbook[]
+  knowledgePoints KnowledgePoint[]
+  textbooks       Textbook[]
+
+  @@unique([subjectId, code])
+}
+
+/// 孩子每个学科当前使用的教材版本（可随时切换）
+model ChildTextbook {
+  id                String          @id @default(cuid())
+  childId           String
+  subjectId         String
+  textbookVersionId String
+  child             Child           @relation(fields: [childId], references: [id], onDelete: Cascade)
+  subject           Subject         @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  textbookVersion   TextbookVersion @relation(fields: [textbookVersionId], references: [id], onDelete: Cascade)
+
+  @@unique([childId, subjectId])
+}
+
+model KnowledgePoint {
+  id                String          @id @default(cuid())
+  subjectId         String
+  textbookVersionId String
+  grade             Int
+  semester          Int
+  unit              String
+  name              String
+  description       String?
+  sortOrder         Int             @default(0)
+  chapterId         String?
+  subject           Subject         @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  textbookVersion   TextbookVersion @relation(fields: [textbookVersionId], references: [id], onDelete: Cascade)
+  chapter           TextbookChapter? @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+
+  prerequisites KnowledgePrereq[] @relation("kpTarget")
+  dependents    KnowledgePrereq[] @relation("kpPrereq")
+  problems      Problem[]
+  masteries     Mastery[]
+  practiceSets  PracticeSet[]
+
+  @@index([textbookVersionId, grade, semester])
+}
+
+model KnowledgePrereq {
+  id       String         @id @default(cuid())
+  kpId     String
+  prereqId String
+  kp       KnowledgePoint @relation("kpTarget", fields: [kpId], references: [id], onDelete: Cascade)
+  prereq   KnowledgePoint @relation("kpPrereq", fields: [prereqId], references: [id], onDelete: Cascade)
+
+  @@unique([kpId, prereqId])
+}
+
+// ---------- AI 配置 ----------
+
+model AiProvider {
+  id           String   @id @default(cuid())
+  familyId     String
+  name         String
+  kind         String // anthropic | openai-compatible
+  baseUrl      String?
+  apiKeyEnc    String // AES-GCM 加密
+  defaultModel String
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  family       Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  assistants   AiAssistant[]
+  usages       AiUsage[]
+}
+
+/// 一个"助手" = 角色 + 提示词模板 + 绑定的模型
+model AiAssistant {
+  id            String     @id @default(cuid())
+  familyId      String
+  providerId    String
+  role          String // grade | tutor | generate | essay | ocr
+  name          String
+  model         String? // 不填则用 provider 默认模型
+  systemPrompt  String
+  temperature   Float      @default(0.3)
+  maxTokens     Int        @default(8000)
+  isDefault     Boolean    @default(false) // 该 role 的默认助手
+  supportVision Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  family        Family     @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  provider      AiProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  versions      AiPromptVersion[]
+  usages        AiUsage[]
+
+  @@index([familyId, role])
+}
+
+model AiPromptVersion {
+  id           String      @id @default(cuid())
+  assistantId  String
+  systemPrompt String
+  note         String?
+  createdAt    DateTime    @default(now())
+  assistant    AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+}
+
+model AiUsage {
+  id           String       @id @default(cuid())
+  providerId   String
+  assistantId  String?
+  model        String
+  inputTokens  Int          @default(0)
+  outputTokens Int          @default(0)
+  latencyMs    Int          @default(0)
+  ok           Boolean      @default(true)
+  error        String?
+  createdAt    DateTime     @default(now())
+  provider     AiProvider   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  assistant    AiAssistant? @relation(fields: [assistantId], references: [id], onDelete: SetNull)
+}
+
+// ---------- 上传 / 题目 / 作答 ----------
+
+model Upload {
+  id          String    @id @default(cuid())
+  childId     String
+  subjectId   String?
+  kind        String    @default("homework") // homework | single | exam | dictation
+  filePath    String
+  mimeType    String
+  width       Int?
+  height      Int?
+  status      String    @default("pending") // pending | grading | graded | failed
+  error       String?
+  summary     String? // AI 一句话总结
+  rawResult   String? // AI 原始 JSON
+  createdAt   DateTime  @default(now())
+  gradedAt    DateTime?
+  child       Child     @relation(fields: [childId], references: [id], onDelete: Cascade)
+  subject     Subject?  @relation(fields: [subjectId], references: [id])
+  problems    Problem[]
+
+  @@index([childId, createdAt])
+}
+
+model Problem {
+  id               String          @id @default(cuid())
+  subjectId        String?
+  uploadId         String?
+  knowledgePointId String?
+  index            Int             @default(0)
+  stem             String
+  answer           String? // 正确答案
+  solution         String? // 解析
+  difficulty       Int             @default(2) // 1-5
+  source           String          @default("upload") // upload | generated | bank | variant
+  parentProblemId  String?
+  createdAt        DateTime        @default(now())
+  subject          Subject?        @relation(fields: [subjectId], references: [id])
+  upload           Upload?         @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+  knowledgePoint   KnowledgePoint? @relation(fields: [knowledgePointId], references: [id])
+  attempts         Attempt[]
+  mistakes         MistakeEntry[]
+  explanations     Explanation[]
+  practiceItems    PracticeItem[]
+}
+
+model Attempt {
+  id          String   @id @default(cuid())
+  childId     String
+  problemId   String
+  childAnswer String?
+  isCorrect   Boolean?
+  errorType   String? // concept | calculation | reading | careless | unknown
+  aiComment   String?
+  overridden  Boolean  @default(false) // 家长手动改判
+  durationSec Int?
+  createdAt   DateTime @default(now())
+  child       Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([childId, createdAt])
+}
+
+model MistakeEntry {
+  id            String    @id @default(cuid())
+  childId       String
+  problemId     String
+  status        String    @default("new") // new | explained | practicing | cleared
+  errorType     String?
+  reviewCount   Int       @default(0)
+  nextReviewAt  DateTime?
+  clearedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  child         Child     @relation(fields: [childId], references: [id], onDelete: Cascade)
+  problem       Problem   @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  conversations Conversation[]
+  practiceSets  PracticeSet[]
+
+  @@unique([childId, problemId])
+  @@index([childId, status])
+}
+
+model Conversation {
+  id          String        @id @default(cuid())
+  childId     String
+  mistakeId   String?
+  assistantId String?
+  title       String?
+  understood  Boolean?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  child       Child         @relation(fields: [childId], references: [id], onDelete: Cascade)
+  mistake     MistakeEntry? @relation(fields: [mistakeId], references: [id], onDelete: SetNull)
+  messages    Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  role           String // user | assistant
+  content        String
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+}
+
+model Mastery {
+  id               String         @id @default(cuid())
+  childId          String
+  knowledgePointId String
+  score            Int            @default(0) // 0-100
+  attempts         Int            @default(0)
+  correct          Int            @default(0)
+  updatedAt        DateTime       @updatedAt
+  child            Child          @relation(fields: [childId], references: [id], onDelete: Cascade)
+  knowledgePoint   KnowledgePoint @relation(fields: [knowledgePointId], references: [id], onDelete: Cascade)
+
+  @@unique([childId, knowledgePointId])
+}
+
+model StudySession {
+  id        String    @id @default(cuid())
+  childId   String
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
+  seconds   Int       @default(0)
+  child     Child     @relation(fields: [childId], references: [id], onDelete: Cascade)
+}
+
+/// AI 生成的分步讲解动画（每步 = SVG 画面 + 旁白）
+model Explanation {
+  id          String   @id @default(cuid())
+  problemId   String
+  childId     String
+  assistantId String?
+  title       String
+  stepsJson   String // [{caption, narration, svg}]
+  summary     String?
+  quizQ       String?
+  quizA       String?
+  status      String   @default("ready") // ready | failed
+  error       String?
+  createdAt   DateTime @default(now())
+  problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  child       Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@index([problemId, childId])
+}
+
+// ---------- 练习（口算 / 变式题 / 复习 / AI 出题） ----------
+
+model PracticeSet {
+  id               String          @id @default(cuid())
+  childId          String
+  kind             String // oral | variant | review | ai
+  title            String
+  status           String          @default("ready") // pending_review | ready | done
+  mistakeId        String?
+  knowledgePointId String?
+  timeLimitSec     Int?
+  total            Int             @default(0)
+  score            Int?
+  durationSec      Int?
+  createdAt        DateTime        @default(now())
+  completedAt      DateTime?
+  child            Child           @relation(fields: [childId], references: [id], onDelete: Cascade)
+  mistake          MistakeEntry?   @relation(fields: [mistakeId], references: [id], onDelete: SetNull)
+  knowledgePoint   KnowledgePoint? @relation(fields: [knowledgePointId], references: [id], onDelete: SetNull)
+  items            PracticeItem[]
+
+  @@index([childId, status, createdAt])
+}
+
+model PracticeItem {
+  id          String      @id @default(cuid())
+  setId       String
+  index       Int
+  problemId   String
+  childAnswer String?
+  isCorrect   Boolean?
+  set         PracticeSet @relation(fields: [setId], references: [id], onDelete: Cascade)
+  problem     Problem     @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([setId, index])
+}
+
+// ---------- 教材内容（从国家中小学智慧教育平台导入） ----------
+
+model Textbook {
+  id                String          @id @default(cuid())
+  textbookVersionId String
+  subjectId         String
+  grade             Int
+  semester          Int
+  smarteduId        String          @unique
+  title             String
+  pdfPath           String?
+  pageCount         Int             @default(0)
+  frontPage         Int             @default(0) // 正文第 1 页对应的 PDF 页码偏移
+  status            String          @default("pending") // pending | downloading | extracting | ocr | ready | failed
+  contentSource     String          @default("pdf") // pdf | images
+  progress          Int             @default(0) // 0-100
+  error             String?
+  sourceUpdatedAt   DateTime?
+  importedAt        DateTime?
+  createdAt         DateTime        @default(now())
+  textbookVersion   TextbookVersion @relation(fields: [textbookVersionId], references: [id], onDelete: Cascade)
+  subject           Subject         @relation(fields: [subjectId], references: [id])
+  chapters          TextbookChapter[]
+  pages             TextbookPage[]
+
+  @@index([textbookVersionId, grade, semester])
+}
+
+model TextbookChapter {
+  id         String   @id @default(cuid())
+  textbookId String
+  parentId   String?
+  nodeId     String?
+  title      String
+  level      Int      @default(0)
+  sortOrder  Int      @default(0)
+  pageStart  Int?
+  pageEnd    Int?
+  textbook   Textbook @relation(fields: [textbookId], references: [id], onDelete: Cascade)
+  parent     TextbookChapter?  @relation("chapterTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children   TextbookChapter[] @relation("chapterTree")
+  knowledgePoints KnowledgePoint[]
+
+  @@index([textbookId, sortOrder])
+}
+
+model TextbookPage {
+  id         String   @id @default(cuid())
+  textbookId String
+  pageNo     Int // PDF 页码，1 起
+  text       String
+  imagePath  String?
+  ocrStatus  String   @default("none") // none | pdf | ocr | failed
+  textbook   Textbook @relation(fields: [textbookId], references: [id], onDelete: Cascade)
+
+  @@unique([textbookId, pageNo])
+}
