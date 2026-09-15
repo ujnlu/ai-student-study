@@ -15,12 +15,14 @@ type Props = {
   meta?: string;
   /** 批改完成后跳转的地址，默认 /child/uploads/[id] */
   redirectTo?: (uploadId: string) => string;
+  /** 上传后调用的批改接口，默认 /api/uploads/[id]/grade（作文点评等用别的接口） */
+  gradeUrl?: (uploadId: string) => string;
   /** 拍照区的提示文字 */
   hint?: string;
   submitLabel?: string;
 };
 
-export function Uploader({ childId, subjects, defaultSubject, kind = "homework", meta, redirectTo, hint, submitLabel }: Props) {
+export function Uploader({ childId, subjects, defaultSubject, kind = "homework", meta, redirectTo, gradeUrl, hint, submitLabel }: Props) {
   const router = useRouter();
   const [subject, setSubject] = useState(defaultSubject ?? subjects[0]?.id ?? "math");
   const [preview, setPreview] = useState<string | null>(null);
@@ -53,7 +55,7 @@ export function Uploader({ childId, subjects, defaultSubject, kind = "homework",
       const upJson = (await up.json()) as { id?: string; error?: string };
       if (!up.ok || !upJson.id) throw new Error(upJson.error ?? "上传失败");
       setBusy("AI 老师正在批改，通常需要 20-60 秒…");
-      const g = await fetch(`/api/uploads/${upJson.id}/grade`, { method: "POST" });
+      const g = await fetch(gradeUrl ? gradeUrl(upJson.id) : `/api/uploads/${upJson.id}/grade`, { method: "POST" });
       const gJson = (await g.json()) as { error?: string };
       if (!g.ok) throw new Error(gJson.error ?? "批改失败");
       router.push(redirectTo ? redirectTo(upJson.id) : `/child/uploads/${upJson.id}`);

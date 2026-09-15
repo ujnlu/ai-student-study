@@ -69,6 +69,9 @@ export default async function PracticePage() {
       </section>
 
       <div className="grid sm:grid-cols-3 gap-3">
+        <Link href="/child/lesson" className="tile flex-col items-start border-brand/30 bg-brand-soft"><span className="text-3xl">📚</span><span className="font-black">今天这一课</span><span className="text-xs font-bold text-muted">看课 · 预习卡 · 微课</span></Link>
+        <Link href="/child/review" className="tile flex-col items-start border-leaf/30 bg-leaf-soft"><span className="text-3xl">🔁</span><span className="font-black">加固复习</span><span className="text-xs font-bold text-muted">薄弱点 · 周末总复习</span></Link>
+        <Link href="/child/ask" className="tile flex-col items-start border-sky/30 bg-sky-soft"><span className="text-3xl">💬</span><span className="font-black">问橙橙</span><span className="text-xs font-bold text-muted">不会的题随时问</span></Link>
         <Link href="/child/unit-test" className="tile flex-col items-start border-bee/40 bg-bee-soft"><span className="text-3xl">📝</span><span className="font-black">单元测试</span><span className="text-xs font-bold text-muted">15 题 · 20 分钟</span></Link>
         <Link href="/child/dictation" className="tile flex-col items-start border-grape/30 bg-grape-soft"><span className="text-3xl">✍️</span><span className="font-black">语文听写</span><span className="text-xs font-bold text-muted">橙橙读，你来写</span></Link>
         <Link href="/child/recite" className="tile flex-col items-start border-leaf/30 bg-leaf-soft"><span className="text-3xl">📖</span><span className="font-black">背古诗课文</span><span className="text-xs font-bold text-muted">背给橙橙听</span></Link>

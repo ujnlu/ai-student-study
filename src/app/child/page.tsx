@@ -35,7 +35,7 @@ export default async function ChildHome() {
       icon: "📚",
       color: "bg-sky-soft",
       label: "今日同步练",
-      hint: mathPath ? `数学 · ${mathPath.split(" › ").pop()} · 8 题` : "先告诉我学到哪一课",
+      hint: mathPath ? `数学 · ${mathPath.split(" › ").pop()} · 8 题 · 不会先去「今天这一课」看课` : "先告诉我学到哪一课",
       node: tasks.syncDoneToday ? null : mathChapter ? <StartPracticeButton kind="sync" subjectId="math" label="开始" className="btn-sky text-sm py-2" /> : <Link href="/child/progress" className="btn-secondary text-sm py-2">设置</Link>,
     },
     { done: tasks.oralDoneToday, icon: "🧮", color: "bg-brand-soft", label: "口算一组", hint: "10 题 · 3 分钟", node: tasks.oralDoneToday ? null : <StartPracticeButton kind="oral" count={10} timeLimitSec={180} label="开始" className="btn-primary text-sm py-2" /> },
@@ -83,12 +83,16 @@ export default async function ChildHome() {
         <h2 className="h-display text-xl mb-3">🎒 学习乐园</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
+            { href: "/child/lesson", icon: "📚", label: "今天这一课", sub: "看课 · 预习 · 微课", color: "bg-brand-soft border-brand/30" },
+            { href: "/child/ask", icon: "💬", label: "问橙橙", sub: "不会的题随时问", color: "bg-sky-soft border-sky/30" },
             { href: "/child/upload", icon: "📷", label: "拍作业", sub: "橙橙帮你检查", color: "bg-sky-soft border-sky/30" },
             { href: "/child/practice", icon: "🧮", label: "练习", sub: "同步练 · 口算", color: "bg-brand-soft border-brand/30" },
+            { href: "/child/review", icon: "🔁", label: "加固复习", sub: "薄弱点 · 周末总复习", color: "bg-leaf-soft border-leaf/30" },
+            { href: "/child/essay", icon: "📝", label: "作文点评", sub: "拍作文给橙橙看", color: "bg-grape-soft border-grape/30" },
             { href: "/child/pk", icon: "⚔️", label: "口算 PK", sub: "和橙橙比一比", color: "bg-berry-soft border-berry/30" },
             { href: "/child/dictation", icon: "✍️", label: "语文听写", sub: "橙橙来读你来写", color: "bg-grape-soft border-grape/30" },
             { href: "/child/recite", icon: "📖", label: "背古诗", sub: "背给橙橙听", color: "bg-leaf-soft border-leaf/30" },
-            { href: "/child/unit-test", icon: "📝", label: "单元测", sub: "15 题 · 20 分钟", color: "bg-bee-soft border-bee/40" },
+            { href: "/child/unit-test", icon: "🏁", label: "单元测", sub: "15 题 · 20 分钟", color: "bg-bee-soft border-bee/40" },
             { href: "/child/mistakes", icon: "🎯", label: "错题本", sub: "消灭它们", color: "bg-berry-soft border-berry/30" },
             { href: "/child/shop", icon: "🎁", label: "星星商店", sub: "换奖励", color: "bg-bee-soft border-bee/40" },
           ].map((c) => (

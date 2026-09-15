@@ -445,6 +445,7 @@ model TextbookChapter {
   progress   ChildProgress[]
   wordList   WordList?
   recitations Recitation[]
+  guide      LessonGuide?
 
   @@index([textbookId, sortOrder])
 }
@@ -538,4 +539,17 @@ model Redemption {
   doneAt    DateTime?
   child     Child     @relation(fields: [childId], references: [id], onDelete: Cascade)
   reward    Reward    @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+}
+
+/// 每一课的预习卡 / 微课 / 官方视频链接（按章节缓存）
+model LessonGuide {
+  id            String          @id @default(cuid())
+  chapterId     String          @unique
+  previewJson   String? // {summary, keyPoints[], example, questions[{q,a}]}
+  explanationId String? // 微课动画（Explanation）
+  videoUrl      String? // 国家平台课程教学页
+  videoTitle    String?
+  updatedAt     DateTime        @updatedAt
+  createdAt     DateTime        @default(now())
+  chapter       TextbookChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 }

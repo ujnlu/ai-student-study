@@ -5,7 +5,18 @@ import { useRouter } from "next/navigation";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-export function TutorChat({ conversationId, initial, childName }: { conversationId: string; initial: Msg[]; childName: string }) {
+export function TutorChat({
+  conversationId,
+  initial,
+  childName,
+  kickoff,
+}: {
+  conversationId: string;
+  initial: Msg[];
+  childName: string;
+  /** 可选：挂载时以孩子的身份自动发出这句话（用于「问橙橙」里题目已在历史中、需要老师先回复的场景） */
+  kickoff?: string;
+}) {
   const router = useRouter();
   const [msgs, setMsgs] = useState<Msg[]>(initial);
   const [input, setInput] = useState("");
@@ -52,9 +63,13 @@ export function TutorChat({ conversationId, initial, childName }: { conversation
   }
 
   useEffect(() => {
-    if (initial.length === 0 && !started.current) {
+    if (started.current) return;
+    if (initial.length === 0) {
       started.current = true;
       void send("__start__");
+    } else if (kickoff) {
+      started.current = true;
+      void send(kickoff);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireParent } from "@/lib/auth";
 import { deleteSetAction, generateAiSetAction } from "@/app/actions/practice";
+import { KpPicker } from "@/components/kp-picker";
 
 export default async function ParentPracticePage({ searchParams }: { searchParams: Promise<{ error?: string; child?: string }> }) {
   const s = await requireParent();
@@ -10,7 +11,7 @@ export default async function ParentPracticePage({ searchParams }: { searchParam
   const child = children.find((c) => c.id === childParam) ?? children[0];
   const kps = child
     ? await db.knowledgePoint.findMany({
-        where: { textbookVersionId: { in: child.textbooks.map((t) => t.textbookVersionId) }, grade: { in: [child.grade - 1, child.grade] } },
+        where: { textbookVersionId: { in: child.textbooks.map((t) => t.textbookVersionId) }, grade: { lte: child.grade } },
         orderBy: [{ grade: "asc" }, { semester: "asc" }, { sortOrder: "asc" }],
         include: { subject: true },
       })
@@ -32,22 +33,24 @@ export default async function ParentPracticePage({ searchParams }: { searchParam
       <section className="card space-y-4">
         <h2 className="font-semibold">AI 按知识点出题（生成后需你审核再发给孩子）</h2>
         {children.length === 0 ? <p className="text-sm text-gray-500">先添加孩子</p> : (
-          <form action={generateAiSetAction} className="grid sm:grid-cols-5 gap-3 items-end">
+          <form action={generateAiSetAction} className="grid sm:grid-cols-2 gap-4 items-end">
             <div>
               <label className="label">孩子</label>
               <select name="childId" defaultValue={child?.id} className="input">
                 {children.map((c) => <option key={c.id} value={c.id}>{c.avatar} {c.name}</option>)}
               </select>
             </div>
-            <div className="sm:col-span-2">
-              <label className="label">知识点（当前教材，本年级及上一年级）</label>
-              <select name="knowledgePointId" className="input" required>
-                {kps.map((k) => <option key={k.id} value={k.id}>{k.subject.name} · {k.grade}{k.semester === 1 ? "上" : "下"} · {k.unit} · {k.name}</option>)}
-              </select>
+            <div className="grid grid-cols-2 gap-4">
+              <div><label className="label">题数</label><input name="count" type="number" min={1} max={20} defaultValue={5} className="input" /></div>
+              <div><label className="label">难度 1-5</label><input name="difficulty" type="number" min={1} max={5} defaultValue={2} className="input" /></div>
             </div>
-            <div><label className="label">题数</label><input name="count" type="number" min={1} max={20} defaultValue={5} className="input" /></div>
-            <div><label className="label">难度 1-5</label><input name="difficulty" type="number" min={1} max={5} defaultValue={2} className="input" /></div>
-            <button className="btn-primary sm:col-span-5">生成（约 20 秒）</button>
+            <KpPicker
+              kps={kps.map((k) => ({ id: k.id, name: k.name, unit: k.unit, grade: k.grade, semester: k.semester, subjectId: k.subjectId, subjectName: k.subject.name }))}
+              defaultSubject="math"
+              defaultGrade={child?.grade}
+              defaultSemester={child?.semester}
+            />
+            <button className="btn-primary sm:col-span-2">生成（约 20 秒）</button>
           </form>
         )}
         {children.length > 1 && (
