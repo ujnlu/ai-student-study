@@ -53,6 +53,7 @@ export default async function PracticeSetPage({ params }: { params: Promise<{ id
 
       <div className="flex gap-2 flex-wrap justify-center">
         {set.kind === "oral" && <StartPracticeButton kind="oral" count={set.total} timeLimitSec={set.timeLimitSec} label="再来一组" />}
+        {set.kind === "sync" && <StartPracticeButton kind="sync" subjectId={set.items[0]?.problem.subjectId ?? "math"} label="再来一组同步练" />}
         {set.kind === "variant" && !perfect && set.mistakeId && <StartPracticeButton kind="variant" mistakeId={set.mistakeId} label="再做一组变式题" />}
         <Link href="/child/practice" className="btn-secondary">返回练习</Link>
         <Link href="/child" className="btn-secondary">回首页</Link>

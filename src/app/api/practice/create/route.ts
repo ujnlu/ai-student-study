@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createOralSet, createVariantSet } from "@/lib/practice";
+import { createSyncSet } from "@/lib/sync";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -18,6 +19,13 @@ export async function POST(req: Request) {
   try {
     if (body.kind === "oral") {
       const set = await createOralSet(childId, Math.min(50, Math.max(5, body.count ?? 20)), body.timeLimitSec === null ? null : (body.timeLimitSec ?? 300));
+      return NextResponse.json({ id: set.id });
+    }
+    if (body.kind === "sync") {
+      const subjectId = (body as { subjectId?: string }).subjectId ?? "math";
+      const existing = await db.practiceSet.findFirst({ where: { childId, kind: "sync", status: "ready" }, orderBy: { createdAt: "desc" } });
+      if (existing) return NextResponse.json({ id: existing.id });
+      const set = await createSyncSet(childId, subjectId);
       return NextResponse.json({ id: set.id });
     }
     if (body.kind === "variant" || body.kind === "review") {

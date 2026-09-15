@@ -11,9 +11,18 @@ export default async function PracticePage() {
     db.practiceSet.findMany({ where: { childId: child.id, status: "done" }, orderBy: { completedAt: "desc" }, take: 10 }),
     dueReviews(child.id),
   ]);
-  const KIND: Record<string, string> = { oral: "口算", variant: "变式题", review: "复习", ai: "老师布置" };
+  const KIND: Record<string, string> = { oral: "口算", sync: "同步练", variant: "变式题", review: "复习", ai: "老师布置" };
   return (
     <div className="space-y-6">
+      <section className="card bg-gradient-to-br from-blue-50 to-white border-blue-100">
+        <h1 className="text-xl font-bold mb-1">📚 同步练习</h1>
+        <p className="text-sm text-gray-600 mb-3">跟着学校进度出题，8 题一组，从易到难。<Link href="/child/progress" className="underline">调整学到哪一课</Link></p>
+        <div className="flex flex-wrap gap-2">
+          <StartPracticeButton kind="sync" subjectId="math" label="数学同步练" />
+          <StartPracticeButton kind="sync" subjectId="chinese" label="语文同步练" className="btn-secondary" />
+        </div>
+      </section>
+
       <section className="card">
         <h1 className="text-xl font-bold mb-2">🧮 口算天天练</h1>
         <p className="text-sm text-gray-600 mb-3">按 {child.grade} 年级{child.semester === 1 ? "上" : "下"}学期的进度出题，每天一组。</p>

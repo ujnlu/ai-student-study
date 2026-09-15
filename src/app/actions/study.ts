@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireAny } from "@/lib/auth";
 import { bumpMastery } from "@/lib/ai/grading";
+import { addStars, STAR_RULES } from "@/lib/rewards";
 
 /** 家长/孩子手动改判某题对错 */
 export async function overrideAttemptAction(formData: FormData) {
@@ -38,6 +39,7 @@ export async function markUnderstoodAction(formData: FormData) {
   const conv = await db.conversation.findUniqueOrThrow({ where: { id: conversationId }, include: { child: true } });
   if (conv.child.familyId !== s.familyId) return;
   await db.conversation.update({ where: { id: conversationId }, data: { understood } });
+  if (understood && conv.understood !== true) await addStars(conv.childId, STAR_RULES.understood, "看懂了一道题");
   if (conv.mistakeId) {
     await db.mistakeEntry.update({
       where: { id: conv.mistakeId },
@@ -53,5 +55,6 @@ export async function clearMistakeAction(formData: FormData) {
   const m = await db.mistakeEntry.findUniqueOrThrow({ where: { id }, include: { child: true } });
   if (m.child.familyId !== s.familyId) return;
   await db.mistakeEntry.update({ where: { id }, data: { status: "cleared", clearedAt: new Date() } });
+  await addStars(m.childId, STAR_RULES.mistakeCleared, "消灭一道错题");
   revalidatePath("/child/mistakes");
 }

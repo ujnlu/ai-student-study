@@ -5,6 +5,7 @@ import { gradeText, renderTemplate } from "@/lib/ai/prompts";
 import { bumpMastery } from "@/lib/ai/grading";
 import { answersMatch, generateOral } from "@/lib/oral";
 import { textbookContext, withTextbookContext } from "@/lib/textbook-context";
+import { addStars, STAR_RULES } from "@/lib/rewards";
 
 export const REVIEW_INTERVALS_DAYS = [1, 3, 7, 15, 30];
 const SUBJECT_NAME: Record<string, string> = { math: "数学", chinese: "语文", english: "英语" };
@@ -149,6 +150,10 @@ export async function submitSet(setId: string, answers: Record<string, string> =
   const items = await db.practiceItem.findMany({ where: { setId } });
   const score = items.filter((i) => i.isCorrect).length;
   const allCorrect = score === items.length;
+  // 星星
+  await addStars(set.childId, score * STAR_RULES.practiceCorrect, `练习答对 ${score} 题`);
+  if (allCorrect && items.length > 0) await addStars(set.childId, STAR_RULES.practicePerfect, "一组全对");
+  if (set.kind === "sync") await addStars(set.childId, STAR_RULES.syncDone, "完成同步练");
 
   if (set.mistakeId) {
     const m = await db.mistakeEntry.findUnique({ where: { id: set.mistakeId } });
@@ -160,6 +165,7 @@ export async function submitSet(setId: string, answers: Record<string, string> =
             ? { status: "cleared", clearedAt: new Date(), reviewCount: 0, nextReviewAt: addDays(REVIEW_INTERVALS_DAYS[0]) }
             : { status: "practicing" },
         });
+        if (allCorrect) await addStars(set.childId, STAR_RULES.mistakeCleared, "消灭一道错题");
       } else if (set.kind === "review") {
         if (allCorrect) {
           const next = m.reviewCount + 1;
@@ -167,6 +173,7 @@ export async function submitSet(setId: string, answers: Record<string, string> =
             where: { id: m.id },
             data: { reviewCount: next, nextReviewAt: next < REVIEW_INTERVALS_DAYS.length ? addDays(REVIEW_INTERVALS_DAYS[next]) : null },
           });
+          await addStars(set.childId, STAR_RULES.reviewPass, "复习通过");
         } else {
           // 复习没过：回到"讲过了"，重新走变式题
           await db.mistakeEntry.update({ where: { id: m.id }, data: { status: "explained", reviewCount: 0, nextReviewAt: null, clearedAt: null } });
@@ -195,15 +202,16 @@ export function dueReviews(childId: string) {
 export async function todayTasks(childId: string) {
   const start = new Date();
   start.setHours(0, 0, 0, 0);
-  const [oralDoneToday, newMistakes, explained, due, readySets, uploadsToday] = await Promise.all([
+  const [oralDoneToday, syncDoneToday, newMistakes, explained, due, readySets, uploadsToday] = await Promise.all([
     db.practiceSet.count({ where: { childId, kind: "oral", status: "done", completedAt: { gte: start } } }),
+    db.practiceSet.count({ where: { childId, kind: "sync", status: "done", completedAt: { gte: start } } }),
     db.mistakeEntry.count({ where: { childId, status: "new" } }),
     db.mistakeEntry.findMany({ where: { childId, status: { in: ["explained", "practicing"] } }, include: { problem: true }, take: 10 }),
     dueReviews(childId),
     db.practiceSet.findMany({ where: { childId, status: "ready", kind: { in: ["ai", "variant", "review"] } }, orderBy: { createdAt: "desc" }, include: { mistake: { include: { problem: true } }, knowledgePoint: true } }),
     db.upload.count({ where: { childId, createdAt: { gte: start } } }),
   ]);
-  return { oralDoneToday: oralDoneToday > 0, newMistakes, explained, due, readySets, uploadsToday };
+  return { oralDoneToday: oralDoneToday > 0, syncDoneToday: syncDoneToday > 0, newMistakes, explained, due, readySets, uploadsToday };
 }
 
 /** 连续学习天数：当天有上传或完成练习都算 */

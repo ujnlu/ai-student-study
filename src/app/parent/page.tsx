@@ -48,6 +48,15 @@ export default async function ParentHome() {
               </div>
             </Link>
           ))}
+          {children.map((c) => (
+            <Link key={`r${c.id}`} href={`/parent/report/${c.id}`} className="card bg-blue-50 border-blue-100 hover:shadow-md flex items-center gap-3">
+              <span className="text-3xl">📊</span>
+              <div>
+                <p className="font-semibold">{c.name} 的学情报告</p>
+                <p className="text-xs text-gray-500">正确率趋势、薄弱知识点、各单元掌握度、AI 周评</p>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 

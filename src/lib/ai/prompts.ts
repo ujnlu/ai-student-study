@@ -22,6 +22,7 @@ export const DEFAULT_PROMPTS: Record<AssistantRole, string> = {
 4. 错因分类：concept（概念不清）/ calculation（计算错误）/ reading（审题错误）/ careless（粗心笔误）/ unknown。
 5. 如果孩子没有作答，childAnswer 留空，isCorrect 为 false，errorType 为 unknown。
 6. summary 用一两句话告诉家长整体情况，语气温和。
+7. box 给出每道题在图片里的大致位置（相对比例 0-1），用于在原图上标记对错；判断不了就填 null。
 
 只根据图片内容判断，不要编造图片里没有的题目。`,
 

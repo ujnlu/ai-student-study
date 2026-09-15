@@ -5,6 +5,7 @@ import { resolveAssistant, runJson } from "@/lib/ai";
 import { gradeText, renderTemplate } from "@/lib/ai/prompts";
 import { uploadAbsPath } from "@/lib/uploads";
 import { textbookContext, withTextbookContext } from "@/lib/textbook-context";
+import { addStars, STAR_RULES } from "@/lib/rewards";
 
 export const GradedProblem = z.object({
   index: z.number().int().describe("题号，从 1 开始"),
@@ -15,6 +16,10 @@ export const GradedProblem = z.object({
   knowledgePoint: z.string().describe("知识点名称"),
   errorType: z.enum(["concept", "calculation", "reading", "careless", "unknown", "none"]),
   comment: z.string().describe("一句话点评，正确时可为空"),
+  box: z
+    .object({ x: z.number(), y: z.number(), w: z.number(), h: z.number() })
+    .nullable()
+    .describe("这道题在图片中的位置，左上角 x,y 与宽高 w,h，均为相对图片宽高的 0-1 比例；无法判断时为 null"),
 });
 
 export const GradingResult = z.object({
@@ -96,6 +101,7 @@ export async function gradeUpload(uploadId: string) {
           isCorrect: p.isCorrect,
           errorType: p.isCorrect ? null : p.errorType === "none" ? "unknown" : p.errorType,
           aiComment: p.comment || null,
+          box: p.box && p.box.w > 0 && p.box.h > 0 ? JSON.stringify(p.box) : null,
         },
       });
       if (!p.isCorrect) {
@@ -108,6 +114,7 @@ export async function gradeUpload(uploadId: string) {
       if (kp) await bumpMastery(child.id, kp.id, p.isCorrect);
     }
 
+    await addStars(child.id, STAR_RULES.upload, "拍了一次作业");
     await db.upload.update({
       where: { id: uploadId },
       data: {

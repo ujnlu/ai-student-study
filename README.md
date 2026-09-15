@@ -1,6 +1,6 @@
 # 家庭作业小助手
 
-给自家小学 1-5 年级孩子用的作业辅导站：拍照 → AI 批改 → 错题本 → AI 引导式讲解 / 一键动画讲解 → 变式题消灭错题 → 按 1/3/7/15/30 天间隔复习 → 每日任务与打卡。
+给自家小学 1-5 年级孩子用的作业辅导站：拍照 → AI 批改（原图标 ✓✗）→ 错题本 → AI 引导式讲解 / 一键动画讲解 → 变式题消灭错题 → 按 1/3/7/15/30 天间隔复习 → 跟学校进度的同步练习 → 每日任务、星星、徽章、打卡 → 家长学情报告与 AI 周评。
 支持多套教材版本、地区设置、可配置的 AI 服务与助手提示词，口算题按年级程序化生成，家长可让 AI 按知识点出题并审核后发给孩子。
 
 ## 技术栈
@@ -36,6 +36,9 @@ src/lib/db.ts             Prisma 客户端（按 DATABASE_URL 选 SQLite / PG �
 src/lib/crypto.ts         API Key 加密、PIN 哈希、Cookie 签名
 src/lib/auth.ts           家长 / 孩子会话
 src/lib/ai/               Provider 抽象、提示词模板、批改流水线
+src/lib/sync.ts           同步练习：孩子"学到哪一课"、按课时题库出题（不足时 AI 结合教材原文补题）
+src/lib/rewards.ts        星星、等级、徽章、打卡日历
+src/lib/report.ts         家长学情报告数据（正确率趋势、单元掌握度、薄弱点、错因）
 src/lib/oral.ts           口算题生成器（按年级/学期规则）与答案归一化比对
 src/lib/practice.ts       练习流水线：口算 / 变式题 / 复习 / AI 出题、判分、错题状态与复习计划、每日任务
 src/lib/ai/explain.ts     一键动画讲解：AI 生成分步 SVG + 旁白，服务端过滤 SVG
@@ -44,7 +47,8 @@ src/lib/textbook-context.ts 为 AI 检索教材原文节选（按知识点所挂
 src/lib/smartedu-auth.ts  平台登录凭据的 X-ND-AUTH 签名
 scripts/import-textbooks.ts 命令行批量导入
 src/app/parent/           家长端：概览、孩子、教材、出题审核、AI 设置、用量
-src/app/child/            孩子端：首页（今日任务/打卡）、拍作业、批改结果、练习、错题本、讲解对话
+src/app/child/            孩子端（手机底部 Tab）：首页、练习、拍作业、错题本、我的（星星/徽章/日历）、进度设置
+src/app/parent/report/    家长学情报告 + AI 周评
 src/app/explain/[id]      动画讲解播放器（家长和孩子都可看）
 src/app/api/              上传、批改、讲解流式、动画讲解生成、练习创建/提交、连通测试、图片读取
 ```

@@ -21,7 +21,7 @@ export default async function ParentPracticePage({ searchParams }: { searchParam
     take: 40,
     include: { child: true, knowledgePoint: true },
   });
-  const KIND: Record<string, string> = { oral: "口算", variant: "变式题", review: "复习", ai: "AI 出题" };
+  const KIND: Record<string, string> = { oral: "口算", sync: "同步练", variant: "变式题", review: "复习", ai: "AI 出题" };
   const STATUS: Record<string, [string, string]> = { pending_review: ["待审核", "bg-yellow-100 text-yellow-800"], ready: ["待完成", "bg-blue-50 text-blue-700"], done: ["已完成", "bg-green-50 text-green-700"] };
 
   return (

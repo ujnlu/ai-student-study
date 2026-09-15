@@ -4,6 +4,7 @@ import { overrideAttemptAction } from "@/app/actions/study";
 import { RegradeButton } from "./regrade-button";
 import { ExplainButton } from "./explain-button";
 import { existingExplanations } from "@/lib/explanations";
+import { GradedImage } from "./graded-image";
 
 const ERR: Record<string, string> = {
   concept: "概念不清",
@@ -36,8 +37,12 @@ export async function UploadResult({ uploadId }: { uploadId: string }) {
   return (
     <div className="space-y-5">
       <div className="card flex gap-4 items-start">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={`/api/files/${upload.filePath}`} alt="作业" className="w-28 h-28 object-cover rounded-xl border" />
+        <GradedImage
+          src={`/api/files/${upload.filePath}`}
+          marks={upload.problems
+            .filter((p) => p.attempts[0]?.box)
+            .map((p) => ({ index: p.index, ok: !!p.attempts[0]?.isCorrect, box: JSON.parse(p.attempts[0]!.box!) as { x: number; y: number; w: number; h: number } }))}
+        />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="badge bg-orange-100 text-orange-800">{upload.subject?.name ?? "未分类"}</span>

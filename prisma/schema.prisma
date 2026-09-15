@@ -53,6 +53,8 @@ model Child {
   sessions      StudySession[]
   explanations  Explanation[]
   practiceSets  PracticeSet[]
+  progress      ChildProgress[]
+  stars         StarEvent[]
 }
 
 // ---------- 教材 / 知识体系 ----------
@@ -230,6 +232,7 @@ model Problem {
   subjectId        String?
   uploadId         String?
   knowledgePointId String?
+  chapterId        String?
   index            Int             @default(0)
   stem             String
   answer           String? // 正确答案
@@ -241,6 +244,7 @@ model Problem {
   subject          Subject?        @relation(fields: [subjectId], references: [id])
   upload           Upload?         @relation(fields: [uploadId], references: [id], onDelete: Cascade)
   knowledgePoint   KnowledgePoint? @relation(fields: [knowledgePointId], references: [id])
+  chapter          TextbookChapter? @relation(fields: [chapterId], references: [id], onDelete: SetNull)
   attempts         Attempt[]
   mistakes         MistakeEntry[]
   explanations     Explanation[]
@@ -255,6 +259,7 @@ model Attempt {
   isCorrect   Boolean?
   errorType   String? // concept | calculation | reading | careless | unknown
   aiComment   String?
+  box         String? // 图片上的位置 {x,y,w,h}，0-1 比例
   overridden  Boolean  @default(false) // 家长手动改判
   durationSec Int?
   createdAt   DateTime @default(now())
@@ -362,6 +367,7 @@ model PracticeSet {
   status           String          @default("ready") // pending_review | ready | done
   mistakeId        String?
   knowledgePointId String?
+  chapterId        String?
   timeLimitSec     Int?
   total            Int             @default(0)
   score            Int?
@@ -431,6 +437,8 @@ model TextbookChapter {
   parent     TextbookChapter?  @relation("chapterTree", fields: [parentId], references: [id], onDelete: Cascade)
   children   TextbookChapter[] @relation("chapterTree")
   knowledgePoints KnowledgePoint[]
+  problems   Problem[]
+  progress   ChildProgress[]
 
   @@index([textbookId, sortOrder])
 }
@@ -445,4 +453,31 @@ model TextbookPage {
   textbook   Textbook @relation(fields: [textbookId], references: [id], onDelete: Cascade)
 
   @@unique([textbookId, pageNo])
+}
+
+// ---------- 学习进度 / 激励 ----------
+
+/// 孩子各学科"学校学到哪了"（当前章节），同步练习据此出题
+model ChildProgress {
+  id         String          @id @default(cuid())
+  childId    String
+  subjectId  String
+  chapterId  String
+  updatedAt  DateTime        @updatedAt
+  child      Child           @relation(fields: [childId], references: [id], onDelete: Cascade)
+  chapter    TextbookChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([childId, subjectId])
+}
+
+/// 星星流水
+model StarEvent {
+  id        String   @id @default(cuid())
+  childId   String
+  amount    Int
+  reason    String
+  createdAt DateTime @default(now())
+  child     Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@index([childId, createdAt])
 }
