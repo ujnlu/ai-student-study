@@ -6,6 +6,7 @@ import { gradeText, renderTemplate } from "@/lib/ai/prompts";
 import { uploadAbsPath } from "@/lib/uploads";
 import { textbookContext, withTextbookContext } from "@/lib/textbook-context";
 import { addStars, STAR_RULES } from "@/lib/rewards";
+import { preGenerateInBackground } from "@/lib/ai/explain";
 
 export const GradedProblem = z.object({
   index: z.number().int().describe("题号，从 1 开始"),
@@ -110,6 +111,7 @@ export async function gradeUpload(uploadId: string) {
           create: { childId: child.id, problemId: problem.id, errorType: p.errorType === "none" ? "unknown" : p.errorType },
           update: {},
         });
+        preGenerateInBackground(problem.id, child.id, child.familyId);
       }
       if (kp) await bumpMastery(child.id, kp.id, p.isCorrect);
     }

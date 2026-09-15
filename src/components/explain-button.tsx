@@ -59,7 +59,7 @@ export function ExplainButton({
           }
         }}
       >
-        {busy ? "老师正在画图，约 30-60 秒…" : label}
+        {busy ? "正在准备讲解…" : label}
       </button>
       {err && <span className="text-xs text-red-600 mt-1">{err}</span>}
     </span>

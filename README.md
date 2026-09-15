@@ -41,7 +41,8 @@ src/lib/rewards.ts        星星、等级、徽章、打卡日历
 src/lib/report.ts         家长学情报告数据（正确率趋势、单元掌握度、薄弱点、错因）
 src/lib/oral.ts           口算题生成器（按年级/学期规则）与答案归一化比对
 src/lib/practice.ts       练习流水线：口算 / 变式题 / 复习 / AI 出题、判分、错题状态与复习计划、每日任务
-src/lib/ai/explain.ts     一键动画讲解：AI 生成分步 SVG + 旁白，服务端过滤 SVG
+src/lib/ai/explain.ts     一键动画讲解：已有→模板→模型三级；答错即后台预生成，同题只请求一次
+src/lib/explain-templates.ts 常见题型（加减乘除、进退位、凑十、口诀、余数、乘加乘减、小数、分数、单位）秒出动画，不调模型
 src/lib/textbook-import.ts 教材导入：平台目录、PDF/图片下载、章节树、文字提取、AI 识别、知识点关联
 src/lib/textbook-context.ts 为 AI 检索教材原文节选（按知识点所挂章节或标题相似度）
 src/lib/smartedu-auth.ts  平台登录凭据的 X-ND-AUTH 签名

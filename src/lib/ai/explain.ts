@@ -38,6 +38,66 @@ export function sanitizeSvg(raw: string): string {
   return s;
 }
 
+/** 已有讲解（按题目 ID 或相同题目内容） */
+export async function findExistingExplanation(problemId: string, childId: string, familyId: string) {
+  const problem = await db.problem.findUnique({ where: { id: problemId } });
+  if (!problem) return null;
+  return (
+    (await db.explanation.findFirst({ where: { problemId, childId, status: "ready" }, orderBy: { createdAt: "desc" } })) ??
+    (await db.explanation.findFirst({
+      where: { status: "ready", child: { familyId }, problem: { stem: problem.stem, answer: problem.answer } },
+      orderBy: { createdAt: "desc" },
+    }))
+  );
+}
+
+/** 秒出：常见题型直接用模板生成，不调用模型 */
+export async function templateOrNull(problemId: string, childId: string) {
+  const problem = await db.problem.findUnique({ where: { id: problemId } });
+  if (!problem) return null;
+  const { templateExplanation } = await import("@/lib/explain-templates");
+  const t = templateExplanation(problem.stem);
+  if (!t) return null;
+  return db.explanation.create({
+    data: {
+      problemId,
+      childId,
+      title: t.title,
+      stepsJson: JSON.stringify(t.steps),
+      summary: t.summary,
+      quizQ: t.quiz.question,
+      quizA: t.quiz.answer,
+      status: "ready",
+    },
+  });
+}
+
+// 进行中的生成任务：同一题不重复请求模型，点按钮时直接等待已在跑的任务
+const inflight = new Map<string, Promise<{ id: string; status: string; error: string | null }>>();
+
+/** 拿到讲解：已有 → 模板 → 模型生成（进行中的复用同一个 Promise） */
+export async function getOrCreateExplanation(problemId: string, childId: string, familyId: string, force = false) {
+  if (!force) {
+    const existing = await findExistingExplanation(problemId, childId, familyId);
+    if (existing) return { ...existing, cached: true };
+    const tpl = await templateOrNull(problemId, childId);
+    if (tpl) return { ...tpl, cached: false };
+  }
+  const key = `${problemId}:${childId}`;
+  let p = inflight.get(key);
+  if (!p) {
+    p = generateExplanation(problemId, childId).finally(() => inflight.delete(key));
+    inflight.set(key, p);
+  }
+  const ex = await p;
+  return { ...ex, cached: false };
+}
+
+/** 答错的一刻在后台预生成，孩子点开时通常已经好了 */
+export function preGenerateInBackground(problemId: string, childId: string, familyId: string) {
+  void getOrCreateExplanation(problemId, childId, familyId).catch((e) => console.error("[explain pre-generate]", e instanceof Error ? e.message : e));
+}
+
 export async function generateExplanation(problemId: string, childId: string) {
   const [problem, child] = await Promise.all([
     db.problem.findUniqueOrThrow({

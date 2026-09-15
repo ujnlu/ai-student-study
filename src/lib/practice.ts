@@ -6,6 +6,7 @@ import { bumpMastery } from "@/lib/ai/grading";
 import { answersMatch, generateOral } from "@/lib/oral";
 import { textbookContext, withTextbookContext } from "@/lib/textbook-context";
 import { addStars, STAR_RULES } from "@/lib/rewards";
+import { preGenerateInBackground } from "@/lib/ai/explain";
 
 export const REVIEW_INTERVALS_DAYS = [1, 3, 7, 15, 30];
 const SUBJECT_NAME: Record<string, string> = { math: "数学", chinese: "语文", english: "英语" };
@@ -136,6 +137,10 @@ export async function answerItem(setId: string, index: number, given: string) {
       create: { childId: set.childId, problemId: it.problemId, errorType: "unknown" },
       update: {},
     });
+  }
+  if (!ok && given) {
+    const child = await db.child.findUnique({ where: { id: set.childId }, select: { familyId: true } });
+    if (child) preGenerateInBackground(it.problemId, set.childId, child.familyId);
   }
   return { isCorrect: ok, correctAnswer: it.problem.answer ?? "", solution: it.problem.solution, problemId: it.problemId, alreadyAnswered: false };
 }
