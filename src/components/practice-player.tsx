@@ -3,12 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ExplainButton } from "./explain-button";
+import { Mascot } from "./mascot";
+import { useSfx } from "./fx";
 
 type Item = { index: number; stem: string };
 type Feedback = { isCorrect: boolean; correctAnswer: string; solution: string | null; problemId: string };
 
 export function PracticePlayer({ setId, items, timeLimitSec, title }: { setId: string; items: Item[]; timeLimitSec: number | null; title: string }) {
   const router = useRouter();
+  const play = useSfx();
   const [i, setI] = useState(0);
   const [input, setInput] = useState("");
   const [feedback, setFeedback] = useState<Feedback | null>(null);
@@ -40,18 +43,14 @@ export function PracticePlayer({ setId, items, timeLimitSec, title }: { setId: s
   const isLast = i === items.length - 1;
   const answeredCount = Object.keys(results).length;
   const correctCount = Object.values(results).filter(Boolean).length;
+  const pct = Math.round((answeredCount / items.length) * 100);
 
-  /** 交卷：未答的题按错处理 */
   async function submit() {
     if (submitted.current) return;
     submitted.current = true;
     setBusy(true);
     try {
-      const r = await fetch(`/api/practice/${setId}/submit`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ durationSec: elapsedRef.current }),
-      });
+      const r = await fetch(`/api/practice/${setId}/submit`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ durationSec: elapsedRef.current }) });
       if (!r.ok) throw new Error(((await r.json()) as { error?: string }).error ?? "提交失败");
       router.push(`/child/practice/${setId}`);
       router.refresh();
@@ -73,7 +72,6 @@ export function PracticePlayer({ setId, items, timeLimitSec, title }: { setId: s
     else setI(i + 1);
   }
 
-  /** 答完一题：立即判对错 */
   async function check() {
     if (busy || feedback) return;
     const answer = input.trim();
@@ -81,16 +79,12 @@ export function PracticePlayer({ setId, items, timeLimitSec, title }: { setId: s
     setBusy(true);
     setErr(null);
     try {
-      const r = await fetch(`/api/practice/${setId}/answer`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ index: item.index, answer }),
-      });
+      const r = await fetch(`/api/practice/${setId}/answer`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ index: item.index, answer }) });
       const j = (await r.json()) as Feedback & { error?: string };
       if (!r.ok) throw new Error(j.error ?? "判分失败");
       setFeedback(j);
       setResults((m) => ({ ...m, [item.index]: j.isCorrect }));
-      // 答对了：1 秒后自动下一题；答错了：停下来看答案和讲解
+      play(j.isCorrect ? "correct" : "wrong");
       if (j.isCorrect && !isLast) advanceTimer.current = window.setTimeout(() => { setFeedback(null); setInput(""); setI((x) => x + 1); }, 1000);
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));
@@ -101,25 +95,33 @@ export function PracticePlayer({ setId, items, timeLimitSec, title }: { setId: s
 
   function tap(ch: string) {
     if (feedback) return;
+    play("tap");
     setInput((v) => v + ch);
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between text-sm text-gray-600">
-        <span>{title}</span>
-        <span>
-          第 {i + 1}/{items.length} 题 · 对 <b className="text-green-600">{correctCount}</b> 错 <b className="text-red-600">{answeredCount - correctCount}</b>
-          {left !== null && <b className={`ml-3 ${left < 30 ? "text-red-600" : ""}`}>⏱ {Math.max(0, left)}s</b>}
-        </span>
+      <div className="flex items-center gap-3">
+        <div className="flex-1">
+          <div className="flex justify-between text-xs font-extrabold text-muted mb-1">
+            <span>{title}</span>
+            <span>{i + 1} / {items.length}</span>
+          </div>
+          <div className="bar"><div className="bar-fill" style={{ width: `${pct}%` }} /></div>
+        </div>
+        {left !== null && <span className={`badge text-sm py-1 normal-case tracking-normal ${left < 30 ? "bg-berry-soft text-berry" : "bg-gray-100 text-muted"}`}>⏱ {Math.max(0, left)}s</span>}
+      </div>
+      <div className="flex gap-2 text-xs font-extrabold">
+        <span className="badge bg-leaf-soft text-leaf-dark">✓ {correctCount}</span>
+        <span className="badge bg-berry-soft text-berry">✗ {answeredCount - correctCount}</span>
       </div>
 
-      <div className={`card text-center py-8 transition-colors ${feedback ? (feedback.isCorrect ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200") : ""}`}>
-        <p className="text-4xl font-bold tracking-wide whitespace-pre-wrap">{item.stem}</p>
+      <div className={`card text-center py-8 transition-colors border-b-8 ${feedback ? (feedback.isCorrect ? "bg-leaf-soft border-leaf border-b-leaf-dark anim-pop" : "bg-berry-soft border-berry border-b-berry-dark anim-shake") : "border-b-line"}`}>
+        <p className="h-display text-5xl tracking-wide whitespace-pre-wrap leading-tight">{item.stem}</p>
         <div className="mt-6 mx-auto max-w-xs">
           <input
             ref={inputRef}
-            className={`input text-center text-3xl font-semibold ${feedback ? (feedback.isCorrect ? "border-green-400 text-green-700" : "border-red-400 text-red-600 line-through") : ""}`}
+            className={`input text-center text-4xl font-black py-3 ${feedback ? (feedback.isCorrect ? "border-leaf text-leaf-dark" : "border-berry text-berry line-through") : ""}`}
             value={input}
             inputMode="decimal"
             readOnly={!!feedback}
@@ -131,24 +133,25 @@ export function PracticePlayer({ setId, items, timeLimitSec, title }: { setId: s
                 else void check();
               }
             }}
-            placeholder="答案"
+            placeholder="?"
           />
         </div>
 
         {feedback && (
-          <div className="mt-4 space-y-2">
-            {feedback.isCorrect ? (
-              <p className="text-2xl text-green-600 font-bold">✓ 答对啦！</p>
-            ) : (
-              <>
-                <p className="text-2xl text-red-600 font-bold">✗ 不对哦</p>
-                <p className="text-lg">正确答案是 <b className="text-green-700 text-2xl">{feedback.correctAnswer}</b></p>
-                {feedback.solution && <p className="text-sm text-gray-600">{feedback.solution}</p>}
-                <div className="flex justify-center gap-2 pt-1">
-                  <ExplainButton problemId={feedback.problemId} label="🎬 看动画讲解" className="btn-secondary text-sm" />
-                </div>
-              </>
-            )}
+          <div className="mt-4 flex items-center justify-center gap-4">
+            <Mascot mood={feedback.isCorrect ? "cheer" : "think"} size={72} />
+            <div className="text-left">
+              {feedback.isCorrect ? (
+                <p className="h-display text-2xl text-leaf-dark">答对啦！+1 ⭐</p>
+              ) : (
+                <>
+                  <p className="h-display text-2xl text-berry">不对哦</p>
+                  <p className="font-bold">正确答案 <b className="text-leaf-dark text-2xl">{feedback.correctAnswer}</b></p>
+                  {feedback.solution && <p className="text-xs font-bold text-muted mt-1 max-w-xs">{feedback.solution}</p>}
+                  <div className="mt-2"><ExplainButton problemId={feedback.problemId} label="🎬 看动画讲解" className="btn-secondary text-sm py-2" /></div>
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -158,7 +161,7 @@ export function PracticePlayer({ setId, items, timeLimitSec, title }: { setId: s
           <button
             key={k}
             type="button"
-            className={`btn-secondary text-xl py-3 ${k === "✓" ? "bg-brand text-white border-none" : ""}`}
+            className={`${k === "✓" ? "btn-leaf" : "btn-secondary"} text-2xl py-3`}
             disabled={!!feedback && k !== "✓"}
             onClick={() => (k === "⌫" ? setInput((v) => v.slice(0, -1)) : k === "✓" ? (feedback ? goNext() : void check()) : tap(k))}
           >
@@ -169,21 +172,19 @@ export function PracticePlayer({ setId, items, timeLimitSec, title }: { setId: s
 
       <div className="flex gap-2">
         {feedback ? (
-          <button type="button" className="btn-primary flex-1 text-lg" disabled={busy} onClick={goNext}>
+          <button type="button" className="btn-primary flex-1 text-lg py-4" disabled={busy} onClick={goNext}>
             {isLast ? (busy ? "提交中…" : "看成绩 🏁") : "下一题 ➡️"}
           </button>
         ) : (
-          <button type="button" className="btn-primary flex-1 text-lg" disabled={busy || !input.trim()} onClick={() => void check()}>
+          <button type="button" className="btn-leaf flex-1 text-lg py-4" disabled={busy || !input.trim()} onClick={() => void check()}>
             {busy ? "判分中…" : "确定 ✓"}
           </button>
         )}
         {!feedback && (
-          <button type="button" className="btn-secondary" disabled={busy} onClick={() => { if (confirm("还有题没做，确定交卷吗？")) void submit(); }}>
-            提前交卷
-          </button>
+          <button type="button" className="btn-ghost" disabled={busy} onClick={() => { if (confirm("还有题没做，确定交卷吗？")) void submit(); }}>提前交卷</button>
         )}
       </div>
-      {err && <p className="text-red-600 text-sm">{err}</p>}
+      {err && <p className="text-berry text-sm font-bold">{err}</p>}
     </div>
   );
 }

@@ -1,46 +1,169 @@
 @import "tailwindcss";
 
+/* ========== 设计令牌 ==========
+   思路参考 Duolingo / Khan Kids：一个饱和主色 + 语义色，20px 圆角，3D 厚底按钮，大号粗体数字。
+   孩子端：奶油底色、鲜艳卡片；家长端：浅灰底、白卡片、克制配色。 */
 :root {
-  --background: #fbf8f1;
+  --background: #fffaf0;
   --foreground: #1f2937;
-  --brand: #f97316;
-  --brand-soft: #ffedd5;
+  --muted: #6b7280;
+  --brand: #ff7a1a; /* 橙：主行动、进度、星星 */
+  --brand-dark: #d95f00; /* 3D 按钮底边 */
+  --brand-soft: #fff1e3;
+  --sky: #1cb0f6; /* 蓝：信息、次级 */
+  --sky-dark: #1899d6;
+  --sky-soft: #e6f6ff;
+  --leaf: #58cc02; /* 绿：正确、完成 */
+  --leaf-dark: #46a302;
+  --leaf-soft: #eaf9dc;
+  --berry: #ff4b4b; /* 红：错误 */
+  --berry-dark: #d63b3b;
+  --berry-soft: #ffe9e9;
+  --bee: #ffc800; /* 黄：奖励、徽章 */
+  --bee-dark: #e5a800;
+  --bee-soft: #fff6d5;
+  --grape: #a560ff; /* 紫：语文 */
+  --grape-soft: #f1e8ff;
+  --line: #e5e7eb;
+  --card: #ffffff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
   --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
   --color-brand-soft: var(--brand-soft);
+  --color-sky: var(--sky);
+  --color-sky-dark: var(--sky-dark);
+  --color-sky-soft: var(--sky-soft);
+  --color-leaf: var(--leaf);
+  --color-leaf-dark: var(--leaf-dark);
+  --color-leaf-soft: var(--leaf-soft);
+  --color-berry: var(--berry);
+  --color-berry-dark: var(--berry-dark);
+  --color-berry-soft: var(--berry-soft);
+  --color-bee: var(--bee);
+  --color-bee-dark: var(--bee-dark);
+  --color-bee-soft: var(--bee-soft);
+  --color-grape: var(--grape);
+  --color-grape-soft: var(--grape-soft);
+  --color-line: var(--line);
+  --font-display: var(--font-nunito), "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-nunito), system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
+/* 家长端底色 */
+.theme-parent {
+  --background: #f4f6fb;
+}
+
+/* ========== 按钮：3D 厚底 ========== */
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-medium transition active:scale-[0.98] disabled:opacity-50;
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-extrabold tracking-wide select-none transition-[transform,box-shadow] duration-100 disabled:opacity-50 disabled:cursor-not-allowed;
 }
 @utility btn-primary {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-medium transition active:scale-[0.98] disabled:opacity-50 bg-brand text-white hover:bg-orange-600;
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-extrabold tracking-wide select-none transition-[transform,box-shadow] duration-100 disabled:opacity-50 disabled:cursor-not-allowed bg-brand text-white shadow-[0_4px_0_0_var(--brand-dark)] active:translate-y-[4px] active:shadow-none hover:brightness-105;
 }
 @utility btn-secondary {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-medium transition active:scale-[0.98] disabled:opacity-50 bg-white border border-gray-200 text-gray-800 hover:bg-gray-50;
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-extrabold tracking-wide select-none transition-[transform,box-shadow] duration-100 disabled:opacity-50 disabled:cursor-not-allowed bg-white text-foreground border-2 border-line shadow-[0_4px_0_0_var(--line)] active:translate-y-[4px] active:shadow-none hover:bg-gray-50;
+}
+@utility btn-sky {
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-extrabold tracking-wide select-none transition-[transform,box-shadow] duration-100 disabled:opacity-50 bg-sky text-white shadow-[0_4px_0_0_var(--sky-dark)] active:translate-y-[4px] active:shadow-none;
+}
+@utility btn-leaf {
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-extrabold tracking-wide select-none transition-[transform,box-shadow] duration-100 disabled:opacity-50 bg-leaf text-white shadow-[0_4px_0_0_var(--leaf-dark)] active:translate-y-[4px] active:shadow-none;
 }
 @utility btn-danger {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-medium transition active:scale-[0.98] disabled:opacity-50 bg-red-50 text-red-700 border border-red-200 hover:bg-red-100;
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-extrabold tracking-wide select-none transition-[transform,box-shadow] duration-100 disabled:opacity-50 bg-berry-soft text-berry border-2 border-berry/30 shadow-[0_4px_0_0_#f5c2c2] active:translate-y-[4px] active:shadow-none;
 }
+@utility btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2 font-bold text-muted hover:bg-black/5;
+}
+
+/* ========== 卡片 / 表单 / 标签 ========== */
 @utility card {
-  @apply rounded-2xl bg-white border border-gray-100 shadow-sm p-5;
+  @apply rounded-3xl bg-white border-2 border-line p-5;
+}
+@utility card-flat {
+  @apply rounded-2xl bg-white border border-line p-4;
+}
+@utility tile {
+  @apply rounded-3xl border-2 p-4 flex items-center gap-4 bg-white transition-transform active:scale-[0.98];
 }
 @utility input {
-  @apply w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 outline-none focus:ring-2 focus:ring-orange-300;
+  @apply w-full rounded-2xl border-2 border-line bg-white px-4 py-3 outline-none focus:border-sky focus:ring-4 focus:ring-sky/15 font-semibold;
 }
 @utility label {
-  @apply block text-sm text-gray-600 mb-1;
+  @apply block text-sm font-bold text-muted mb-1.5;
 }
 @utility badge {
-  @apply inline-block rounded-full px-2.5 py-0.5 text-xs font-medium;
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-extrabold uppercase tracking-wide;
+}
+@utility chip {
+  @apply inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-extrabold border-2 border-line bg-white;
+}
+@utility chip-on {
+  @apply inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-extrabold border-2 border-brand bg-brand-soft text-brand-dark;
+}
+@utility h-display {
+  @apply font-black tracking-tight;
+}
+
+/* 进度条 */
+@utility bar {
+  @apply h-3.5 w-full rounded-full bg-black/5 overflow-hidden;
+}
+@utility bar-fill {
+  @apply h-full rounded-full bg-brand transition-[width] duration-500;
+}
+
+/* ========== 动效 ========== */
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  70% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+@keyframes bounce-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-6px) rotate(2deg); }
+}
+@keyframes blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); }
+}
+@keyframes fall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0.9; }
+}
+.anim-pop { animation: pop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+.anim-shake { animation: shake 0.45s ease-in-out both; }
+.anim-bounce { animation: bounce-soft 1.4s ease-in-out infinite; }
+.anim-float { animation: float 3s ease-in-out infinite; }
+.mascot-eye { transform-origin: center; animation: blink 5s ease-in-out infinite; }
+
+/* 打印错题 */
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+  .card { border: 1px solid #ddd; box-shadow: none; break-inside: avoid; }
 }

@@ -16,7 +16,7 @@ export function uploadAbsPath(rel: string) {
 const MAX_SIDE = 2000;
 
 /** 保存图片：统一转成 JPEG、限制长边、自动旋转 */
-export async function saveImage(childId: string, file: File, kind: string, subjectId?: string | null) {
+export async function saveImage(childId: string, file: File, kind: string, subjectId?: string | null, metaJson?: string | null) {
   if (!file.type.startsWith("image/")) throw new Error("只支持图片文件");
   if (file.size > 25 * 1024 * 1024) throw new Error("图片超过 25MB");
   const input = Buffer.from(await file.arrayBuffer());
@@ -38,6 +38,7 @@ export async function saveImage(childId: string, file: File, kind: string, subje
       childId,
       subjectId: subjectId || null,
       kind,
+      meta: metaJson || null,
       filePath: rel,
       mimeType: "image/jpeg",
       width: out.info.width ?? meta.width ?? null,

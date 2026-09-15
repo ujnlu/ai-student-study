@@ -21,6 +21,7 @@ model Family {
   providers     AiProvider[]
   assistants    AiAssistant[]
   settings      FamilySetting[]
+  rewards       Reward[]
 }
 
 model FamilySetting {
@@ -55,6 +56,8 @@ model Child {
   practiceSets  PracticeSet[]
   progress      ChildProgress[]
   stars         StarEvent[]
+  recitations   Recitation[]
+  redemptions   Redemption[]
 }
 
 // ---------- 教材 / 知识体系 ----------
@@ -210,6 +213,7 @@ model Upload {
   childId     String
   subjectId   String?
   kind        String    @default("homework") // homework | single | exam | dictation
+  meta        String? // JSON：听写时的词表等
   filePath    String
   mimeType    String
   width       Int?
@@ -439,6 +443,8 @@ model TextbookChapter {
   knowledgePoints KnowledgePoint[]
   problems   Problem[]
   progress   ChildProgress[]
+  wordList   WordList?
+  recitations Recitation[]
 
   @@index([textbookId, sortOrder])
 }
@@ -480,4 +486,56 @@ model StarEvent {
   child     Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
 
   @@index([childId, createdAt])
+}
+
+// ---------- 听写 / 背诵 / 奖励 ----------
+
+/// 某一课的听写词表（AI 从教材原文提取，按章节缓存）
+model WordList {
+  id        String          @id @default(cuid())
+  chapterId String          @unique
+  subjectId String
+  title     String
+  wordsJson String // [{word, pinyin?, hint?}]
+  createdAt DateTime        @default(now())
+  chapter   TextbookChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+}
+
+/// 背诵记录（古诗/课文）
+model Recitation {
+  id         String           @id @default(cuid())
+  childId    String
+  chapterId  String?
+  title      String
+  text       String
+  transcript String?
+  accuracy   Int              @default(0) // 0-100
+  createdAt  DateTime         @default(now())
+  child      Child            @relation(fields: [childId], references: [id], onDelete: Cascade)
+  chapter    TextbookChapter? @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+}
+
+/// 家长设置的奖励（星星兑换）
+model Reward {
+  id          String       @id @default(cuid())
+  familyId    String
+  title       String
+  emoji       String       @default("🎁")
+  stars       Int
+  active      Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  family      Family       @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  redemptions Redemption[]
+}
+
+model Redemption {
+  id        String    @id @default(cuid())
+  childId   String
+  rewardId  String
+  stars     Int
+  status    String    @default("pending") // pending | done | cancelled
+  createdAt DateTime  @default(now())
+  doneAt    DateTime?
+  child     Child     @relation(fields: [childId], references: [id], onDelete: Cascade)
+  reward    Reward    @relation(fields: [rewardId], references: [id], onDelete: Cascade)
 }

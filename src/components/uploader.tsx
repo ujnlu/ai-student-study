@@ -5,7 +5,22 @@ import { useRouter } from "next/navigation";
 
 type Subject = { id: string; name: string };
 
-export function Uploader({ childId, subjects, defaultSubject }: { childId: string; subjects: Subject[]; defaultSubject?: string }) {
+type Props = {
+  childId: string;
+  subjects: Subject[];
+  defaultSubject?: string;
+  /** 上传类型：homework（默认）| dictation … */
+  kind?: string;
+  /** 附加信息（JSON 字符串），如听写词表 */
+  meta?: string;
+  /** 批改完成后跳转的地址，默认 /child/uploads/[id] */
+  redirectTo?: (uploadId: string) => string;
+  /** 拍照区的提示文字 */
+  hint?: string;
+  submitLabel?: string;
+};
+
+export function Uploader({ childId, subjects, defaultSubject, kind = "homework", meta, redirectTo, hint, submitLabel }: Props) {
   const router = useRouter();
   const [subject, setSubject] = useState(defaultSubject ?? subjects[0]?.id ?? "math");
   const [preview, setPreview] = useState<string | null>(null);
@@ -32,7 +47,8 @@ export function Uploader({ childId, subjects, defaultSubject }: { childId: strin
       fd.append("file", file);
       fd.append("childId", childId);
       fd.append("subjectId", subject);
-      fd.append("kind", "homework");
+      fd.append("kind", kind);
+      if (meta) fd.append("meta", meta);
       const up = await fetch("/api/upload", { method: "POST", body: fd });
       const upJson = (await up.json()) as { id?: string; error?: string };
       if (!up.ok || !upJson.id) throw new Error(upJson.error ?? "上传失败");
@@ -40,7 +56,7 @@ export function Uploader({ childId, subjects, defaultSubject }: { childId: strin
       const g = await fetch(`/api/uploads/${upJson.id}/grade`, { method: "POST" });
       const gJson = (await g.json()) as { error?: string };
       if (!g.ok) throw new Error(gJson.error ?? "批改失败");
-      router.push(`/child/uploads/${upJson.id}`);
+      router.push(redirectTo ? redirectTo(upJson.id) : `/child/uploads/${upJson.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
       setBusy(null);
@@ -49,7 +65,7 @@ export function Uploader({ childId, subjects, defaultSubject }: { childId: strin
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2 flex-wrap">
+      <div className={`flex gap-2 flex-wrap ${subjects.length <= 1 ? "hidden" : ""}`}>
         {subjects.map((s) => (
           <button
             key={s.id}
@@ -72,7 +88,7 @@ export function Uploader({ childId, subjects, defaultSubject }: { childId: strin
         </div>
       ) : (
         <div className="card border-dashed border-2 text-center text-gray-500 py-12">
-          把作业平放在桌上，光线亮一点，一页一拍
+          {hint ?? "把作业平放在桌上，光线亮一点，一页一拍"}
         </div>
       )}
 
@@ -87,7 +103,7 @@ export function Uploader({ childId, subjects, defaultSubject }: { childId: strin
 
       {file && (
         <button type="button" className="btn-primary w-full text-lg py-4" onClick={submit} disabled={!!busy}>
-          {busy ?? "✅ 开始批改"}
+          {busy ?? submitLabel ?? "✅ 开始批改"}
         </button>
       )}
       {error && <p className="text-red-600 text-sm">{error}</p>}
