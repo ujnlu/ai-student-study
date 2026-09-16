@@ -127,7 +127,10 @@ export async function answerItem(setId: string, index: number, given: string) {
   if (set.status === "done" || it.isCorrect !== null) {
     return { isCorrect: it.isCorrect ?? false, correctAnswer: it.problem.answer ?? "", solution: it.problem.solution, problemId: it.problemId, alreadyAnswered: true };
   }
-  const ok = answersMatch(given, it.problem.answer ?? "");
+  // 解答题：学生对照参考答案自评（__self:1 对 / __self:0 错）
+  const self = /^__self:([01])$/.exec(given);
+  const ok = self ? self[1] === "1" : answersMatch(given, it.problem.answer ?? "");
+  if (self) given = ok ? "自评：做对了" : "自评：没做对";
   await db.practiceItem.update({ where: { id: it.id }, data: { childAnswer: given, isCorrect: ok } });
   await db.attempt.create({ data: { childId: set.childId, problemId: it.problemId, childAnswer: given, isCorrect: ok, errorType: ok ? null : "unknown", durationSec: null } });
   if (it.problem.knowledgePointId) await bumpMastery(set.childId, it.problem.knowledgePointId, ok);

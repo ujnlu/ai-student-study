@@ -60,6 +60,8 @@ src/app/child/reading/    分级阅读；src/app/child/exam/ 真题演练；src/
 src/app/parent/study/     家长自学：公考 / 初级会计 / 雅思 / 教资 / 四六级 / AI 学习，讲义 + 三档练习 + 真题演练 + 错题本
 src/lib/secondary-catalog.ts 初中高中各科专项、中考 / 高考真题专讲、模拟卷结构；src/lib/grade.ts 年级 1-12 与学段
 src/app/child/prep/       中考 / 高考真题专讲；年级 ≥ 7 的学生首页由 components/secondary-home.tsx 渲染
+src/lib/papers.ts         真题卷导入：PDF / 图片 / 文本 → AI 拆题入库 → 整卷做题（家长端 /parent/papers，孩子端 /child/exam）
+src/lib/db.ts             SQLite 长连接遇到 disk I/O error 自动重连重试（别的进程替换库文件或大批量导入时）
 src/lib/speaking.ts       英语口语主题目录、跟读句子生成与复用、对话提示词
 src/app/parent/report/    家长学情报告 + AI 周评
 src/app/explain/[id]      动画讲解播放器（家长和孩子都可看）

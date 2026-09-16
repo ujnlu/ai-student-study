@@ -22,7 +22,7 @@ export default async function ParentPracticePage({ params }: { params: Promise<{
     return (
       <div className="max-w-3xl">
         <p className="text-sm text-gray-500 mb-3"><Link href={backHref} className="hover:underline">‹ 返回</Link></p>
-        <PracticePlayer setId={set.id} title={set.title} timeLimitSec={set.timeLimitSec} subjectId="adult" childId={learner.id} resultHref={`/parent/study/practice/${set.id}`} items={set.items.map((it) => ({ index: it.index, stem: it.problem.stem }))} />
+        <PracticePlayer setId={set.id} title={set.title} timeLimitSec={set.timeLimitSec} subjectId="adult" childId={learner.id} resultHref={`/parent/study/practice/${set.id}`} items={set.items.map((it) => ({ index: it.index, stem: it.problem.stem, kind: it.problem.kind, answer: it.problem.kind === "subjective" ? it.problem.answer : null }))} />
       </div>
     );
   }

@@ -244,7 +244,8 @@ model Problem {
   solution         String? // 解析
   difficulty       Int             @default(2) // 1-5
   source           String          @default("upload") // upload | generated | bank | variant | lesson
-  topic            String? // 专项 / 奥数专题代码（见 src/lib/topics.ts）
+  topic            String? // 专项 / 奥数专题代码（见 src/lib/topics.ts）；真题卷为 paper-<paperId>
+  kind             String? // choice 选择 | fill 填空 | subjective 解答（解答题由学生对照参考答案自评）
   walkthrough      String? // AI 解题讲解（审题→思路→步骤→答案→易错），生成一次后缓存
   parentProblemId  String?
   createdAt        DateTime        @default(now())
@@ -603,4 +604,25 @@ model ReadingPiece {
   createdAt     DateTime @default(now())
 
   @@index([lang, level])
+}
+
+/// 历年真题卷 / 自备试卷（家长上传 PDF / 图片 / 文本，AI 拆成题目入库，topic = paper-<id>）
+model Paper {
+  id        String   @id @default(cuid())
+  familyId  String
+  title     String
+  stage     String // gaokao | zhongkao | other
+  subject   String // math | chinese | english | physics | ...
+  year      Int?
+  source    String   @default("pdf") // pdf | image | text
+  filePaths String? // JSON: 上传文件相对路径数组
+  rawText   String? // 提取 / 识别出的原文
+  status    String   @default("pending") // pending | parsing | ready | failed
+  error     String?
+  total     Int      @default(0)
+  minutes   Int      @default(60)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([familyId, createdAt])
 }

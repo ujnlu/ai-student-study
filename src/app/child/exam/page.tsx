@@ -8,6 +8,8 @@ import { StartFlowButton } from "@/components/start-flow-button";
 import { THEME, type ThemeKey } from "@/components/subject-ui";
 import { stageOf } from "@/lib/grade";
 import { STAGE_EXAMS, STAGE_EXAM_NAME, STAGE_SUBJECTS, SECONDARY_SUBJECT_NAME, type ExamStage, type SecondarySubject } from "@/lib/secondary-catalog";
+import { PAPER_STAGES } from "@/lib/papers";
+import { SUBJECT_NAME, type TopicSubject } from "@/lib/topics";
 
 const SUBJECTS = ["math", "chinese", "english"] as const;
 
@@ -15,14 +17,15 @@ export default async function ExamPage({ searchParams }: { searchParams: Promise
   const { child } = await requireChild();
   const { subject: s } = await searchParams;
   const stage = stageOf(child.grade);
-  if (stage !== "primary") return <StageExamPage childId={child.id} grade={child.grade} subject={s} />;
+  if (stage !== "primary") return <StageExamPage childId={child.id} familyId={child.familyId} grade={child.grade} subject={s} />;
   const subject = (SUBJECTS as readonly string[]).includes(s ?? "") ? (s as (typeof SUBJECTS)[number]) : "math";
   const has = child.textbooks.map((t) => t.subjectId);
   const T = THEME[subject];
-  const [cur, pending, recent] = await Promise.all([
+  const [cur, pending, recent, papers] = await Promise.all([
     has.includes(subject) ? currentChapter(child.id, subject) : null,
     db.practiceSet.findFirst({ where: { childId: child.id, kind: "exam", status: "ready" }, orderBy: { createdAt: "desc" } }),
     db.practiceSet.findMany({ where: { childId: child.id, kind: "exam", status: "done" }, orderBy: { completedAt: "desc" }, take: 6 }),
+    db.paper.findMany({ where: { familyId: child.familyId, status: "ready" }, orderBy: { createdAt: "desc" } }),
   ]);
   const path = cur ? await chapterPath(cur.id) : null;
   const minutes = Math.round(EXAM_SECONDS / 60);
@@ -75,6 +78,24 @@ export default async function ExamPage({ searchParams }: { searchParams: Promise
         ))}
       </div>
 
+      {papers.length > 0 && (
+        <section>
+          <h2 className="font-black text-lg mb-2">📚 真题卷（家长导入）</h2>
+          <ul className="space-y-2">
+            {papers.map((p) => (
+              <li key={p.id} className="tile py-3">
+                <span className="text-2xl">📄</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-extrabold truncate">{p.title}</p>
+                  <p className="text-xs font-bold text-muted">{PAPER_STAGES[p.stage] ?? p.stage} · {SUBJECT_NAME[p.subject as TopicSubject] ?? p.subject}{p.year ? ` · ${p.year}` : ""} · {p.total} 题 · {p.minutes} 分钟</p>
+                </div>
+                {pending ? <span className="btn-secondary text-sm py-2 opacity-60">先做完上一套</span> : <StartFlowButton url="/api/exam" body={{ paperId: p.id }} redirect="/child/practice/{id}" label="开始 🚀" busyLabel="准备中…" className={`${T.btn} text-sm py-2`} />}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {recent.length > 0 && (
         <section>
           <h2 className="font-black text-lg mb-2">🏁 做过的卷子</h2>
@@ -97,16 +118,17 @@ export default async function ExamPage({ searchParams }: { searchParams: Promise
 }
 
 /** 初高中：中考 / 高考模拟卷 */
-async function StageExamPage({ childId, grade, subject: sb }: { childId: string; grade: number; subject?: string }) {
+async function StageExamPage({ childId, familyId, grade, subject: sb }: { childId: string; familyId: string; grade: number; subject?: string }) {
   const examStage: ExamStage = stageOf(grade) === "senior" ? "gaokao" : "zhongkao";
   const subjects = STAGE_SUBJECTS[examStage === "gaokao" ? "senior" : "junior"].filter((k) => STAGE_EXAMS[examStage][k]);
   const subject: SecondarySubject = (subjects as string[]).includes(sb ?? "") ? (sb as SecondarySubject) : "math";
   const cfg = STAGE_EXAMS[examStage][subject]!;
   const n = cfg.parts.reduce((a, [, c]) => a + c, 0);
   const T = THEME[subject as ThemeKey];
-  const [pending, recent] = await Promise.all([
+  const [pending, recent, papers] = await Promise.all([
     db.practiceSet.findFirst({ where: { childId, kind: "exam", status: "ready" }, orderBy: { createdAt: "desc" } }),
     db.practiceSet.findMany({ where: { childId, kind: "exam", status: "done" }, orderBy: { completedAt: "desc" }, take: 8 }),
+    db.paper.findMany({ where: { familyId, status: "ready" }, orderBy: { createdAt: "desc" } }),
   ]);
   return (
     <div className="space-y-5">
@@ -141,6 +163,23 @@ async function StageExamPage({ childId, grade, subject: sb }: { childId: string;
         </div>
         <p className="text-xs font-bold text-muted mt-2">想先分题型练？去 <Link href={`/child/prep?stage=${examStage}&subject=${subject}`} className="underline">{STAGE_EXAM_NAME[examStage]}真题专讲</Link></p>
       </section>
+      {papers.length > 0 && (
+        <section>
+          <h2 className="font-black text-lg mb-2">📚 历年真题卷（家长导入）</h2>
+          <ul className="space-y-2">
+            {papers.map((p) => (
+              <li key={p.id} className="tile py-3">
+                <span className="text-2xl">📄</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-extrabold truncate">{p.title}</p>
+                  <p className="text-xs font-bold text-muted">{PAPER_STAGES[p.stage] ?? p.stage} · {SUBJECT_NAME[p.subject as TopicSubject] ?? p.subject}{p.year ? ` · ${p.year}` : ""} · {p.total} 题 · {p.minutes} 分钟</p>
+                </div>
+                {pending ? <span className="btn-secondary text-sm py-2 opacity-60">先做完上一套</span> : <StartFlowButton url="/api/exam" body={{ paperId: p.id }} redirect="/child/practice/{id}" label="开始 🚀" busyLabel="准备中…" className={`${T.btn} text-sm py-2`} />}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       {recent.length > 0 && (
         <section>
           <h2 className="font-black text-lg mb-2">🏁 做过的卷子</h2>

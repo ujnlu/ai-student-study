@@ -12,6 +12,7 @@ const NAV = [
   { href: "/parent/ai", label: "AI 设置", icon: "🤖" },
   { href: "/parent/usage", label: "用量", icon: "📈" },
   { href: "/parent/study", label: "家长自学", icon: "🎓" },
+  { href: "/parent/papers", label: "真题卷", icon: "📄" },
 ];
 
 export default async function ParentLayout({ children }: { children: React.ReactNode }) {

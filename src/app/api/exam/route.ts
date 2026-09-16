@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { createAdultExam, createMockExam, createStageExam } from "@/lib/exam";
 import { STAGE_EXAMS, type ExamStage, type SecondarySubject } from "@/lib/secondary-catalog";
 import { getOrCreateAdultLearner } from "@/lib/adult";
+import { createPaperSet } from "@/lib/papers";
 import { ADULT_EXAMS, type AdultSubject } from "@/lib/topics";
 
 export const runtime = "nodejs";
@@ -16,8 +17,18 @@ export const maxDuration = 300;
 export async function POST(req: Request) {
   const s = await getSession();
   if (!s) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  const body = (await req.json().catch(() => ({}))) as { subjectId?: string; scope?: string; adult?: string; stage?: string };
+  const body = (await req.json().catch(() => ({}))) as { subjectId?: string; scope?: string; adult?: string; stage?: string; paperId?: string };
   try {
+    if (body.paperId) {
+      const paper = await db.paper.findFirst({ where: { id: body.paperId, familyId: s.familyId } });
+      if (!paper) return NextResponse.json({ error: "试卷不存在" }, { status: 404 });
+      const learnerId = s.childId ?? (s.role === "parent" ? (await getOrCreateAdultLearner(s.familyId)).id : null);
+      if (!learnerId) return NextResponse.json({ error: "未登录" }, { status: 401 });
+      const existing = await db.practiceSet.findFirst({ where: { childId: learnerId, kind: "exam", topic: `paper-${paper.id}`, status: "ready" }, orderBy: { createdAt: "desc" } });
+      if (existing) return NextResponse.json({ id: existing.id });
+      const set = await createPaperSet(learnerId, paper.id);
+      return NextResponse.json({ id: set.id });
+    }
     if (body.adult) {
       if (s.role !== "parent") return NextResponse.json({ error: "请用家长身份登录" }, { status: 401 });
       if (!(body.adult in ADULT_EXAMS)) return NextResponse.json({ error: "没有这个考试" }, { status: 404 });

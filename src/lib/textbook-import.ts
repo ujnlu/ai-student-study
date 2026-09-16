@@ -308,7 +308,7 @@ async function setStatus(id: string, data: { status?: string; progress?: number;
 }
 
 /** 把 pdfjs 的文字块按位置重排：先按行（y 相近）分组，行内按 x 排序，恢复阅读顺序 */
-function layoutText(items: { str?: string; transform?: number[]; width?: number }[]): string {
+export function layoutText(items: { str?: string; transform?: number[]; width?: number }[]): string {
   const blocks = items
     .filter((i): i is { str: string; transform: number[]; width?: number } => typeof i.str === "string" && !!i.transform && i.str.trim() !== "")
     .map((i) => ({ str: i.str, x: i.transform[4], y: i.transform[5], h: Math.abs(i.transform[3]) || 10 }));

@@ -6,7 +6,7 @@ import { ExplainButton } from "./explain-button";
 import { Mascot } from "./mascot";
 import { useSfx } from "./fx";
 
-type Item = { index: number; stem: string };
+type Item = { index: number; stem: string; kind?: string | null; answer?: string | null };
 type Feedback = { isCorrect: boolean; correctAnswer: string; solution: string | null; problemId: string };
 
 /** 题干开头的 🔊{{English sentence}} → 听力题：朗读但不显示 */
@@ -99,7 +99,9 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
   const { audio, rest: stemText } = parseAudio(item.stem);
   const parsed = parseChoices(stemText);
   const isChoice = parsed.options.length >= 2;
-  const numeric = subjectId === "math" && !isChoice;
+  const subjective = item.kind === "subjective";
+  const [peek, setPeek] = useState(false);
+  const numeric = subjectId === "math" && !isChoice && !subjective;
   const longStem = parsed.body.length > 24 || parsed.body.includes("\n");
   const isLast = i === items.length - 1;
   const answeredCount = Object.keys(results).length;
@@ -129,6 +131,7 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
     if (advanceTimer.current) window.clearTimeout(advanceTimer.current);
     setFeedback(null);
     setInput("");
+    setPeek(false);
     if (isLast) void submit();
     else setI(i + 1);
   }
@@ -186,7 +189,23 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
         )}
         <p className={`h-display whitespace-pre-wrap ${longStem ? "text-2xl text-left leading-relaxed px-2" : "text-5xl tracking-wide leading-tight"}`}>{parsed.body}</p>
         {feedback && audio && <p className="text-sm font-bold text-muted mt-2">刚才读的是：{audio}</p>}
-        {isChoice ? (
+        {subjective ? (
+          <div className="mt-5 text-left space-y-3">
+            <textarea className="input text-base leading-relaxed" rows={4} placeholder="把你的解答过程简要写在这里（可选）…" value={input} readOnly={!!feedback} onChange={(e) => setInput(e.target.value)} />
+            {!feedback && (peek ? (
+              <div className="rounded-2xl bg-sky-soft/60 p-3">
+                <p className="text-xs font-extrabold text-sky-dark mb-1">参考答案</p>
+                <p className="font-bold whitespace-pre-wrap text-base">{item.answer}</p>
+                <div className="grid grid-cols-2 gap-2 mt-3">
+                  <button type="button" className="btn-leaf" disabled={busy} onClick={() => void check("__self:1")}>✅ 我做对了</button>
+                  <button type="button" className="btn-danger" disabled={busy} onClick={() => void check("__self:0")}>❌ 没做对</button>
+                </div>
+              </div>
+            ) : (
+              <button type="button" className="btn-sky w-full" onClick={() => { play("tap"); setPeek(true); }}>做完了，对照参考答案自评</button>
+            ))}
+          </div>
+        ) : isChoice ? (
           <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
             {parsed.options.map((o) => {
               const picked = input.trim().toUpperCase() === o.key;
@@ -267,8 +286,8 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
           <button type="button" className="btn-primary flex-1 text-lg py-4" disabled={busy} onClick={goNext}>
             {isLast ? (busy ? "提交中…" : "看成绩 🏁") : "下一题 ➡️"}
           </button>
-        ) : isChoice ? (
-          <p className="flex-1 text-center text-sm font-bold text-muted py-3">{busy ? "判分中…" : "点一个选项作答"}</p>
+        ) : isChoice || subjective ? (
+          <p className="flex-1 text-center text-sm font-bold text-muted py-3">{busy ? "判分中…" : isChoice ? "点一个选项作答" : "解答题：写完后对照参考答案自评"}</p>
         ) : (
           <button type="button" className="btn-leaf flex-1 text-lg py-4" disabled={busy || !input.trim()} onClick={() => void check()}>
             {busy ? "判分中…" : "确定 ✓"}

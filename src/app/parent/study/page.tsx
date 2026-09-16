@@ -44,6 +44,7 @@ export default async function ParentStudyPage({ searchParams }: { searchParams: 
         ))}
         <Link href="/parent/study?exam=gaokao" className="px-4 py-2 rounded-full text-sm font-bold border bg-white border-line hover:bg-gray-50">🎓 高考真题专讲</Link>
         <Link href="/parent/study?exam=zhongkao" className="px-4 py-2 rounded-full text-sm font-bold border bg-white border-line hover:bg-gray-50">🎯 中考真题专讲</Link>
+        <Link href="/parent/papers" className="px-4 py-2 rounded-full text-sm font-bold border bg-white border-line hover:bg-gray-50">📄 历年真题卷</Link>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
