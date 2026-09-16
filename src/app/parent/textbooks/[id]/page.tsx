@@ -19,7 +19,7 @@ export default async function TextbookDetail({ params }: { params: Promise<{ id:
       <h1 className="text-2xl font-bold">{tv.subject.name} · {tv.name} 知识点</h1>
       <form action={addKnowledgePointAction} className="card grid sm:grid-cols-4 gap-3 items-end">
         <input type="hidden" name="textbookVersionId" value={tv.id} />
-        <div><label className="label">年级</label><select name="grade" className="input">{[1, 2, 3, 4, 5].map((g) => <option key={g} value={g}>{g}</option>)}</select></div>
+        <div><label className="label">年级</label><select name="grade" className="input">{[1, 2, 3, 4, 5, 6].map((g) => <option key={g} value={g}>{g}</option>)}</select></div>
         <div><label className="label">学期</label><select name="semester" className="input"><option value={1}>上</option><option value={2}>下</option></select></div>
         <div><label className="label">单元</label><input name="unit" className="input" placeholder="如：小数乘法" /></div>
         <div className="sm:col-span-4"><label className="label">知识点（逗号或换行分隔，可一次多个）</label><textarea name="names" className="input" rows={2} required /></div>

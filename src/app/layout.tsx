@@ -6,7 +6,7 @@ const nunito = Nunito({ subsets: ["latin"], weight: ["600", "700", "800", "900"]
 
 export const metadata: Metadata = {
   title: "家庭作业小助手",
-  description: "小学 1-5 年级作业辅导",
+  description: "小学 1-6 年级作业辅导",
   manifest: "/manifest.json",
 };
 

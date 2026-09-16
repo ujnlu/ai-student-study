@@ -110,6 +110,46 @@ function fracSub(): OralItem {
   const d = r(3, 12), a = r(2, d - 1), b = r(1, a - 1);
   return { stem: `${a}/${d} - ${b}/${d} =`, answer: `${a - b}/${d}`, tag: "同分母分数减法" };
 }
+// ---------- 六年级：分数乘除、百分数 ----------
+function gcd(a: number, b: number): number { return b === 0 ? a : gcd(b, a % b); }
+function fracStr(p: number, q: number) {
+  const g = gcd(p, q);
+  p /= g; q /= g;
+  return q === 1 ? String(p) : `${p}/${q}`;
+}
+/** 分母 q 下随机取一个与它互质的分子，题干里不出现未约分的分数 */
+function numer(q: number) {
+  for (;;) { const p = r(1, q - 1); if (gcd(p, q) === 1) return p; }
+}
+function fracMulInt(): OralItem {
+  const d = r(3, 9), a = numer(d), n = r(2, 9);
+  return { stem: `${a}/${d} × ${n} =`, answer: fracStr(a * n, d), tag: "分数乘整数" };
+}
+function fracMul(): OralItem {
+  const b = r(2, 9), a = numer(b), d = r(2, 9), c = numer(d);
+  return { stem: `${a}/${b} × ${c}/${d} =`, answer: fracStr(a * c, b * d), tag: "分数乘分数" };
+}
+function fracDivInt(): OralItem {
+  const b = r(2, 9), a = numer(b), n = r(2, 6);
+  return { stem: `${a}/${b} ÷ ${n} =`, answer: fracStr(a, b * n), tag: "分数除以整数" };
+}
+function fracDiv(): OralItem {
+  const b = r(2, 9), a = numer(b), d = r(2, 9), c = numer(d);
+  return { stem: `${a}/${b} ÷ ${c}/${d} =`, answer: fracStr(a * d, b * c), tag: "分数除以分数" };
+}
+function percentOf(): OralItem {
+  const n = pick([20, 40, 50, 60, 80, 100, 120, 150, 200, 300, 400, 500]), p = pick([5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 80]);
+  return { stem: `${n} × ${p}% =`, answer: String((n * p) / 100), tag: "百分数" };
+}
+function percentConv(): OralItem {
+  if (Math.random() < 0.5) {
+    const p = pick([5, 12, 25, 40, 50, 65, 75, 80, 95, 120]);
+    return { stem: `${p}% 化成小数 =`, answer: String(p / 100), tag: "百分数与小数" };
+  }
+  const x = pick([0.05, 0.2, 0.25, 0.4, 0.5, 0.75, 0.8, 1.2, 1.5]);
+  return { stem: `${x} 化成百分数 =`, answer: `${Math.round(x * 100)}%`, tag: "百分数与小数" };
+}
+
 function unitConv(): OralItem {
   return pick([
     (() => { const k = r(1, 9); return { stem: `${k} 米 = ( ) 厘米`, answer: String(k * 100), tag: "单位换算" }; })(),
@@ -130,10 +170,12 @@ const RULES: Record<string, Gen[]> = {
   "4-2": [decAdd, decSub, smart, mulTens, divTens],
   "5-1": [decMul, decDiv, decAdd, decSub, smart],
   "5-2": [fracAdd, fracSub, decMul, decDiv, smart],
+  "6-1": [fracMulInt, fracMul, fracDivInt, fracDiv, percentOf],
+  "6-2": [percentOf, percentConv, fracDiv, decMul, decDiv, smart],
 };
 
 export function generateOral(grade: number, semester: number, count = 20): OralItem[] {
-  const key = `${Math.min(5, Math.max(1, grade))}-${semester === 2 ? 2 : 1}`;
+  const key = `${Math.min(6, Math.max(1, grade))}-${semester === 2 ? 2 : 1}`;
   const gens = RULES[key] ?? RULES["1-1"];
   const out: OralItem[] = [];
   const seen = new Set<string>();
@@ -156,11 +198,20 @@ export function answersMatch(given: string | null | undefined, expected: string)
       .replace(/[．。]/g, ".")
       .replace(/(余|\.{2,}|…+|r)/gi, "……")
       .replace(/\s+/g, "")
+      .replace(/[.。．]+$/, "")
+      .toLowerCase()
       .trim();
   const g = norm(given ?? ""), e = norm(expected);
   if (!g) return false;
   if (g === e) return true;
-  const gn = Number(g), en = Number(e);
-  if (!Number.isNaN(gn) && !Number.isNaN(en)) return Math.abs(gn - en) < 1e-9;
+  // 数值比较：支持整数/小数、分数（2/4 = 1/2）、百分数（25% = 0.25）
+  const toNum = (x: string): number => {
+    const m = x.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
+    if (m) return Number(m[1]) / Number(m[2]);
+    if (/^-?\d+(?:\.\d+)?%$/.test(x)) return Number(x.slice(0, -1)) / 100;
+    return Number(x);
+  };
+  const gn = toNum(g), en = toNum(e);
+  if (!Number.isNaN(gn) && !Number.isNaN(en) && Number.isFinite(gn)) return Math.abs(gn - en) < 1e-9;
   return false;
 }
