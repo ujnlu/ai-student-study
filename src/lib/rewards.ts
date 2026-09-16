@@ -10,6 +10,8 @@ export const STAR_RULES = {
   mistakeCleared: 8, // 消灭一道错题
   reviewPass: 5, // 复习通过
   dailyAll: 20, // 今日任务全部完成
+  olympiadDone: 5, // 完成一组奥数专题
+  speakingPass: 6, // 英语跟读平均 80% 以上
 };
 
 export async function addStars(childId: string, amount: number, reason: string) {
@@ -73,7 +75,7 @@ export function streakFrom(days: Set<string>) {
 export type Badge = { id: string; name: string; emoji: string; desc: string; earned: boolean; progress?: string };
 
 export async function badges(childId: string): Promise<Badge[]> {
-  const [days, cleared, perfect, uploads, stars, syncDone, explained] = await Promise.all([
+  const [days, cleared, perfect, uploads, stars, syncDone, explained, olympiad, speaking] = await Promise.all([
     activeDays(childId, 365),
     db.mistakeEntry.count({ where: { childId, status: "cleared" } }),
     db.practiceSet.count({ where: { childId, status: "done", total: { gt: 0 }, score: { gt: 0 } } }).then(async () => {
@@ -84,6 +86,8 @@ export async function badges(childId: string): Promise<Badge[]> {
     totalStars(childId),
     db.practiceSet.count({ where: { childId, kind: "sync", status: "done" } }),
     db.explanation.count({ where: { childId, status: "ready" } }),
+    db.practiceSet.count({ where: { childId, kind: "olympiad", status: "done" } }),
+    db.recitation.count({ where: { childId, kind: "speaking", accuracy: { gte: 80 } } }),
   ]);
   const streak = streakFrom(days);
   const total = days.size;
@@ -100,5 +104,7 @@ export async function badges(childId: string): Promise<Badge[]> {
     { id: "sync10", name: "同步小能手", emoji: "📚", desc: "完成 10 组同步练", earned: syncDone >= 10, progress: `${Math.min(syncDone, 10)}/10` },
     { id: "explain5", name: "爱看讲解", emoji: "🎬", desc: "看 5 次动画讲解", earned: explained >= 5, progress: `${Math.min(explained, 5)}/5` },
     { id: "star500", name: "星星富翁", emoji: "🌟", desc: "攒到 500 颗星星", earned: stars >= 500, progress: `${Math.min(stars, 500)}/500` },
+    { id: "olympiad5", name: "思维小达人", emoji: "🧠", desc: "完成 5 组奥数专题", earned: olympiad >= 5, progress: `${Math.min(olympiad, 5)}/5` },
+    { id: "speak5", name: "英语小喇叭", emoji: "📣", desc: "5 次英语跟读达到 80%", earned: speaking >= 5, progress: `${Math.min(speaking, 5)}/5` },
   ];
 }

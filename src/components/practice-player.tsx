@@ -9,7 +9,53 @@ import { useSfx } from "./fx";
 type Item = { index: number; stem: string };
 type Feedback = { isCorrect: boolean; correctAnswer: string; solution: string | null; problemId: string };
 
-export function PracticePlayer({ setId, items, timeLimitSec, title }: { setId: string; items: Item[]; timeLimitSec: number | null; title: string }) {
+/** 题干开头的 🔊{{English sentence}} → 听力题：朗读但不显示 */
+function parseAudio(stem: string): { audio: string | null; rest: string } {
+  const m = /🔊\s*\{\{([\s\S]+?)\}\}/.exec(stem);
+  if (!m) return { audio: null, rest: stem };
+  return { audio: m[1].trim(), rest: stem.replace(m[0], "").replace(/^[\s，,。.]+/, "").trim() };
+}
+
+function speakEn(text: string, rate = 0.85) {
+  if (typeof window === "undefined" || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US";
+  u.rate = rate;
+  const voices = window.speechSynthesis.getVoices();
+  const v = voices.find((x) => /en[-_]US/i.test(x.lang)) ?? voices.find((x) => /^en/i.test(x.lang));
+  if (v) u.voice = v;
+  window.speechSynthesis.speak(u);
+}
+
+/** 题干末尾的 "A. xx / B. xx" 选项行 → 选择题 */
+function parseChoices(stem: string): { body: string; options: { key: string; text: string }[] } {
+  const lines = stem.split("\n");
+  const options: { key: string; text: string }[] = [];
+  const bodyLines: string[] = [];
+  for (const raw of lines) {
+    const line = raw.trim();
+    const m = /^([A-D])[.、．:：)）]\s*(.+)$/.exec(line);
+    if (m && options.length === (m[1].charCodeAt(0) - 65)) options.push({ key: m[1], text: m[2] });
+    else if (options.length === 0) bodyLines.push(raw);
+    else {
+      // 选项后面又出现普通行：当作题干的一部分（少见），放弃选项解析
+      const inline = /(?:^|\s)A[.、．]\s*.+?\s+B[.、．]/.test(line);
+      if (!inline) bodyLines.push(raw);
+    }
+  }
+  if (options.length >= 2) return { body: bodyLines.join("\n").trim(), options };
+  // 同一行里的 "A. xx B. xx C. xx"
+  const inline = /(?:^|\s)(A[.、．]\s*.+?)\s+(B[.、．]\s*.+?)(?:\s+(C[.、．]\s*.+?))?(?:\s+(D[.、．]\s*.+?))?\s*$/.exec(stem.replace(/\n/g, " "));
+  if (inline) {
+    const opts = [inline[1], inline[2], inline[3], inline[4]].filter(Boolean).map((x) => ({ key: x![0], text: x!.replace(/^[A-D][.、．]\s*/, "") }));
+    const body = stem.replace(/\n/g, " ").slice(0, stem.replace(/\n/g, " ").indexOf(inline[1])).trim();
+    if (opts.length >= 2) return { body, options: opts };
+  }
+  return { body: stem, options: [] };
+}
+
+export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = "math" }: { setId: string; items: Item[]; timeLimitSec: number | null; title: string; subjectId?: string }) {
   const router = useRouter();
   const play = useSfx();
   const [i, setI] = useState(0);
@@ -36,10 +82,25 @@ export function PracticePlayer({ setId, items, timeLimitSec, title }: { setId: s
   useEffect(() => {
     inputRef.current?.focus();
   }, [i, feedback]);
-  useEffect(() => () => { if (advanceTimer.current) window.clearTimeout(advanceTimer.current); }, []);
+  useEffect(() => () => { if (advanceTimer.current) window.clearTimeout(advanceTimer.current); window.speechSynthesis?.cancel(); }, []);
+  const audioRef = useRef<string | null>(null);
+  useEffect(() => {
+    const cur = parseAudio(items[i]?.stem ?? "").audio;
+    audioRef.current = cur;
+    if (cur) {
+      window.speechSynthesis?.getVoices();
+      const t = window.setTimeout(() => speakEn(cur), 300);
+      return () => window.clearTimeout(t);
+    }
+  }, [i, items]);
 
   const left = timeLimitSec ? timeLimitSec - elapsed : null;
   const item = items[i];
+  const { audio, rest: stemText } = parseAudio(item.stem);
+  const parsed = parseChoices(stemText);
+  const isChoice = parsed.options.length >= 2;
+  const numeric = subjectId === "math" && !isChoice;
+  const longStem = parsed.body.length > 24 || parsed.body.includes("\n");
   const isLast = i === items.length - 1;
   const answeredCount = Object.keys(results).length;
   const correctCount = Object.values(results).filter(Boolean).length;
@@ -72,9 +133,9 @@ export function PracticePlayer({ setId, items, timeLimitSec, title }: { setId: s
     else setI(i + 1);
   }
 
-  async function check() {
+  async function check(given?: string) {
     if (busy || feedback) return;
-    const answer = input.trim();
+    const answer = (given ?? input).trim();
     if (!answer) return;
     setBusy(true);
     setErr(null);
@@ -117,13 +178,43 @@ export function PracticePlayer({ setId, items, timeLimitSec, title }: { setId: s
       </div>
 
       <div className={`card text-center py-8 transition-colors border-b-8 ${feedback ? (feedback.isCorrect ? "bg-leaf-soft border-leaf border-b-leaf-dark anim-pop" : "bg-berry-soft border-berry border-b-berry-dark anim-shake") : "border-b-line"}`}>
-        <p className="h-display text-5xl tracking-wide whitespace-pre-wrap leading-tight">{item.stem}</p>
+        {audio && (
+          <div className="flex justify-center gap-2 mb-3">
+            <button type="button" className="btn-sky text-lg" onClick={() => { play("tap"); speakEn(audio); }}>🔊 听一听</button>
+            <button type="button" className="btn-secondary" onClick={() => { play("tap"); speakEn(audio, 0.6); }}>🐢 慢一点</button>
+          </div>
+        )}
+        <p className={`h-display whitespace-pre-wrap ${longStem ? "text-2xl text-left leading-relaxed px-2" : "text-5xl tracking-wide leading-tight"}`}>{parsed.body}</p>
+        {feedback && audio && <p className="text-sm font-bold text-muted mt-2">刚才读的是：{audio}</p>}
+        {isChoice ? (
+          <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
+            {parsed.options.map((o) => {
+              const picked = input.trim().toUpperCase() === o.key;
+              const cls = feedback
+                ? feedback.correctAnswer.trim().toUpperCase() === o.key
+                  ? "border-leaf bg-leaf-soft text-leaf-dark"
+                  : picked
+                    ? "border-berry bg-berry-soft text-berry line-through"
+                    : "border-line bg-white opacity-60"
+                : picked
+                  ? "border-brand bg-brand-soft"
+                  : "border-line bg-white hover:bg-gray-50";
+              return (
+                <button key={o.key} type="button" disabled={!!feedback || busy} className={`rounded-2xl border-2 px-4 py-3 font-extrabold text-lg flex gap-2 items-start transition-colors ${cls}`} onClick={() => { play("tap"); setInput(o.key); void check(o.key); }}>
+                  <span className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center shrink-0">{o.key}</span>
+                  <span className="flex-1 whitespace-pre-wrap">{o.text}</span>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
         <div className="mt-6 mx-auto max-w-xs">
           <input
             ref={inputRef}
-            className={`input text-center text-4xl font-black py-3 ${feedback ? (feedback.isCorrect ? "border-leaf text-leaf-dark" : "border-berry text-berry line-through") : ""}`}
+            className={`input text-center font-black py-3 ${numeric ? "text-4xl" : "text-2xl"} ${feedback ? (feedback.isCorrect ? "border-leaf text-leaf-dark" : "border-berry text-berry line-through") : ""}`}
             value={input}
-            inputMode="decimal"
+            inputMode={numeric ? "decimal" : "text"}
+            lang={subjectId === "english" ? "en" : "zh-CN"}
             readOnly={!!feedback}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -133,9 +224,10 @@ export function PracticePlayer({ setId, items, timeLimitSec, title }: { setId: s
                 else void check();
               }
             }}
-            placeholder="?"
+            placeholder={numeric ? "?" : subjectId === "english" ? "type here" : "写答案"}
           />
         </div>
+        )}
 
         {feedback && (
           <div className="mt-4 flex items-center justify-center gap-4">
@@ -156,7 +248,7 @@ export function PracticePlayer({ setId, items, timeLimitSec, title }: { setId: s
         )}
       </div>
 
-      <div className="grid grid-cols-4 gap-2 sm:hidden">
+      {numeric && <div className="grid grid-cols-4 gap-2 sm:hidden">
         {["7", "8", "9", "⌫", "4", "5", "6", "/", "1", "2", "3", ".", "0", "……", "-", "✓"].map((k) => (
           <button
             key={k}
@@ -168,13 +260,15 @@ export function PracticePlayer({ setId, items, timeLimitSec, title }: { setId: s
             {k === "✓" ? (feedback ? (isLast ? "交卷" : "下一题") : "确定") : k}
           </button>
         ))}
-      </div>
+      </div>}
 
       <div className="flex gap-2">
         {feedback ? (
           <button type="button" className="btn-primary flex-1 text-lg py-4" disabled={busy} onClick={goNext}>
             {isLast ? (busy ? "提交中…" : "看成绩 🏁") : "下一题 ➡️"}
           </button>
+        ) : isChoice ? (
+          <p className="flex-1 text-center text-sm font-bold text-muted py-3">{busy ? "判分中…" : "点一个选项作答"}</p>
         ) : (
           <button type="button" className="btn-leaf flex-1 text-lg py-4" disabled={busy || !input.trim()} onClick={() => void check()}>
             {busy ? "判分中…" : "确定 ✓"}

@@ -159,6 +159,7 @@ export async function submitSet(setId: string, answers: Record<string, string> =
   await addStars(set.childId, score * STAR_RULES.practiceCorrect, `练习答对 ${score} 题`);
   if (allCorrect && items.length > 0) await addStars(set.childId, STAR_RULES.practicePerfect, "一组全对");
   if (set.kind === "sync") await addStars(set.childId, STAR_RULES.syncDone, "完成同步练");
+  if (set.kind === "olympiad") await addStars(set.childId, STAR_RULES.olympiadDone, "完成奥数专题");
 
   if (set.mistakeId) {
     const m = await db.mistakeEntry.findUnique({ where: { id: set.mistakeId } });

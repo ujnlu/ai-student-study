@@ -3,11 +3,12 @@ import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createOralSet, createVariantSet } from "@/lib/practice";
 import { createSyncSet } from "@/lib/sync";
+import { createTopicSet, findTopic, type Tier } from "@/lib/topics";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-/** POST { kind: "oral" | "variant" | "review", childId?, count?, timeLimitSec?, mistakeId? } */
+/** POST { kind: "oral" | "sync" | "topic" | "variant" | "review", childId?, count?, timeLimitSec?, mistakeId?, subjectId?, topic? } */
 export async function POST(req: Request) {
   const s = await getSession();
   if (!s) return NextResponse.json({ error: "未登录" }, { status: 401 });
@@ -26,6 +27,15 @@ export async function POST(req: Request) {
       const existing = await db.practiceSet.findFirst({ where: { childId, kind: "sync", status: "ready" }, orderBy: { createdAt: "desc" } });
       if (existing) return NextResponse.json({ id: existing.id });
       const set = await createSyncSet(childId, subjectId);
+      return NextResponse.json({ id: set.id });
+    }
+    if (body.kind === "topic") {
+      const { topic: code = "", tier: rawTier } = body as { topic?: string; tier?: string };
+      if (!findTopic(code)) return NextResponse.json({ error: "没有这个专题" }, { status: 404 });
+      const tier: Tier = rawTier === "advanced" || rawTier === "challenge" ? rawTier : "basic";
+      const existing = await db.practiceSet.findFirst({ where: { childId, topic: code, status: "ready" }, orderBy: { createdAt: "desc" } });
+      if (existing) return NextResponse.json({ id: existing.id });
+      const set = await createTopicSet(childId, code, tier);
       return NextResponse.json({ id: set.id });
     }
     if (body.kind === "variant" || body.kind === "review") {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function StartPracticeButton({ kind, mistakeId, subjectId, count, timeLimitSec, label, className = "btn-primary" }: { kind: "oral" | "variant" | "review" | "sync"; mistakeId?: string; subjectId?: string; count?: number; timeLimitSec?: number | null; label: string; className?: string }) {
+export function StartPracticeButton({ kind, mistakeId, subjectId, topic, tier, count, timeLimitSec, label, className = "btn-primary" }: { kind: "oral" | "variant" | "review" | "sync" | "topic"; mistakeId?: string; subjectId?: string; topic?: string; tier?: "basic" | "advanced" | "challenge"; count?: number; timeLimitSec?: number | null; label: string; className?: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -20,7 +20,7 @@ export function StartPracticeButton({ kind, mistakeId, subjectId, count, timeLim
             const r = await fetch("/api/practice/create", {
               method: "POST",
               headers: { "content-type": "application/json" },
-              body: JSON.stringify({ kind, mistakeId, subjectId, count, timeLimitSec }),
+              body: JSON.stringify({ kind, mistakeId, subjectId, topic, tier, count, timeLimitSec }),
             });
             const j = (await r.json()) as { id?: string; error?: string };
             if (!r.ok || !j.id) throw new Error(j.error ?? "失败");
@@ -31,7 +31,7 @@ export function StartPracticeButton({ kind, mistakeId, subjectId, count, timeLim
           }
         }}
       >
-        {busy ? (kind === "oral" ? "出题中…" : kind === "sync" ? "正在准备今天的同步练…" : "AI 老师出题中，约 20 秒…") : label}
+        {busy ? (kind === "oral" ? "出题中…" : kind === "sync" ? "正在准备今天的同步练…" : kind === "topic" ? "正在准备题目，第一次约 30 秒…" : "AI 老师出题中，约 20 秒…") : label}
       </button>
       {err && <span className="text-xs text-red-600 mt-1">{err}</span>}
     </span>

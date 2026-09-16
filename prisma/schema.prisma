@@ -39,7 +39,8 @@ model Child {
   familyId  String
   name      String
   avatar    String   @default("🐼")
-  grade     Int // 1-5
+  grade     Int // 1-6；家长自学的"学习者"为 0
+  kind      String   @default("child") // child | adult（家长自学，不在孩子端登录页显示）
   semester  Int      @default(1) // 1 上学期 2 下学期
   region    String? // 省/市，如 "北京" "江苏-南京"
   createdAt DateTime @default(now())
@@ -242,7 +243,9 @@ model Problem {
   answer           String? // 正确答案
   solution         String? // 解析
   difficulty       Int             @default(2) // 1-5
-  source           String          @default("upload") // upload | generated | bank | variant
+  source           String          @default("upload") // upload | generated | bank | variant | lesson
+  topic            String? // 专项 / 奥数专题代码（见 src/lib/topics.ts）
+  walkthrough      String? // AI 解题讲解（审题→思路→步骤→答案→易错），生成一次后缓存
   parentProblemId  String?
   createdAt        DateTime        @default(now())
   subject          Subject?        @relation(fields: [subjectId], references: [id])
@@ -253,6 +256,8 @@ model Problem {
   mistakes         MistakeEntry[]
   explanations     Explanation[]
   practiceItems    PracticeItem[]
+
+  @@index([topic, source])
 }
 
 model Attempt {
@@ -366,12 +371,13 @@ model Explanation {
 model PracticeSet {
   id               String          @id @default(cuid())
   childId          String
-  kind             String // oral | variant | review | ai
+  kind             String // oral | variant | review | ai | sync | unit | consolidate | weekly | topic | olympiad
   title            String
   status           String          @default("ready") // pending_review | ready | done
   mistakeId        String?
   knowledgePointId String?
   chapterId        String?
+  topic            String? // 专项 / 奥数专题代码
   timeLimitSec     Int?
   total            Int             @default(0)
   score            Int?
@@ -522,6 +528,7 @@ model Recitation {
   text       String
   transcript String?
   accuracy   Int              @default(0) // 0-100
+  kind       String           @default("recite") // recite 背诵 | speaking 英语跟读
   createdAt  DateTime         @default(now())
   child      Child            @relation(fields: [childId], references: [id], onDelete: Cascade)
   chapter    TextbookChapter? @relation(fields: [chapterId], references: [id], onDelete: SetNull)
@@ -563,4 +570,36 @@ model LessonGuide {
   updatedAt     DateTime        @updatedAt
   createdAt     DateTime        @default(now())
   chapter       TextbookChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+}
+
+// ---------- 专项 / 奥数 / 英语口语（AI 生成一次后落库复用） ----------
+
+/// 某个专题的「讲一讲」：方法讲解 + 例题（按专题代码缓存）
+model TopicLecture {
+  id        String   @id @default(cuid())
+  code      String   @unique // 见 src/lib/topics.ts
+  json      String // {intro, methods[], examples[{q, steps[], answer}], tips}
+  createdAt DateTime @default(now())
+}
+
+/// 英语口语跟读的句子（按主题代码缓存）
+model SpeakingLesson {
+  id        String   @id @default(cuid())
+  code      String   @unique // 见 src/lib/speaking.ts
+  title     String
+  itemsJson String // [{en, zh, tip}]
+  createdAt DateTime @default(now())
+}
+
+/// 分级阅读短文（中文 / 英文，按级别缓存成题库池）
+model ReadingPiece {
+  id            String   @id @default(cuid())
+  lang          String // zh | en
+  level         Int // 1-6
+  title         String
+  text          String
+  questionsJson String // [{q, options[], answer}]
+  createdAt     DateTime @default(now())
+
+  @@index([lang, level])
 }
