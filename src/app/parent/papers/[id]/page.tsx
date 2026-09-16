@@ -6,6 +6,7 @@ import { getOrCreateAdultLearner } from "@/lib/adult";
 import { PAPER_STAGES, paperCode } from "@/lib/papers";
 import { SUBJECT_NAME, type TopicSubject } from "@/lib/topics";
 import { PaperStatus } from "@/components/paper-status";
+import { MathText } from "@/components/math-text";
 import { StartFlowButton } from "@/components/start-flow-button";
 import { WalkthroughBox } from "@/components/walkthrough-box";
 
@@ -64,7 +65,7 @@ export default async function PaperDetailPage({ params }: { params: Promise<{ id
             {problems.map((p) => (
               <li key={p.id} className="card-flat">
                 <p className="text-xs text-gray-500 mb-1">{p.index + 1}. {KIND[p.kind ?? ""] ?? ""} · {p.solution?.match(/^【([^】]+)】/)?.[1] ?? ""} · 难度 {"★".repeat(Math.max(1, Math.min(5, p.difficulty)))}</p>
-                <p className="font-semibold whitespace-pre-wrap">{p.stem}</p>
+                <MathText as="p" className="font-semibold whitespace-pre-wrap" text={p.stem} />
                 <p className="text-sm text-gray-600 mt-1">答案：<b className="text-leaf-dark">{p.answer}</b></p>
                 {p.solution && <p className="text-xs text-gray-500 mt-1 whitespace-pre-wrap">{p.solution.replace(/^【[^】]+】/, "")}</p>}
                 <div className="mt-2"><WalkthroughBox problemId={p.id} childId={learner.id} initial={p.walkthrough} className="btn-ghost text-xs py-1" /></div>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Mascot } from "@/components/mascot";
+import { MathText } from "@/components/math-text";
 import { Confetti, useSfx } from "@/components/fx";
 import { StartFlowButton } from "@/components/start-flow-button";
 
@@ -278,7 +279,7 @@ export function PkPlayer({ setId, items, opponentSpeedSec, childName, childAvata
 
       <div className={`card text-center py-6 transition-colors ${feedback ? (feedback.isCorrect ? "bg-leaf-soft border-leaf" : "bg-berry-soft border-berry anim-shake") : ""}`}>
         <p className="text-sm font-bold text-muted">第 {i + 1} / {total} 题</p>
-        <p className="text-5xl h-display tracking-wide mt-2 whitespace-pre-wrap">{item.stem}</p>
+        <MathText as="p" className="text-5xl h-display tracking-wide mt-2 whitespace-pre-wrap" text={item.stem} />
         <div className="mt-5 mx-auto max-w-xs">
           <input
             ref={inputRef}

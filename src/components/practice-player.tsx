@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ExplainButton } from "./explain-button";
+import { MathText } from "./math-text";
 import { Mascot } from "./mascot";
 import { useSfx } from "./fx";
 
@@ -29,13 +30,13 @@ function speakEn(text: string, rate = 0.85) {
 }
 
 /** 题干末尾的 "A. xx / B. xx" 选项行 → 选择题 */
-function parseChoices(stem: string): { body: string; options: { key: string; text: string }[] } {
+export function parseChoices(stem: string): { body: string; options: { key: string; text: string }[] } {
   const lines = stem.split("\n");
   const options: { key: string; text: string }[] = [];
   const bodyLines: string[] = [];
   for (const raw of lines) {
     const line = raw.trim();
-    const m = /^([A-D])[.、．:：)）]\s*(.+)$/.exec(line);
+    const m = /^[(（]?([A-D])[.、．:：)）]\s*(.+)$/.exec(line);
     if (m && options.length === (m[1].charCodeAt(0) - 65)) options.push({ key: m[1], text: m[2] });
     else if (options.length === 0) bodyLines.push(raw);
     else {
@@ -46,9 +47,9 @@ function parseChoices(stem: string): { body: string; options: { key: string; tex
   }
   if (options.length >= 2) return { body: bodyLines.join("\n").trim(), options };
   // 同一行里的 "A. xx B. xx C. xx"
-  const inline = /(?:^|\s)(A[.、．]\s*.+?)\s+(B[.、．]\s*.+?)(?:\s+(C[.、．]\s*.+?))?(?:\s+(D[.、．]\s*.+?))?\s*$/.exec(stem.replace(/\n/g, " "));
+  const inline = /(?:^|\s)([(（]?A[.、．)）]\s*.+?)\s+([(（]?B[.、．)）]\s*.+?)(?:\s+([(（]?C[.、．)）]\s*.+?))?(?:\s+([(（]?D[.、．)）]\s*.+?))?\s*$/.exec(stem.replace(/\n/g, " "));
   if (inline) {
-    const opts = [inline[1], inline[2], inline[3], inline[4]].filter(Boolean).map((x) => ({ key: x![0], text: x!.replace(/^[A-D][.、．]\s*/, "") }));
+    const opts = [inline[1], inline[2], inline[3], inline[4]].filter(Boolean).map((x) => { const key = /[A-D]/.exec(x!)![0]; return { key, text: x!.replace(/^[(（]?[A-D][.、．)）]\s*/, "") }; });
     const body = stem.replace(/\n/g, " ").slice(0, stem.replace(/\n/g, " ").indexOf(inline[1])).trim();
     if (opts.length >= 2) return { body, options: opts };
   }
@@ -187,7 +188,7 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
             <button type="button" className="btn-secondary" onClick={() => { play("tap"); speakEn(audio, 0.6); }}>🐢 慢一点</button>
           </div>
         )}
-        <p className={`h-display whitespace-pre-wrap ${longStem ? "text-2xl text-left leading-relaxed px-2" : "text-5xl tracking-wide leading-tight"}`}>{parsed.body}</p>
+        <MathText as="p" className={`h-display whitespace-pre-wrap ${longStem ? "text-2xl text-left leading-relaxed px-2" : "text-5xl tracking-wide leading-tight"}`} text={parsed.body} />
         {feedback && audio && <p className="text-sm font-bold text-muted mt-2">刚才读的是：{audio}</p>}
         {subjective ? (
           <div className="mt-5 text-left space-y-3">
@@ -195,7 +196,7 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
             {!feedback && (peek ? (
               <div className="rounded-2xl bg-sky-soft/60 p-3">
                 <p className="text-xs font-extrabold text-sky-dark mb-1">参考答案</p>
-                <p className="font-bold whitespace-pre-wrap text-base">{item.answer}</p>
+                <MathText as="p" className="font-bold whitespace-pre-wrap text-base" text={item.answer ?? ""} />
                 <div className="grid grid-cols-2 gap-2 mt-3">
                   <button type="button" className="btn-leaf" disabled={busy} onClick={() => void check("__self:1")}>✅ 我做对了</button>
                   <button type="button" className="btn-danger" disabled={busy} onClick={() => void check("__self:0")}>❌ 没做对</button>
@@ -221,7 +222,7 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
               return (
                 <button key={o.key} type="button" disabled={!!feedback || busy} className={`rounded-2xl border-2 px-4 py-3 font-extrabold text-lg flex gap-2 items-start transition-colors ${cls}`} onClick={() => { play("tap"); if (item.multi) { setInput((v) => (v.includes(o.key) ? v.replace(o.key, "") : (v + o.key).split("").sort().join(""))); } else { setInput(o.key); void check(o.key); } }}>
                   <span className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center shrink-0">{o.key}</span>
-                  <span className="flex-1 whitespace-pre-wrap">{o.text}</span>
+                  <MathText className="flex-1 whitespace-pre-wrap" text={o.text} />
                 </button>
               );
             })}
@@ -257,8 +258,8 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
               ) : (
                 <>
                   <p className="h-display text-2xl text-berry">不对哦</p>
-                  <p className="font-bold">正确答案 <b className="text-leaf-dark text-2xl">{feedback.correctAnswer}</b></p>
-                  {feedback.solution && <p className="text-xs font-bold text-muted mt-1 max-w-xs">{feedback.solution}</p>}
+                  <p className="font-bold">正确答案 <MathText as="span" className="text-leaf-dark text-2xl font-black" text={feedback.correctAnswer} /></p>
+                  {feedback.solution && <MathText as="p" className="text-xs font-bold text-muted mt-1 max-w-xs" text={feedback.solution} />}
                   <div className="mt-2"><ExplainButton problemId={feedback.problemId} childId={childId} label="🎬 看动画讲解" className="btn-secondary text-sm py-2" /></div>
                 </>
               )}

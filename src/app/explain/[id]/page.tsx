@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { requireAny } from "@/lib/auth";
 import { ExplainPlayer } from "@/components/explain-player";
 import { ExplainButton } from "@/components/explain-button";
+import { MathText } from "@/components/math-text";
 import type { ExplanationStep } from "@/lib/ai/explain";
 
 export default async function ExplainPage({ params }: { params: Promise<{ id: string }> }) {
@@ -22,7 +23,7 @@ export default async function ExplainPage({ params }: { params: Promise<{ id: st
     <main className="flex-1 mx-auto w-full max-w-3xl px-4 py-5 space-y-4">
       <div className="flex items-center gap-3 text-sm font-bold">
         <Link href={back} className="btn-ghost">← 返回</Link>
-        <span className="badge bg-brand-soft text-brand-dark normal-case tracking-normal truncate max-w-[70%]">题目：{ex.problem.stem}</span>
+        <span className="badge bg-brand-soft text-brand-dark normal-case tracking-normal truncate max-w-[70%]">题目：<MathText text={ex.problem.stem} /></span>
       </div>
       {ex.status === "failed" ? (
         <div className="card text-berry font-bold">生成失败：{ex.error}</div>

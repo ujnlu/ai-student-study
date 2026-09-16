@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { overrideAttemptAction } from "@/app/actions/study";
 import { RegradeButton } from "./regrade-button";
 import { ExplainButton } from "./explain-button";
+import { MathText } from "./math-text";
 import { existingExplanations } from "@/lib/explanations";
 import { GradedImage } from "./graded-image";
 
@@ -73,7 +74,7 @@ export async function UploadResult({ uploadId }: { uploadId: string }) {
                 <div className="flex items-start gap-3">
                   <span className={`text-2xl ${ok ? "text-green-500" : "text-red-500"}`}>{ok ? "✓" : "✗"}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium whitespace-pre-wrap">{p.index}. {p.stem}</p>
+                    <MathText as="p" className="font-medium whitespace-pre-wrap" text={`${p.index}. ${p.stem}`} />
                     <div className="mt-1 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
                       <span>孩子答：<b className={ok ? "" : "text-red-600"}>{a?.childAnswer || "（未作答）"}</b></span>
                       {!ok && <span>正确：<b className="text-green-700">{p.answer}</b></span>}

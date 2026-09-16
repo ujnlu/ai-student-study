@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireParent } from "@/lib/auth";
 import { approveSetAction, deletePracticeItemAction, updatePracticeItemAction } from "@/app/actions/practice";
+import { MathText } from "@/components/math-text";
 
 export default async function ParentPracticeSetPage({ params }: { params: Promise<{ id: string }> }) {
   const s = await requireParent();
@@ -48,7 +49,7 @@ export default async function ParentPracticeSetPage({ params }: { params: Promis
             </li>
           ) : (
             <li key={it.id} className={`card py-3 ${it.isCorrect === false ? "border-l-4 border-l-red-400" : it.isCorrect ? "border-l-4 border-l-green-400" : ""}`}>
-              <p className="font-medium whitespace-pre-wrap">{it.index + 1}. {it.problem.stem}</p>
+              <MathText as="p" className="font-medium whitespace-pre-wrap" text={`${it.index + 1}. ${it.problem.stem}`} />
               <p className="text-sm text-gray-600">答案：{it.problem.answer}{it.childAnswer !== null && <> · 孩子答：<b className={it.isCorrect ? "text-green-700" : "text-red-600"}>{it.childAnswer || "（没写）"}</b></>}</p>
               {it.problem.solution && <p className="text-xs text-gray-500">{it.problem.solution}</p>}
             </li>

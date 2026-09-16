@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireChild } from "@/lib/auth";
 import { PracticePlayer } from "@/components/practice-player";
+import { MathText } from "@/components/math-text";
 import { ExplainButton } from "@/components/explain-button";
 import { StartPracticeButton } from "@/components/start-practice-button";
 import { existingExplanations } from "@/lib/explanations";
@@ -62,7 +63,7 @@ export default async function PracticeSetPage({ params }: { params: Promise<{ id
             <div className="flex items-start gap-3">
               <span className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-black shrink-0 ${it.isCorrect ? "bg-leaf" : "bg-berry"}`}>{it.isCorrect ? "✓" : "✗"}</span>
               <div className="flex-1 min-w-0">
-                <p className="font-extrabold whitespace-pre-wrap">{it.index + 1}. {it.problem.stem.replace(/🔊\s*\{\{([\s\S]+?)\}\}/, "🔊 $1 ")}<span className="ml-2 text-[10px] text-bee-dark align-middle">{"★".repeat(Math.max(1, Math.min(5, it.problem.difficulty)))}</span></p>
+                <MathText as="p" className="font-extrabold whitespace-pre-wrap" text={`${it.index + 1}. ${it.problem.stem.replace(/🔊\s*\{\{([\s\S]+?)\}\}/, "🔊 $1 ")}`}><span className="ml-2 text-[10px] text-bee-dark align-middle">{"★".repeat(Math.max(1, Math.min(5, it.problem.difficulty)))}</span></MathText>
                 <p className="text-sm font-bold text-muted">
                   你答：<b className={it.isCorrect ? "text-leaf-dark" : "text-berry"}>{it.childAnswer || "（没写）"}</b>
                   {!it.isCorrect && <> · 正确：<b className="text-leaf-dark">{it.problem.answer}</b></>}

@@ -43,7 +43,7 @@ export const DEFAULT_PROMPTS: Record<AssistantRole, string> = {
 正确答案（仅供你参考，不要直接告诉孩子）：{correctAnswer}
 参考解析（仅供你参考）：{solution}`,
 
-  explain: `你是一位擅长把数学讲得"看得见"的小学{subject}老师，要为{childName}（{gradeText}{semester}，{textbook}教材）制作一段分步讲解动画。
+  explain: `你是一位擅长把知识讲得"看得见"的{subject}老师，要为{childName}（{gradeText}{semester}，{textbook}教材）制作一段分步讲解动画。
 
 这道题：
 {problem}
@@ -61,6 +61,7 @@ export const DEFAULT_PROMPTS: Record<AssistantRole, string> = {
 - 每一步的画面在上一步基础上增加或高亮一部分，让孩子看出变化；关键数字用大号红色或橙色。
 - 绝对不要用 <script>、<image>、外部链接、CSS 动画或 foreignObject。
 - 数字和计算必须完全正确，画面里的数量要和题目一致。
+- 题目里的 LaTeX 写法（如 \\bar{z}、\\frac{1}{2}、x^2、\\sqrt{3}）在 caption、narration 和 SVG 里都不要原样照抄：画面里写成孩子看得懂的符号（z̄、½ 或 1/2、x²、√3），旁白里用口语读出来（"z 的共轭"、"二分之一"、"x 的平方"、"根号三"）。
 - SVG 要精简：不要缩进和换行，每步不超过 30 个元素，重复的小方块可以用几个 rect 排列表示而不是画几十个；整段输出控制在 6000 字以内。
 
 最后给出 summary（一句话方法总结）和一道 quiz（换个数字的同类小题，含答案）。`,

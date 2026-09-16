@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { requireChild } from "@/lib/auth";
 import { clearMistakeAction } from "@/app/actions/study";
 import { ExplainButton } from "@/components/explain-button";
+import { MathText } from "@/components/math-text";
 import { StartPracticeButton } from "@/components/start-practice-button";
 import { existingExplanations } from "@/lib/explanations";
 import { MascotSays } from "@/components/mascot";
@@ -67,7 +68,7 @@ export default async function MistakesPage({ searchParams }: { searchParams: Pro
                 {m.problem.knowledgePoint && <span className="badge bg-sky-soft text-sky-dark normal-case tracking-normal">{m.problem.knowledgePoint.name}</span>}
                 <span className="text-muted font-bold ml-auto">{m.createdAt.toLocaleDateString("zh-CN")}</span>
               </div>
-              <p className="font-extrabold text-lg whitespace-pre-wrap">{m.problem.stem}</p>
+              <MathText as="p" className="font-extrabold text-lg whitespace-pre-wrap" text={m.problem.stem} />
               <p className="text-sm font-bold text-muted mt-1">我写的：<b className="text-berry">{m.problem.attempts[0]?.childAnswer || "（没写）"}</b></p>
               <div className="mt-3 flex gap-2 flex-wrap">
                 {m.status !== "cleared" && <ExplainButton problemId={m.problemId} existingId={explained.get(m.problemId)} className={m.status === "new" ? "btn-primary text-sm py-2" : "btn-secondary text-sm py-2"} />}

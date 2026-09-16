@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireChild } from "@/lib/auth";
 import { PrintButton } from "@/components/print-button";
+import { MathText } from "@/components/math-text";
 
 /** 最近 N 天的起点；0 表示不限 */
 function sinceDate(days: number) {
@@ -103,7 +104,7 @@ export default async function MistakesPrintPage({ searchParams }: { searchParams
                     {m.problem.subject?.name ?? ""}
                     {m.problem.knowledgePoint ? ` · ${m.problem.knowledgePoint.name}` : ""}
                   </p>
-                  <p className="text-lg whitespace-pre-wrap leading-relaxed">{m.problem.stem}</p>
+                  <MathText as="p" className="text-lg whitespace-pre-wrap leading-relaxed" text={m.problem.stem} />
                 </div>
               </div>
               <div className="ml-11 min-h-36" aria-hidden="true" />

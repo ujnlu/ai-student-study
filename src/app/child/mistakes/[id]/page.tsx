@@ -4,6 +4,7 @@ import { requireChild } from "@/lib/auth";
 import { markUnderstoodAction } from "@/app/actions/study";
 import { TutorChat } from "@/components/tutor-chat";
 import { ExplainButton } from "@/components/explain-button";
+import { MathText } from "@/components/math-text";
 import { existingExplanations } from "@/lib/explanations";
 
 export default async function MistakeTutorPage({ params }: { params: Promise<{ id: string }> }) {
@@ -27,7 +28,7 @@ export default async function MistakeTutorPage({ params }: { params: Promise<{ i
     <div className="space-y-3">
       <div className="card py-3">
         <p className="text-xs text-gray-500 mb-1">这道题</p>
-        <p className="font-medium whitespace-pre-wrap">{m.problem.stem}</p>
+        <MathText as="p" className="font-medium whitespace-pre-wrap" text={m.problem.stem} />
         <div className="flex items-center gap-3 mt-1">
           <p className="text-sm text-gray-600">我写的：<b className="text-red-600">{m.problem.attempts[0]?.childAnswer || "（没写）"}</b></p>
           <ExplainButton problemId={m.problemId} existingId={explained.get(m.problemId)} className="btn-secondary text-xs py-1" label="🎬 看动画讲解" />

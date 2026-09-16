@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { requireParent } from "@/lib/auth";
 import { getOrCreateAdultLearner } from "@/lib/adult";
 import { WalkthroughBox } from "@/components/walkthrough-box";
+import { MathText } from "@/components/math-text";
 import { StartPracticeButton } from "@/components/start-practice-button";
 import { findTopic, SUBJECT_NAME } from "@/lib/topics";
 
@@ -32,7 +33,7 @@ export default async function ParentMistakesPage() {
                   <span className="text-gray-500">{t ? `${SUBJECT_NAME[t.subjectId]} · ${t.name}` : exam ? `${exam} · 真题演练` : "练习"}</span>
                   <span className="text-gray-400 ml-auto">{m.createdAt.toLocaleDateString("zh-CN")}</span>
                 </div>
-                <p className="font-semibold whitespace-pre-wrap">{m.problem.stem.replace(/🔊\s*\{\{([\s\S]+?)\}\}/, "🔊 $1 ")}</p>
+                <MathText as="p" className="font-semibold whitespace-pre-wrap" text={m.problem.stem.replace(/🔊\s*\{\{([\s\S]+?)\}\}/, "🔊 $1 ")} />
                 <p className="text-sm text-gray-600">正确答案：<b className="text-leaf-dark">{m.problem.answer}</b>{m.problem.solution ? ` · ${m.problem.solution}` : ""}</p>
                 <div className="flex flex-wrap gap-2 items-start">
                   <WalkthroughBox problemId={m.problemId} childId={learner.id} initial={m.problem.walkthrough} />
