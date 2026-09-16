@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GRADE_NAMES as GRADE_TEXT } from "@/lib/grade";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireChild } from "@/lib/auth";
@@ -8,14 +9,13 @@ import { StartPracticeButton } from "@/components/start-practice-button";
 import { Mascot } from "@/components/mascot";
 import { THEME, type ThemeKey } from "@/components/subject-ui";
 
-const GRADE_TEXT = ["", "一年级", "二年级", "三年级", "四年级", "五年级", "六年级"];
 
 export default async function TopicPage({ params }: { params: Promise<{ code: string }> }) {
   const { child } = await requireChild();
   const { code } = await params;
   const topic = findTopic(code);
   if (!topic) notFound();
-  const themeKey: ThemeKey = topic.track === "olympiad" ? "olympiad" : topic.track === "quality" ? "quality" : (topic.subjectId as ThemeKey);
+  const themeKey: ThemeKey = topic.track === "olympiad" ? "olympiad" : topic.track === "quality" ? "quality" : topic.track === "gaokao" || topic.track === "zhongkao" ? topic.track : topic.subjectId in THEME ? (topic.subjectId as ThemeKey) : "math";
   const T = THEME[themeKey];
   const [lecture, pending, recent, bank, stats] = await Promise.all([
     getLecture(code),
@@ -29,10 +29,10 @@ export default async function TopicPage({ params }: { params: Promise<{ code: st
   const siblings = topic.track === "olympiad" ? lecturesOfLevel(topic.level!) : topicsFor(topic.track, topic.subjectId, topic.grade);
   const idx = siblings.findIndex((t) => t.code === code);
   const next = idx >= 0 && idx < siblings.length - 1 ? siblings[idx + 1] : null;
-  const backHref = topic.track === "olympiad" ? `/child/olympiad?level=${topic.level}` : topic.track === "quality" ? "/child?s=quality" : `/child?s=${topic.subjectId}`;
+  const backHref = topic.track === "olympiad" ? `/child/olympiad?level=${topic.level}` : topic.track === "quality" ? "/child?s=quality" : topic.track === "gaokao" || topic.track === "zhongkao" ? `/child/prep?stage=${topic.track}&subject=${topic.subjectId}` : topic.grade >= 7 ? `/child/special?subject=${topic.subjectId}&g=${topic.grade}` : `/child?s=${topic.subjectId}`;
   const accent = themeKey === "chinese" ? "grape" : themeKey === "english" ? "sky" : themeKey === "quality" ? "leaf" : "brand";
   const isEssay = topic.practice === "essay";
-  const crumb = topic.track === "olympiad" ? `奥数 第 ${topic.level} 级 · 第 ${topic.no} 讲` : `${topic.track === "quality" ? "素养" : `${SUBJECT_NAME[topic.subjectId]}专项`} · ${topic.moduleName}`;
+  const crumb = topic.track === "olympiad" ? `奥数 第 ${topic.level} 级 · 第 ${topic.no} 讲` : topic.track === "gaokao" || topic.track === "zhongkao" ? `${topic.track === "gaokao" ? "高考" : "中考"}真题专讲 · ${SUBJECT_NAME[topic.subjectId]}` : `${topic.track === "quality" ? "素养" : `${SUBJECT_NAME[topic.subjectId]}专项`} · ${topic.moduleName}`;
 
   return (
     <div className="space-y-5">
@@ -68,7 +68,7 @@ export default async function TopicPage({ params }: { params: Promise<{ code: st
             <Mascot mood="happy" size={72} />
             <div className="flex-1">
               <h2 className="font-black text-lg">写一写</h2>
-              <p className="text-sm font-bold text-muted">按讲义里的小题目动笔写，写完拍给橙橙，橙橙按六个维度点评。</p>
+              <p className="text-sm font-bold text-muted">{topic.grade >= 7 ? "按讲义里的题目动笔写，写完拍照交给 AI 批改。" : "按讲义里的小题目动笔写，写完拍给橙橙，橙橙按六个维度点评。"}</p>
             </div>
             <Link href="/child/essay" className={`${T.btn} text-lg`}>📷 拍作文</Link>
           </div>

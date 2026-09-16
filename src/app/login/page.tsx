@@ -4,6 +4,7 @@ import { ensureFamily } from "@/lib/auth";
 import { childLoginAction } from "@/app/actions/auth";
 import { ParentPinForm } from "./parent-pin-form";
 import { Mascot } from "@/components/mascot";
+import { gradeName } from "@/lib/grade";
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ mode?: string }> }) {
   const { mode } = await searchParams;
@@ -35,7 +36,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
                   <button className="card w-full flex flex-col items-center gap-2 border-b-8 border-b-line hover:border-brand hover:border-b-brand-dark active:translate-y-1 active:border-b-4 transition">
                     <span className="text-7xl">{c.avatar}</span>
                     <span className="text-xl font-black">{c.name}</span>
-                    <span className="badge bg-brand-soft text-brand-dark">{c.grade} 年级</span>
+                    <span className="badge bg-brand-soft text-brand-dark">{gradeName(c.grade)}</span>
                   </button>
                 </form>
               ))}

@@ -1,0 +1,20 @@
+
+[1;36m==> 本机构建（/tmp/study-build 副本）[0m
+✓ Running next.config.ts took 28ms
+✓ Compiled successfully in 10.7s
+✓ Generating static pages using 3 workers (60/60) in 283ms
+Turbopack build encountered 1 warning:
+
+[1;36m==> 同步源码到 root@123.56.92.161:/opt/ai-student-study[0m
+
+[1;36m==> 同步构建产物 .next（不含 cache）[0m
+
+[1;36m==> 线上：安装依赖、迁移、构建、重启[0m
+依赖未变化，跳过 npm ci
+✔ Generated Prisma Client (7.10.0) to ./src/generated/prisma in 444ms
+12 migrations found in prisma/migrations
+No pending migrations to apply.
+健康检查 /login -> 200
+
+[1;36m==> 完成：http://123.56.92.161/[0m
+EXIT 0

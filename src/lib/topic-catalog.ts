@@ -8,10 +8,12 @@
  *  - 学而思素养板块：科学、编程通识、人文。
  */
 
-export type Track = "special" | "olympiad" | "quality" | "adult";
+import { examLectures, juniorTopics, seniorTopics, STAGE_SUBJECTS, JUNIOR_GRADES, SENIOR_GRADES, type SecondarySubject, type ExamStage } from "@/lib/secondary-catalog";
+
+export type Track = "special" | "olympiad" | "quality" | "adult" | "zhongkao" | "gaokao";
 export type SubjectId = "math" | "chinese" | "english";
-export type TopicSubject = SubjectId | "science" | "coding" | "culture" | AdultSubject;
-export type AdultSubject = "gongkao" | "kuaiji" | "ielts" | "teacher" | "cet";
+export type TopicSubject = SubjectId | "science" | "coding" | "culture" | AdultSubject | SecondarySubject;
+export type AdultSubject = "gongkao" | "kuaiji" | "ielts" | "teacher" | "cet" | "ai";
 export type PracticeMode = "quiz" | "essay" | "speaking";
 
 export type Topic = {
@@ -81,6 +83,40 @@ export const MODULES: Record<string, { name: string; emoji: string }> = {
   cread: { name: "阅读", emoji: "📖" },
   ctrans: { name: "翻译", emoji: "🔁" },
   cwrite: { name: "写作", emoji: "✍️" },
+  // AI 学习（家长自学）
+  aibasic: { name: "大模型基础", emoji: "🧠" },
+  prompt: { name: "提示词工程", emoji: "💬" },
+  aioffice: { name: "AI 办公", emoji: "🗂️" },
+  aicode: { name: "AI 编程", emoji: "💻" },
+  aidata: { name: "数据与自动化", emoji: "📊" },
+  aiethics: { name: "安全与伦理", emoji: "🛡️" },
+  // 初高中
+  equation: { name: "方程与不等式", emoji: "🟰" },
+  function: { name: "函数", emoji: "📈" },
+  algebra: { name: "代数", emoji: "🔢" },
+  trig: { name: "三角与向量", emoji: "📐" },
+  sequence: { name: "数列", emoji: "🔁" },
+  solid: { name: "立体几何", emoji: "🧊" },
+  analytic: { name: "解析几何", emoji: "📉" },
+  statistics: { name: "统计与概率", emoji: "🎲" },
+  classical: { name: "古诗文", emoji: "📜" },
+  cloze: { name: "完形填空", emoji: "🧩" },
+  mechanics: { name: "力学", emoji: "🏋️" },
+  electricity: { name: "电学", emoji: "⚡" },
+  optics: { name: "光学", emoji: "🔦" },
+  thermo: { name: "热学", emoji: "🌡️" },
+  modern: { name: "热光原子", emoji: "⚛️" },
+  experiment: { name: "实验", emoji: "🧪" },
+  element: { name: "元素化合物", emoji: "🧫" },
+  cell: { name: "细胞与代谢", emoji: "🦠" },
+  genetics: { name: "遗传与进化", emoji: "🧬" },
+  regulation: { name: "稳态与调节", emoji: "🩺" },
+  ecology: { name: "生态", emoji: "🌳" },
+  biotech: { name: "生物技术", emoji: "🔬" },
+  history: { name: "历史", emoji: "🏛️" },
+  geography: { name: "地理", emoji: "🌏" },
+  politics: { name: "道法 / 政治", emoji: "⚖️" },
+  exam: { name: "真题题型", emoji: "🎯" },
   // 素养
   science: { name: "科学", emoji: "🔬" },
   coding: { name: "编程思维", emoji: "💻" },
@@ -623,6 +659,7 @@ export const ADULT_EXAMS: Record<AdultSubject, { name: string; emoji: string; bl
   ielts: { name: "雅思 IELTS", emoji: "🌍", blurb: "听说读写 + 词汇语法", examSize: 20, examMinutes: 25, examHint: "IELTS 风格，题干用英文", parts: [["Listening（🔊{{}} 格式，日常对话与学术讲座）", 6], ["Reading（题干内给 60-100 词短文，True/False/Not Given 或 multiple choice）", 8], ["Vocabulary & Grammar", 6]] },
   teacher: { name: "教师资格证（小学）", emoji: "🎓", blurb: "综合素质 + 教育教学知识与能力", examSize: 30, examMinutes: 30, examHint: "小学教师资格笔试风格", parts: [["综合素质（职业理念、法律法规、职业道德）", 8], ["综合素质（文化素养、逻辑与信息处理）", 7], ["教育教学知识与能力（教育基础、学生指导、班级管理）", 8], ["教育教学知识与能力（教学设计、实施、评价）", 7]] },
   cet: { name: "英语四六级", emoji: "🎯", blurb: "词汇语法、听力、阅读、翻译、写作", examSize: 25, examMinutes: 30, examHint: "CET-4/6 风格，题干用英文", parts: [["听力（🔊{{}} 格式，短对话与短文）", 6], ["阅读（题干内给 80-120 词短文或选词填空）", 10], ["词汇语法", 9]] },
+  ai: { name: "AI 学习", emoji: "🤖", blurb: "大模型基础 → 提示词 → AI 办公 / 编程 / 数据 → 安全伦理，不考证，学会用", examSize: 20, examMinutes: 20, examHint: "AI 应用能力综合测验风格：概念辨析、提示词优劣判断、场景选工具、代码与数据小题、伦理判断", parts: [["大模型基础与提示词工程", 8], ["AI 办公、编程与数据自动化（含短代码 / 表格场景）", 8], ["AI 安全、版权与伦理", 4]] },
 };
 const ADULT: Record<AdultSubject, A[]> = {
   gongkao: [
@@ -675,6 +712,26 @@ const ADULT: Record<AdultSubject, A[]> = {
     ["jiaoyu", "banji", "班级管理", "班主任工作、课外活动", `${AD_OBJ}小学教师资格·班级管理：班级与班集体、班主任工作、课外活动、家校合作`],
     ["jiaoyu", "shishi", "教学设计与实施", "教学目标、方法、评价", `${AD_OBJ}小学教师资格·教学设计、教学实施与教学评价：教学目标、教学方法、教学原则、教学评价`],
     ["jiaoyu", "sheji", "教学设计题", "写一份教学设计", "小学教师资格·教学设计题的写法：教学目标（三维）、重难点、教学过程（导入 / 新授 / 巩固 / 小结 / 作业）、板书；示范一份语文或数学教学设计片段；练习给课题", "essay"],
+  ],
+  ai: [
+    ["aibasic", "llm", "大模型是怎么工作的", "Token、上下文、概率生成", `${AD_OBJ}大模型基础：Token 与上下文窗口、下一个词预测、温度与采样、幻觉的成因、训练 / 微调 / RAG 的区别（概念辨析题）`],
+    ["aibasic", "landscape", "主流模型与产品图谱", "Claude / GPT / DeepSeek / 通义 / 豆包", `${AD_OBJ}主流大模型与产品：Claude、GPT、Gemini、DeepSeek、通义千问、豆包、Kimi 的定位差异；对话 / 编码 / 图像 / 语音产品的适用场景（以公开资料为准，不编造参数）`],
+    ["aibasic", "multimodal", "多模态与智能体", "看图、语音、Agent、MCP", `${AD_OBJ}多模态输入输出、函数调用 / 工具使用、Agent 循环、MCP 等概念与适用场景`],
+    ["prompt", "basics", "提示词基本功", "角色、任务、格式、约束", `${AD_OBJ}提示词工程基础：角色设定、任务拆解、输出格式、约束条件、示例（few-shot），判断哪条提示词更好及原因`],
+    ["prompt", "advanced", "进阶技巧", "思维链、分步、自检、迭代", `${AD_OBJ}提示词进阶：让模型先思考再回答、分步骤、自我检查、迭代改写、给参考资料减少幻觉`],
+    ["prompt", "practice", "提示词写作练习", "把模糊需求写成好提示词", "提示词写作：给一个模糊需求（如「帮我写周报」），示范如何改写成包含角色 / 背景 / 目标 / 格式 / 示例的高质量提示词；练习给需求让学习者写", "essay"],
+    ["aioffice", "writing", "AI 写作与改稿", "邮件、周报、方案", `${AD_OBJ}AI 写作场景：邮件、周报、方案、演讲稿的提示词要点，改稿与润色的做法，判断输出质量`],
+    ["aioffice", "sheets", "AI 处理表格与 PPT", "公式、透视、大纲生成", `${AD_OBJ}AI 办公：让 AI 写 Excel 公式 / 解释公式、整理数据、生成 PPT 大纲与讲稿、会议纪要提炼`],
+    ["aioffice", "research", "AI 检索与资料整理", "联网搜索、总结、核查", `${AD_OBJ}用 AI 做资料检索与整理：搜索 + 总结、多文档对比、来源核查、避免被幻觉误导`],
+    ["aicode", "python", "Python 零基础入门", "变量、循环、函数、文件", `${AD_OBJ}Python 入门：变量类型、条件循环、函数、列表字典、读写文件，含短代码题（题干内给 5-10 行代码问输出或错误）`],
+    ["aicode", "vibe", "用 AI 写代码", "Cursor / Claude Code / Copilot 工作流", `${AD_OBJ}AI 辅助编程：如何描述需求、让 AI 解释代码、定位 bug、写测试、代码审查的提示词要点，工具的适用场景`],
+    ["aicode", "web", "做一个小工具或网页", "从需求到上线", "AI 辅助做一个小工具：需求拆解、让 AI 生成代码、本地运行、迭代修改、部署；示范一个待办小网页的对话流程；练习给需求", "essay"],
+    ["aidata", "excel", "数据分析入门", "清洗、透视、可视化", `${AD_OBJ}用 AI 做数据分析：数据清洗、分组汇总、图表选择、结论表述，题干内给小表格`],
+    ["aidata", "automation", "自动化与工作流", "脚本、定时任务、RPA", `${AD_OBJ}自动化：批量重命名 / 合并文件 / 定时提醒等场景选方案，Python 脚本与低代码工具的取舍`],
+    ["aidata", "rag", "知识库与 RAG", "把自己的资料喂给 AI", `${AD_OBJ}RAG 与个人知识库：分块、向量检索、引用来源、什么场景该用 RAG 而不是微调`],
+    ["aiethics", "privacy", "隐私与数据安全", "什么不能发给 AI", `${AD_OBJ}AI 使用安全：敏感信息与隐私、企业数据边界、账号与密钥保护、钓鱼与深度伪造识别`],
+    ["aiethics", "copyright", "版权、幻觉与核查", "AI 生成内容怎么用", `${AD_OBJ}AI 内容的版权与署名、幻觉核查方法、学术与工作中的合规使用`],
+    ["aiethics", "family", "家长用 AI 辅导孩子", "边界、习惯、工具", `${AD_OBJ}家长用 AI 辅导孩子：引导式而非给答案、屏幕时间、隐私、合适的工具与提示词`],
   ],
   cet: [
     ["cvocab", "vocab", "核心词汇", "高频词、词组", `${AD_OBJ}CET-4/6 核心词汇与词组：选词填空、近义辨析，题干英文`],
@@ -731,6 +788,17 @@ function buildAll(): Topic[] {
     for (const [slug, module, name, desc, hint, practice] of list) {
       out.push({ code: `special-english-g${g}-${slug}`, track: "special", subjectId: "english", grade: Number(g), module, moduleName: MODULES[module]?.name ?? module, slug, name, emoji: MODULE_EMOJI(module), desc, hint, practice: practice ?? "quiz" });
     }
+  }
+  const pushSec = (track: Track, subject: SecondarySubject, grade: number, defs: import("@/lib/secondary-catalog").SecDef[], prefix: string) => {
+    for (const [slug, module, name, desc, hint, practice] of defs) {
+      out.push({ code: `${prefix}-${subject}-g${grade}-${slug}`, track, subjectId: subject, grade, module, moduleName: MODULES[module]?.name ?? module, slug, name, emoji: MODULE_EMOJI(module), desc, hint, practice: practice ?? "quiz" });
+    }
+  };
+  for (const g of JUNIOR_GRADES) for (const sub of STAGE_SUBJECTS.junior) pushSec("special", sub, g, juniorTopics(g, sub), "special");
+  for (const g of SENIOR_GRADES) for (const sub of STAGE_SUBJECTS.senior) pushSec("special", sub, g, seniorTopics(g, sub), "special");
+  for (const stage of ["zhongkao", "gaokao"] as ExamStage[]) {
+    const grade = stage === "zhongkao" ? 9 : 12;
+    for (const sub of STAGE_SUBJECTS[stage === "zhongkao" ? "junior" : "senior"]) pushSec(stage, sub, grade, examLectures(stage, sub), stage);
   }
   for (const [subject, list] of Object.entries(ADULT) as [AdultSubject, A[]][]) {
     for (const [module, slug, name, desc, hint, practice] of list) {

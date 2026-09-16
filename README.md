@@ -57,7 +57,9 @@ src/lib/topics.ts         讲义（故事→导引→一例一练→点拨）与
 src/lib/plan.ts           首页"本周计划"自动目标与完成统计
 src/lib/level-test.ts     奥数级末定级测；src/lib/reading.ts 分级阅读；src/lib/exam.ts 模拟卷 / 成人真题演练；src/lib/walkthrough.ts 解题讲解
 src/app/child/reading/    分级阅读；src/app/child/exam/ 真题演练；src/app/child/map/ 知识图谱（过滤练）；src/app/child/olympiad/tree 知识树
-src/app/parent/study/     家长自学：公考 / 初级会计 / 雅思 / 教资 / 四六级，讲义 + 三档练习 + 真题演练 + 错题本
+src/app/parent/study/     家长自学：公考 / 初级会计 / 雅思 / 教资 / 四六级 / AI 学习，讲义 + 三档练习 + 真题演练 + 错题本
+src/lib/secondary-catalog.ts 初中高中各科专项、中考 / 高考真题专讲、模拟卷结构；src/lib/grade.ts 年级 1-12 与学段
+src/app/child/prep/       中考 / 高考真题专讲；年级 ≥ 7 的学生首页由 components/secondary-home.tsx 渲染
 src/lib/speaking.ts       英语口语主题目录、跟读句子生成与复用、对话提示词
 src/app/parent/report/    家长学情报告 + AI 周评
 src/app/explain/[id]      动画讲解播放器（家长和孩子都可看）

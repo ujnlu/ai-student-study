@@ -3,6 +3,7 @@
  */
 import { db } from "@/lib/db";
 import { lecturesOfLevel, olympiadLevel, topicStats, topicsFor } from "@/lib/topics";
+import { stageOf } from "@/lib/grade";
 
 export type PlanItem = { key: string; icon: string; label: string; hint: string; href: string; done: number; target: number };
 
@@ -16,6 +17,7 @@ function weekStart() {
 
 export async function weeklyPlan(child: { id: string; grade: number; semester: number }): Promise<PlanItem[]> {
   const since = weekStart();
+  if (stageOf(child.grade) !== "primary") return secondaryPlan(child, since);
   const level = olympiadLevel(child.grade, child.semester);
   const lectures = lecturesOfLevel(level);
   const [sets, speaking, weekly, stats] = await Promise.all([
@@ -48,4 +50,20 @@ export async function weeklyPlan(child: { id: string; grade: number; semester: n
     { key: "rv", icon: "🏁", label: "周末总复习", hint: "单元测或周总复习", href: "/child/review", done: weekly, target: 1 },
   ];
   return items;
+}
+
+/** 初高中周计划：专项 3、真题专讲 1、模拟卷 1、错题复习 */
+async function secondaryPlan(child: { id: string; grade: number }, since: Date): Promise<PlanItem[]> {
+  const examStage = stageOf(child.grade) === "senior" ? "gaokao" : "zhongkao";
+  const [sets, due] = await Promise.all([
+    db.practiceSet.findMany({ where: { childId: child.id, status: "done", completedAt: { gte: since } }, select: { topic: true, kind: true } }),
+    db.mistakeEntry.count({ where: { childId: child.id, status: "cleared", nextReviewAt: { lte: new Date() } } }),
+  ]);
+  const reviewed = sets.filter((s) => s.kind === "review").length;
+  return [
+    { key: "sp", icon: "📚", label: "专项 3 个", hint: "各科挑不熟的模块", href: `/child/special?subject=math&g=${child.grade}`, done: new Set(sets.filter((s) => s.topic?.startsWith("special-")).map((s) => s.topic!)).size, target: 3 },
+    { key: "ex", icon: "🎯", label: "真题专讲 1 个", hint: "一个题型练到 ★★", href: `/child/prep?stage=${examStage}`, done: new Set(sets.filter((s) => s.topic?.startsWith(`${examStage}-`)).map((s) => s.topic!)).size, target: 1 },
+    { key: "mock", icon: "📄", label: "模拟卷 1 套", hint: "限时整卷", href: "/child/exam", done: sets.filter((s) => s.kind === "exam").length, target: 1 },
+    { key: "rv", icon: "🔁", label: "错题复习", hint: due > 0 ? `${due} 道到期` : "到期的都复习了", href: "/child/mistakes", done: due === 0 ? 1 : reviewed > 0 ? 1 : 0, target: 1 },
+  ];
 }

@@ -213,5 +213,9 @@ export function answersMatch(given: string | null | undefined, expected: string)
   };
   const gn = toNum(g), en = toNum(e);
   if (!Number.isNaN(gn) && !Number.isNaN(en) && Number.isFinite(gn)) return Math.abs(gn - en) < 1e-9;
+  // 带单位的答案（-16j、5a、3.5m/s、20%）：数值部分相同即可，单位写不写都算对
+  const unit = /^(-?\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?)?)([a-zμω°%²³\/·\u4e00-\u9fa5]*)$/;
+  const gm = unit.exec(g), em = unit.exec(e);
+  if (gm && em && (gm[2] === "" || gm[2] === em[2])) return Math.abs(toNum(gm[1]) - toNum(em[1])) < 1e-9;
   return false;
 }

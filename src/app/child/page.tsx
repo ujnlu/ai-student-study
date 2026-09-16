@@ -7,6 +7,8 @@ import { chapterPath, currentChapter, currentTextbook } from "@/lib/sync";
 import { groupByModule, lecturesOfLevel, olympiadLevel, topicsFor, topicStats, MODULES } from "@/lib/topics";
 import { speakTopicsFor } from "@/lib/speaking";
 import { weeklyPlan } from "@/lib/plan";
+import { SecondaryHome } from "@/components/secondary-home";
+import { stageOf } from "@/lib/grade";
 import { StartPracticeButton } from "@/components/start-practice-button";
 import { MascotSays } from "@/components/mascot";
 import { EntryTile, SectionTitle, THEME, TopicTile, type ThemeKey } from "@/components/subject-ui";
@@ -21,6 +23,7 @@ const TABS: ThemeKey[] = ["math", "chinese", "english", "olympiad", "quality"];
 export default async function ChildHome({ searchParams }: { searchParams: Promise<{ s?: string }> }) {
   const { child } = await requireChild();
   const { s } = await searchParams;
+  const secondary = stageOf(child.grade) !== "primary";
   const tab: ThemeKey = (TABS as string[]).includes(s ?? "") ? (s as ThemeKey) : "math";
   const subjects = child.textbooks.map((t) => t.subjectId);
   const [tasks, days, stars, recent, mathChapter, chineseChapter, englishTb] = await Promise.all([
@@ -56,6 +59,7 @@ export default async function ChildHome({ searchParams }: { searchParams: Promis
       ? [{ done: false, icon: "👨‍👩‍👧", color: "bg-berry-soft", label: `爸爸妈妈布置了 ${tasks.readySets.filter((x) => x.kind === "ai").length} 组练习`, hint: "", node: <Link href="/child/practice" className="btn-secondary text-sm py-2">去做</Link> }]
       : []),
   ];
+  if (secondary) todo.splice(0, 2); // 初高中没有课本同步练 / 口算
   const pending = todo.filter((t) => !t.done);
   const doneCount = todo.length - pending.length;
   const pct = Math.round((doneCount / todo.length) * 100);
@@ -131,6 +135,9 @@ export default async function ChildHome({ searchParams }: { searchParams: Promis
       </section>
 
       {/* 学科切换 */}
+      {secondary ? (
+        <SecondaryHome childId={child.id} grade={child.grade} tab={s ?? "math"} />
+      ) : (
       <section>
         <div className="grid grid-cols-5 gap-1.5">
           {TABS.map((k) => {
@@ -320,6 +327,7 @@ export default async function ChildHome({ searchParams }: { searchParams: Promis
           )}
         </div>
       </section>
+      )}
 
       {/* 常用工具 */}
       <section className="grid grid-cols-4 gap-2">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GRADE_NAMES as GRADE_TEXT } from "@/lib/grade";
 import { requireChild } from "@/lib/auth";
 import { levelProgress, olympiadLevel, MODULES } from "@/lib/topics";
 import { levelTestResults, LEVEL_PASS, LEVEL_TEST_SIZE, LEVEL_TEST_SECONDS } from "@/lib/level-test";
@@ -6,7 +7,6 @@ import { StartFlowButton } from "@/components/start-flow-button";
 import { MascotSays } from "@/components/mascot";
 import { THEME } from "@/components/subject-ui";
 
-const GRADE_TEXT = ["", "一年级", "二年级", "三年级", "四年级", "五年级", "六年级"];
 const OLY_MODULES = ["calc", "number", "geometry", "word", "motion", "combo", "counting", "mixed"];
 
 export default async function OlympiadPage({ searchParams }: { searchParams: Promise<{ level?: string; m?: string }> }) {

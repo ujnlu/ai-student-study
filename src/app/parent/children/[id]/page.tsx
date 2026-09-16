@@ -1,3 +1,4 @@
+import { gradeName } from "@/lib/grade";
 import { db } from "@/lib/db";
 import { requireParent } from "@/lib/auth";
 import { saveChildAction } from "@/app/actions/children";
@@ -37,7 +38,7 @@ export default async function ChildEditPage({ params }: { params: Promise<{ id: 
         <div>
           <label className="label">年级</label>
           <select name="grade" defaultValue={child?.grade ?? 1} className="input">
-            {[1, 2, 3, 4, 5, 6].map((g) => <option key={g} value={g}>{g} 年级</option>)}
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((g) => <option key={g} value={g}>{gradeName(g)}</option>)}
           </select>
         </div>
         <div>

@@ -46,8 +46,8 @@ export default async function ParentStudyPage({ searchParams }: { searchParams: 
           <div className="flex items-center gap-3">
             <span className="text-4xl">{exam.emoji}</span>
             <div className="flex-1">
-              <h2 className="text-xl font-bold">{exam.name} · 真题演练</h2>
-              <p className="text-sm text-gray-600">{exam.blurb} · 整卷 {exam.examSize} 题 · {exam.examMinutes} 分钟 · 仿真真题风格（AI 出题，非真实试卷）</p>
+              <h2 className="text-xl font-bold">{exam.name} · {subject === "ai" ? "综合测验" : "真题演练"}</h2>
+              <p className="text-sm text-gray-600">{exam.blurb} · 整卷 {exam.examSize} 题 · {exam.examMinutes} 分钟 · {subject === "ai" ? "检验学会了没有" : "仿真真题风格（AI 出题，非真实试卷）"}</p>
             </div>
             {pendingExam ? (
               <Link href={`/parent/study/practice/${pendingExam.id}`} className="btn-primary">继续做卷 ➡️</Link>
@@ -75,6 +75,20 @@ export default async function ParentStudyPage({ searchParams }: { searchParams: 
           <Link href="/parent/study/mistakes" className="btn-secondary text-sm mt-2">错题本 ›</Link>
         </section>
       </div>
+
+      {subject === "ai" && (
+        <section className="card space-y-2">
+          <h2 className="font-bold">🗺️ AI 学习路线（建议顺序）</h2>
+          <ol className="text-sm text-gray-700 list-decimal pl-5 space-y-1">
+            <li><b>大模型基础</b>：先弄懂 Token / 上下文 / 幻觉，知道它能做什么、不能做什么。</li>
+            <li><b>提示词工程</b>：角色 + 背景 + 目标 + 格式 + 示例，学会迭代改写；这是回报最高的一步。</li>
+            <li><b>AI 办公</b>：写作改稿、表格公式、PPT 大纲、会议纪要，每周挑一件真实工作用 AI 做完。</li>
+            <li><b>AI 编程 / 数据自动化</b>：Python 零基础 → 让 AI 写脚本 → 做一个小工具；再学知识库 / RAG。</li>
+            <li><b>安全与伦理</b>：什么不能发给 AI、版权与核查、怎么给孩子用。</li>
+          </ol>
+          <p className="text-xs text-gray-500">免费资料：DeepLearning.AI《ChatGPT Prompt Engineering for Developers》（吴恩达）、Anthropic 提示词指南 docs.anthropic.com、Hugging Face 免费课程、李宏毅《生成式 AI 导论》公开课。每个专题点进去「讲一讲」就是按这条路线写的讲义。</p>
+        </section>
+      )}
 
       {groups.map((gp) => (
         <section key={gp.module}>

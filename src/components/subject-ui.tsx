@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GRADE_NAMES as GRADE_TEXT } from "@/lib/grade";
 import type { Topic } from "@/lib/topic-catalog";
 
 /** 各学科的配色（Tailwind 类名要写全，便于扫描） */
@@ -8,6 +9,14 @@ export const THEME = {
   english: { name: "英语", emoji: "🔤", soft: "bg-sky-soft", border: "border-sky/30", text: "text-sky-dark", solid: "bg-sky", ring: "border-sky", btn: "btn-sky" },
   olympiad: { name: "奥数", emoji: "🧠", soft: "bg-bee-soft", border: "border-bee/40", text: "text-bee-dark", solid: "bg-bee", ring: "border-bee", btn: "btn bg-bee text-gray-900 shadow-[0_4px_0_0_var(--bee-dark)] active:translate-y-[4px] active:shadow-none" },
   quality: { name: "素养", emoji: "🔬", soft: "bg-leaf-soft", border: "border-leaf/40", text: "text-leaf-dark", solid: "bg-leaf", ring: "border-leaf", btn: "btn-leaf" },
+  physics: { name: "物理", emoji: "⚡", soft: "bg-sky-soft", border: "border-sky/30", text: "text-sky-dark", solid: "bg-sky", ring: "border-sky", btn: "btn-sky" },
+  chemistry: { name: "化学", emoji: "🧪", soft: "bg-leaf-soft", border: "border-leaf/40", text: "text-leaf-dark", solid: "bg-leaf", ring: "border-leaf", btn: "btn-leaf" },
+  biology: { name: "生物", emoji: "🧬", soft: "bg-leaf-soft", border: "border-leaf/40", text: "text-leaf-dark", solid: "bg-leaf", ring: "border-leaf", btn: "btn-leaf" },
+  history: { name: "历史", emoji: "🏛️", soft: "bg-bee-soft", border: "border-bee/40", text: "text-bee-dark", solid: "bg-bee", ring: "border-bee", btn: "btn bg-bee text-gray-900 shadow-[0_4px_0_0_var(--bee-dark)] active:translate-y-[4px] active:shadow-none" },
+  geography: { name: "地理", emoji: "🌏", soft: "bg-sky-soft", border: "border-sky/30", text: "text-sky-dark", solid: "bg-sky", ring: "border-sky", btn: "btn-sky" },
+  politics: { name: "道法 / 政治", emoji: "⚖️", soft: "bg-grape-soft", border: "border-grape/30", text: "text-grape", solid: "bg-grape", ring: "border-grape", btn: "btn bg-grape text-white shadow-[0_4px_0_0_#7c3aed] active:translate-y-[4px] active:shadow-none" },
+  zhongkao: { name: "中考", emoji: "🎯", soft: "bg-berry-soft", border: "border-berry/30", text: "text-berry", solid: "bg-berry", ring: "border-berry", btn: "btn bg-berry text-white shadow-[0_4px_0_0_var(--berry-dark)] active:translate-y-[4px] active:shadow-none" },
+  gaokao: { name: "高考", emoji: "🎓", soft: "bg-berry-soft", border: "border-berry/30", text: "text-berry", solid: "bg-berry", ring: "border-berry", btn: "btn bg-berry text-white shadow-[0_4px_0_0_var(--berry-dark)] active:translate-y-[4px] active:shadow-none" },
 } as const;
 export type ThemeKey = keyof typeof THEME;
 
@@ -62,11 +71,10 @@ export function SectionTitle({ children, right }: { children: React.ReactNode; r
   );
 }
 
-const GRADE_TEXT = ["", "一年级", "二年级", "三年级", "四年级", "五年级", "六年级"];
-export function GradeChips({ current, hrefFor }: { current: number; hrefFor: (g: number) => string }) {
+export function GradeChips({ current, hrefFor, grades = [1, 2, 3, 4, 5, 6] }: { current: number; hrefFor: (g: number) => string; grades?: number[] }) {
   return (
     <div className="flex gap-2 flex-wrap">
-      {[1, 2, 3, 4, 5, 6].map((g) => (
+      {grades.map((g) => (
         <Link key={g} href={hrefFor(g)} className={g === current ? "chip-on" : "chip"}>{GRADE_TEXT[g]}</Link>
       ))}
     </div>

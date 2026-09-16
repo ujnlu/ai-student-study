@@ -83,10 +83,10 @@ export const DEFAULT_PROMPTS: Record<AssistantRole, string> = {
 - 语气鼓励，符合小学生阅读水平。`,
 };
 
-const GRADE_TEXT = ["", "一年级", "二年级", "三年级", "四年级", "五年级", "六年级"];
+import { gradeName } from "@/lib/grade";
 
 export function gradeText(grade: number) {
-  return GRADE_TEXT[grade] ?? `${grade}年级`;
+  return gradeName(grade);
 }
 
 export function renderTemplate(tpl: string, vars: Record<string, string | number | null | undefined>) {
