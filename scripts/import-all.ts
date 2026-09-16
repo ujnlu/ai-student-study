@@ -22,7 +22,8 @@ async function main() {
   const all = await fetchCatalog();
   // --missing：只重导没有正文的书：仅章节（contentSource=none）或图片版但一页文字都没有的；否则跳过所有已 ready 的
   const ready = await db.textbook.findMany({ where: { status: "ready" }, select: { id: true, smarteduId: true, contentSource: true, _count: { select: { pages: { where: { text: { not: "" } } } } } } });
-  const noText = (t: (typeof ready)[number]) => t.contentSource === "none" || (t.contentSource === "images" && t._count.pages === 0);
+  // 没有正文：仅章节、图片版还没识别文字、或 PDF 是扫描版（一页文字都没有）
+  const noText = (t: (typeof ready)[number]) => t.contentSource === "none" || t._count.pages === 0;
   const done = new Set(ready.filter((t) => (missingOnly ? !noText(t) : true)).map((t) => t.smarteduId));
   const missing = new Set(ready.filter(noText).map((t) => t.smarteduId));
   const queue = all

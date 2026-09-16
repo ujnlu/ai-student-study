@@ -451,6 +451,22 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
       await loadingTask.destroy();
       // 文字抽完 PDF 就没用了（页面浏览用图片），一律删掉省磁盘
       await fs.rm(pdfPath, { force: true });
+      // 扫描版 PDF 没有文字层：等同于没拿到正文
+      const textPages = await db.textbookPage.count({ where: { textbookId: tb.id, text: { not: "" } } });
+      const scanned = textPages === 0;
+      if (scanned) log(`PDF 是扫描版，没有文字层`);
+      if (scanned && !keepFiles) {
+        if (imagesIfNoPdf && imageBase) {
+          contentSource = "images";
+          await setStatus(tb.id, { status: "downloading", progress: 55 });
+          pageCount = await downloadPageImages(tb.id, smarteduId, imageBase, creds, pageCount, (n) => void setStatus(tb.id, { progress: 55 + Math.round((n / Math.max(1, pageCount)) * 40) }));
+          log(`改为保存页面图片 ${pageCount} 页，待 AI 识别`);
+        } else {
+          contentSource = "none";
+          pageCount = 0;
+          await db.textbookPage.deleteMany({ where: { textbookId: tb.id } });
+        }
+      }
       // 页面图片：查看原版排版和插图（小学）
       if (imageBase && keepFiles) {
         await setStatus(tb.id, { progress: 55 });
