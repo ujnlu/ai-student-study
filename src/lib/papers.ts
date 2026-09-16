@@ -78,7 +78,7 @@ async function extractText(paperId: string, familyId: string): Promise<string> {
       for (let n = 1; n <= doc.numPages; n++) {
         const page = await doc.getPage(n);
         const tc = await page.getTextContent();
-        pages.push(layoutText(tc.items as { str?: string; transform?: number[]; width?: number }[]));
+        pages.push(layoutPage(tc.items as { str?: string; transform?: number[]; width?: number }[], page.getViewport({ scale: 1 }).width));
       }
       await task.destroy();
       const text = pages.join("\n\n");
@@ -102,6 +102,34 @@ async function extractText(paperId: string, familyId: string): Promise<string> {
 }
 
 /** 按行切段，段与段之间保留约 300 字重叠，避免一道题被切在两段中间 */
+/**
+ * 试卷常见多栏排版（A3 横版 2-3 栏）：扫描页面 15%-85% 宽度范围，找出几乎没有文字块横跨的"竖缝"，
+ * 按缝把文字块分到各栏，每栏单独按行排版后依次拼接；找不到缝就按整页排版。
+ */
+export function layoutPage(items: { str?: string; transform?: number[]; width?: number }[], pageWidth: number) {
+  const blocks = items.filter((i) => typeof i.str === "string" && i.str.trim() && i.transform);
+  if (blocks.length < 40) return layoutText(items);
+  const step = pageWidth * 0.01;
+  const limit = Math.max(2, blocks.length * 0.01);
+  const gutters: number[] = [];
+  let runStart: number | null = null;
+  for (let x = pageWidth * 0.15; x <= pageWidth * 0.85 + 1e-6; x += step) {
+    const cross = blocks.filter((b) => b.transform![4] < x - 2 && b.transform![4] + (b.width ?? 0) > x + 2).length;
+    if (cross <= limit) {
+      if (runStart === null) runStart = x;
+    } else if (runStart !== null) {
+      gutters.push((runStart + x - step) / 2);
+      runStart = null;
+    }
+  }
+  if (runStart !== null) gutters.push((runStart + pageWidth * 0.85) / 2);
+  // 相邻缝要隔开至少 20% 页宽；每栏至少有 8% 的文字块
+  const bounds = [0, ...gutters.filter((g, i) => i === 0 || g - gutters[i - 1] > pageWidth * 0.2), pageWidth];
+  const cols = bounds.slice(0, -1).map((lo, i) => blocks.filter((b) => b.transform![4] >= lo - 2 && b.transform![4] < bounds[i + 1] - 2));
+  if (cols.length < 2 || cols.some((c) => c.length < blocks.length * 0.08)) return layoutText(items);
+  return cols.map((c) => layoutText(c)).join("\n");
+}
+
 function chunk(text: string, size = CHUNK, overlap = 300) {
   const lines = text.split("\n");
   const out: string[] = [];
@@ -133,7 +161,11 @@ export async function parsePaper(paperId: string, familyId: string) {
     const paper = await db.paper.findUniqueOrThrow({ where: { id: paperId } });
     const text = await extractText(paperId, familyId);
     await db.paper.update({ where: { id: paperId }, data: { rawText: text } });
-    const assistant = await resolveAssistant(familyId, "generate");
+    const base = await resolveAssistant(familyId, "generate");
+    // 抽题是"照抄 + 结构化"，不需要推理：DeepSeek 下改用 deepseek-chat（推理模型的思考内容会吃掉输出上限），并放宽输出上限
+    const isDeepSeek = /deepseek/i.test(base.provider.baseUrl ?? "") || /deepseek/i.test(base.provider.defaultModel);
+    const assistant = { ...base, model: isDeepSeek ? "deepseek-chat" : base.model, maxTokens: Math.max(base.maxTokens, 16000) };
+    const solver = { ...base, maxTokens: Math.max(base.maxTokens, 16000) };
     const subjectName = SUBJECT_NAME[paper.subject as TopicSubject] ?? paper.subject;
     const stageName = PAPER_STAGES[paper.stage] ?? paper.stage;
     const system =
@@ -166,7 +198,7 @@ export async function parsePaper(paperId: string, familyId: string) {
     for (let i = 0; i < missing.length; i += 5) {
       const batch = missing.slice(i, i + 5);
       const r = await runJson(
-        assistant,
+        solver,
         { system: `你是${stageName}${subjectName}老师，请解答下面的题目：选择题 answer 只写字母，填空题只写最终答案，解答题 answer 写参考答案要点（100 字内）；solution 写简要解析（80 字内）。`, messages: [{ role: "user", content: batch.map((p) => `【${p.no}】${p.stem}`).join("\n\n") }] },
         Solved,
       );
