@@ -32,9 +32,12 @@ if [ "$REMOTE_BUILD" = 0 ]; then
   BUILD=/tmp/study-build
   mkdir -p "$BUILD"
   rsync -a --delete --exclude node_modules --exclude .next --exclude data --exclude .git --exclude '*.log' --exclude '*.tmp.ts' --exclude 'scripts/.*' ./ "$BUILD/"
-  if [ ! -d "$BUILD/node_modules" ] || [ package-lock.json -nt "$BUILD/node_modules/.package-lock.json" ]; then
+  # 副本的 node_modules 是硬链接，里面的 .package-lock.json 会跟着本机一起变，不能拿它判断新旧；
+  # 用拷贝时留下的 lock 快照对比，依赖变了（新装了包）就整个重建副本
+  if [ ! -d "$BUILD/node_modules" ] || ! cmp -s package-lock.json "$BUILD/.lock-stamp"; then
     rm -rf "$BUILD/node_modules"
     cp -al node_modules "$BUILD/node_modules" 2>/dev/null || cp -a node_modules "$BUILD/node_modules"
+    cp package-lock.json "$BUILD/.lock-stamp"
   fi
   [ -e "$BUILD/data" ] || ln -s "$PWD/data" "$BUILD/data"
   cp .env "$BUILD/.env"
