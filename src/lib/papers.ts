@@ -14,7 +14,7 @@ import { SUBJECT_NAME, type TopicSubject } from "@/lib/topics";
 
 export const PAPER_STAGES: Record<string, string> = { gaokao: "高考", zhongkao: "中考", other: "其他" };
 export const paperCode = (id: string) => `paper-${id}`;
-const CHUNK = 3500;
+const CHUNK = 1500; // 每段拆出的题目 JSON 要控制在模型单次输出上限内
 
 const Extracted = z.object({
   problems: z.array(
@@ -24,7 +24,7 @@ const Extracted = z.object({
       module: z.string().describe("题型 / 板块，如 单选、填空、解答、阅读理解"),
       stem: z.string().describe("完整题干；选择题把选项按 A. B. C. D. 各占一行写在题干末尾"),
       answer: z.string().describe("答案：选择写字母；填空写唯一答案；解答题写参考答案要点；原文没有答案就留空"),
-      solution: z.string().describe("解析，没有就留空"),
+      solution: z.string().describe("只抄原文里已有的解析，原文没有就留空字符串，不要自己写"),
       difficulty: z.number().int().min(1).max(5),
     }),
   ),
@@ -101,18 +101,28 @@ async function extractText(paperId: string, familyId: string): Promise<string> {
   return all;
 }
 
-function chunk(text: string, size = CHUNK) {
+/** 按行切段，段与段之间保留约 300 字重叠，避免一道题被切在两段中间 */
+function chunk(text: string, size = CHUNK, overlap = 300) {
   const lines = text.split("\n");
   const out: string[] = [];
-  let cur = "";
+  let cur: string[] = [];
+  let len = 0;
   for (const l of lines) {
-    if (cur.length + l.length + 1 > size && cur) {
-      out.push(cur);
-      cur = "";
+    if (len + l.length + 1 > size && cur.length) {
+      out.push(cur.join("\n"));
+      const keep: string[] = [];
+      let k = 0;
+      for (let i = cur.length - 1; i >= 0 && k < overlap; i--) {
+        keep.unshift(cur[i]);
+        k += cur[i].length + 1;
+      }
+      cur = keep;
+      len = k;
     }
-    cur += (cur ? "\n" : "") + l;
+    cur.push(l);
+    len += l.length + 1;
   }
-  if (cur) out.push(cur);
+  if (cur.length) out.push(cur.join("\n"));
   return out;
 }
 
@@ -130,13 +140,18 @@ export async function parsePaper(paperId: string, familyId: string) {
       `你是${stageName}${subjectName}教研老师，正在把一份真题卷的原文整理成题库。` +
       `\n规则：逐题提取，保留原卷题号（no）；选择题 kind=choice，把选项按 A. B. C. D. 各占一行放在题干末尾，answer 只写字母；填空题 kind=fill，answer 只写最终答案；解答题 / 作文 / 阅读简答 kind=subjective，answer 写参考答案要点（原文没有答案就自己解出来，数学物理要给出最终结果）；` +
       `\n原文里的公式保持原样或改写为可读文本；不要遗漏小题（如 17(1)(2) 可拆成 17.1、17.2 两题，no 用 1701、1702）；` +
-      `\n如果这一段是"参考答案 / 解析"部分，不要当题目，把每题答案放进 answers。`;
+      `\n如果这一段是"参考答案 / 解析"部分，不要当题目，把每题答案放进 answers。` +
+      `\n输出要精简：题干照抄不要改写，answer 和 solution 只用原文里有的内容，缺就留空（后面会单独补），不要在这一步解题；相邻两段有少量重叠，重复出现的题照常输出（程序会去重）。`;
     const byNo = new Map<number, z.infer<typeof Extracted>["problems"][number]>();
     const answerMap = new Map<number, { answer: string; solution: string }>();
     const chunks = chunk(text);
     for (let i = 0; i < chunks.length; i++) {
       const r = await runJson(assistant, { system, messages: [{ role: "user", content: `试卷：${paper.title}（第 ${i + 1}/${chunks.length} 段）\n\n${chunks[i]}` }] }, Extracted);
-      for (const p of r.data.problems) if (p.stem.trim() && !byNo.has(p.no)) byNo.set(p.no, p);
+      for (const p of r.data.problems) {
+        if (!p.stem.trim()) continue;
+        const prev = byNo.get(p.no);
+        if (!prev || p.stem.length > prev.stem.length) byNo.set(p.no, { ...p, answer: p.answer || prev?.answer || "", solution: p.solution || prev?.solution || "" });
+      }
       for (const a of r.data.answers) answerMap.set(a.no, { answer: a.answer, solution: a.solution });
     }
     for (const [no, a] of answerMap) {
@@ -148,11 +163,11 @@ export async function parsePaper(paperId: string, familyId: string) {
     }
     // 没有答案的题：让 AI 解
     const missing = [...byNo.values()].filter((p) => !p.answer.trim());
-    for (let i = 0; i < missing.length; i += 8) {
-      const batch = missing.slice(i, i + 8);
+    for (let i = 0; i < missing.length; i += 5) {
+      const batch = missing.slice(i, i + 5);
       const r = await runJson(
         assistant,
-        { system: `你是${stageName}${subjectName}老师，请解答下面的题目：选择题 answer 只写字母，填空题只写最终答案，解答题写参考答案要点；solution 写简要解析。`, messages: [{ role: "user", content: batch.map((p) => `【${p.no}】${p.stem}`).join("\n\n") }] },
+        { system: `你是${stageName}${subjectName}老师，请解答下面的题目：选择题 answer 只写字母，填空题只写最终答案，解答题 answer 写参考答案要点（100 字内）；solution 写简要解析（80 字内）。`, messages: [{ role: "user", content: batch.map((p) => `【${p.no}】${p.stem}`).join("\n\n") }] },
         Solved,
       );
       for (const s of r.data.items) {

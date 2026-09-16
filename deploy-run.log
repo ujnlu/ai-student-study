@@ -1,8 +1,8 @@
 
 [1;36m==> 本机构建（/tmp/study-build 副本）[0m
-✓ Running next.config.ts took 46ms
-✓ Compiled successfully in 11.4s
-✓ Generating static pages using 3 workers (63/63) in 301ms
+✓ Running next.config.ts took 24ms
+✓ Compiled successfully in 10.8s
+✓ Generating static pages using 3 workers (63/63) in 274ms
 Turbopack build encountered 1 warning:
 
 [1;36m==> 同步源码到 root@123.56.92.161:/opt/ai-student-study[0m
@@ -11,7 +11,7 @@ Turbopack build encountered 1 warning:
 
 [1;36m==> 线上：安装依赖、迁移、构建、重启[0m
 依赖未变化，跳过 npm ci
-✔ Generated Prisma Client (7.10.0) to ./src/generated/prisma in 530ms
+✔ Generated Prisma Client (7.10.0) to ./src/generated/prisma in 556ms
 14 migrations found in prisma/migrations
 No pending migrations to apply.
 健康检查 /login -> 200
