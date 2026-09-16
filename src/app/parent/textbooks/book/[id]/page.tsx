@@ -46,6 +46,14 @@ export default async function TextbookBookPage({
             <OcrButton textbookId={tb.id} running={tb.status === "ocr"} progress={tb.progress} />
           </div>
         )}
+        {tb.grade >= 7 && tb.contentSource === "pdf" && (
+          <p className="mb-3 text-xs text-gray-500">初高中教材只保存 PDF 文字和章节目录，不保存页面图片。</p>
+        )}
+        {tb.contentSource === "none" && (
+          <p className="mb-3 text-xs text-yellow-800 bg-yellow-50 rounded-lg p-2">
+            这本书的 PDF 需要平台登录才能下载，目前只有章节目录。到「教材」页配置平台登录凭据后点「重新导入」即可补上正文。
+          </p>
+        )}
         <ul className="space-y-1 text-sm">
           {tb.chapters.map((c) => (
             <li key={c.id} style={{ paddingLeft: c.level * 12 }}>
@@ -83,16 +91,21 @@ export default async function TextbookBookPage({
             {p.imagePath ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={`/api/textbook-files/${p.imagePath}`} alt={`第 ${p.pageNo} 页`} className="w-full rounded-lg border" loading="lazy" />
-            ) : (
+            ) : tb.grade <= 6 ? (
               <p className="text-sm text-gray-500">（这本书导入时没有页面图片，重新导入一次即可补上）</p>
-            )}
-            <details className="mt-2">
-              <summary className="text-xs text-gray-500 cursor-pointer">提取的文字（供 AI 参考，排版可能不准）</summary>
+            ) : null}
+            {/* 没有页面图片时文字就是正文，默认展开；有图片时折叠 */}
+            <details className="mt-2" open={!p.imagePath}>
+              <summary className="text-xs text-gray-500 cursor-pointer">{p.imagePath ? "提取的文字（供 AI 参考，排版可能不准）" : "PDF 提取的文字（排版可能不准）"}</summary>
               <p className="whitespace-pre-wrap leading-relaxed text-sm mt-1">{p.text || (p.imagePath ? "（还没有识别文字）" : "（本页无文字）")}</p>
             </details>
           </div>
         ))}
-        {pages.length === 0 && <p className="text-gray-500">没有内容</p>}
+        {pages.length === 0 && (
+          <p className="text-gray-500">
+            {tb.contentSource === "none" ? "这本书还没有正文：PDF 需要平台登录才能下载。到「教材」页配置平台登录凭据后重新导入即可。" : "没有内容"}
+          </p>
+        )}
       </main>
     </div>
   );
