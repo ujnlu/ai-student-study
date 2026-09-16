@@ -449,7 +449,8 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
       }
       if (batch.length) await db.textbookPage.createMany({ data: batch });
       await loadingTask.destroy();
-      if (!keepFiles) await fs.rm(pdfPath, { force: true });
+      // 文字抽完 PDF 就没用了（页面浏览用图片），一律删掉省磁盘
+      await fs.rm(pdfPath, { force: true });
       // 页面图片：查看原版排版和插图（小学）
       if (imageBase && keepFiles) {
         await setStatus(tb.id, { progress: 55 });
@@ -536,7 +537,7 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
         status: "ready",
         progress: 100,
         contentSource,
-        pdfPath: pdfOk && keepFiles ? path.relative(process.cwd(), pdfPath) : null,
+        pdfPath: null,
         pageCount,
         frontPage,
         importedAt: new Date(),

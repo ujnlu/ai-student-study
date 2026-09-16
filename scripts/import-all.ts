@@ -4,7 +4,7 @@
  * 例：npx tsx scripts/import-all.ts 3                  # 全部学段全部学科
  *     npx tsx scripts/import-all.ts 2 english          # 只导英语
  *     npx tsx scripts/import-all.ts 3 all junior       # 只导初中
- *     npx tsx scripts/import-all.ts 2 all all --missing          # 只重导"仅章节"（PDF 需登录、没拿到正文）的书，配置平台凭据后用
+ *     npx tsx scripts/import-all.ts 2 all all --missing          # 只重导没有正文的书（仅章节的初高中书、还没识别文字的图片版小学书），配置平台凭据后用
  *     npx tsx scripts/import-all.ts 2 all all --missing --images # 同上，PDF 仍拿不到的书退回下载页面图片（初高中默认只导章节）
  */
 import "dotenv/config";
@@ -20,10 +20,11 @@ async function main() {
   const missingOnly = flags.has("--missing");
   const withImages = flags.has("--images");
   const all = await fetchCatalog();
-  // --missing：只重导"仅章节"的书（contentSource=none）；否则跳过所有已 ready 的
-  const ready = await db.textbook.findMany({ where: { status: "ready" }, select: { smarteduId: true, contentSource: true } });
-  const done = new Set(ready.filter((t) => (missingOnly ? t.contentSource !== "none" : true)).map((t) => t.smarteduId));
-  const missing = new Set(ready.filter((t) => t.contentSource === "none").map((t) => t.smarteduId));
+  // --missing：只重导没有正文的书：仅章节（contentSource=none）或图片版但一页文字都没有的；否则跳过所有已 ready 的
+  const ready = await db.textbook.findMany({ where: { status: "ready" }, select: { id: true, smarteduId: true, contentSource: true, _count: { select: { pages: { where: { text: { not: "" } } } } } } });
+  const noText = (t: (typeof ready)[number]) => t.contentSource === "none" || (t.contentSource === "images" && t._count.pages === 0);
+  const done = new Set(ready.filter((t) => (missingOnly ? !noText(t) : true)).map((t) => t.smarteduId));
+  const missing = new Set(ready.filter(noText).map((t) => t.smarteduId));
   const queue = all
     .filter((b) => b.subjectId && (!onlySubject || b.subjectId === onlySubject) && (!onlyStage || b.stage === onlyStage) && !done.has(b.smarteduId) && (!missingOnly || missing.has(b.smarteduId)))
     .sort((a, b) => a.subjectId!.localeCompare(b.subjectId!) || a.versionName.localeCompare(b.versionName) || a.grade - b.grade || a.semester - b.semester);
