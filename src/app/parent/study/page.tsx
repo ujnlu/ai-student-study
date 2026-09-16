@@ -5,12 +5,15 @@ import { getOrCreateAdultLearner } from "@/lib/adult";
 import { ADULT_EXAMS, groupByModule, topicsFor, topicStats, type AdultSubject } from "@/lib/topics";
 import { adultExamCode } from "@/lib/exam";
 import { StartFlowButton } from "@/components/start-flow-button";
+import { STAGE_EXAMS, STAGE_EXAM_NAME, STAGE_SUBJECTS, SECONDARY_SUBJECT_NAME, type ExamStage, type SecondarySubject } from "@/lib/secondary-catalog";
+import { stageExamCode } from "@/lib/exam";
 
 const SUBJECTS = Object.keys(ADULT_EXAMS) as AdultSubject[];
 
-export default async function ParentStudyPage({ searchParams }: { searchParams: Promise<{ exam?: string }> }) {
+export default async function ParentStudyPage({ searchParams }: { searchParams: Promise<{ exam?: string; subject?: string }> }) {
   const s = await requireParent();
-  const { exam: e } = await searchParams;
+  const { exam: e, subject: sb } = await searchParams;
+  if (e === "gaokao" || e === "zhongkao") return <StageStudyPage familyId={s.familyId} stage={e} subject={sb} />;
   const subject: AdultSubject = (SUBJECTS as string[]).includes(e ?? "") ? (e as AdultSubject) : "gongkao";
   const exam = ADULT_EXAMS[subject];
   const learner = await getOrCreateAdultLearner(s.familyId);
@@ -39,6 +42,8 @@ export default async function ParentStudyPage({ searchParams }: { searchParams: 
         {SUBJECTS.map((k) => (
           <Link key={k} href={`/parent/study?exam=${k}`} className={`px-4 py-2 rounded-full text-sm font-bold border ${k === subject ? "bg-brand text-white border-brand" : "bg-white border-line hover:bg-gray-50"}`}>{ADULT_EXAMS[k].emoji} {ADULT_EXAMS[k].name}</Link>
         ))}
+        <Link href="/parent/study?exam=gaokao" className="px-4 py-2 rounded-full text-sm font-bold border bg-white border-line hover:bg-gray-50">🎓 高考真题专讲</Link>
+        <Link href="/parent/study?exam=zhongkao" className="px-4 py-2 rounded-full text-sm font-bold border bg-white border-line hover:bg-gray-50">🎯 中考真题专讲</Link>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -120,6 +125,101 @@ export default async function ParentStudyPage({ searchParams }: { searchParams: 
           </div>
         </section>
       ))}
+    </div>
+  );
+}
+
+/** 家长看中考 / 高考真题专讲：讲义、三档训练、整卷模拟（用家长学习者身份） */
+async function StageStudyPage({ familyId, stage, subject: sb }: { familyId: string; stage: ExamStage; subject?: string }) {
+  const learner = await getOrCreateAdultLearner(familyId);
+  const subjects = STAGE_SUBJECTS[stage === "gaokao" ? "senior" : "junior"];
+  const subject: SecondarySubject = (subjects as string[]).includes(sb ?? "") ? (sb as SecondarySubject) : "math";
+  const topics = topicsFor(stage, subject, stage === "gaokao" ? 12 : 9);
+  const cfg = STAGE_EXAMS[stage][subject];
+  const n = cfg ? cfg.parts.reduce((a, [, c]) => a + c, 0) : 0;
+  const code = stageExamCode(stage, subject);
+  const [stats, lectured, pendingExam, recent] = await Promise.all([
+    topicStats(learner.id, topics.map((t) => t.code)),
+    db.topicLecture.findMany({ where: { code: { in: topics.map((t) => t.code) } }, select: { code: true } }),
+    db.practiceSet.findFirst({ where: { childId: learner.id, kind: "exam", topic: code, status: "ready" }, orderBy: { createdAt: "desc" } }),
+    db.practiceSet.findMany({ where: { childId: learner.id, status: "done", OR: [{ topic: { startsWith: `${stage}-${subject}-` } }, { topic: code }] }, orderBy: { completedAt: "desc" }, take: 8 }),
+  ]);
+  const lecturedSet = new Set(lectured.map((l) => l.code));
+  const name = STAGE_EXAM_NAME[stage];
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">{stage === "gaokao" ? "🎓" : "🎯"} {name}真题专讲</h1>
+        <p className="text-sm text-gray-500">家长也能看：每个题型一份讲义（考情 → 套路 → 真题风格例题 → 失分点）+ 三档训练 + 整卷模拟。题目是 AI 按真题风格原创的，不是历年真实试卷（真题受版权保护，本站不收录原卷）。</p>
+      </div>
+      <div className="flex gap-2 flex-wrap">
+        {SUBJECTS.map((k) => (
+          <Link key={k} href={`/parent/study?exam=${k}`} className="px-4 py-2 rounded-full text-sm font-bold border bg-white border-line hover:bg-gray-50">{ADULT_EXAMS[k].emoji} {ADULT_EXAMS[k].name}</Link>
+        ))}
+        <Link href="/parent/study?exam=gaokao" className={`px-4 py-2 rounded-full text-sm font-bold border ${stage === "gaokao" ? "bg-brand text-white border-brand" : "bg-white border-line hover:bg-gray-50"}`}>🎓 高考真题专讲</Link>
+        <Link href="/parent/study?exam=zhongkao" className={`px-4 py-2 rounded-full text-sm font-bold border ${stage === "zhongkao" ? "bg-brand text-white border-brand" : "bg-white border-line hover:bg-gray-50"}`}>🎯 中考真题专讲</Link>
+      </div>
+      <div className="flex gap-2 flex-wrap">
+        {subjects.map((k) => (
+          <Link key={k} href={`/parent/study?exam=${stage}&subject=${k}`} className={`px-3 py-1.5 rounded-full text-sm font-bold border ${k === subject ? "bg-gray-900 text-white border-gray-900" : "bg-white border-line hover:bg-gray-50"}`}>{SECONDARY_SUBJECT_NAME[k]}</Link>
+        ))}
+      </div>
+      {cfg && (
+        <section className="card flex items-center gap-3 flex-wrap">
+          <span className="text-4xl">📄</span>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl font-bold">{name}{SECONDARY_SUBJECT_NAME[subject]}模拟卷</h2>
+            <p className="text-sm text-gray-600">{cfg.parts.map(([p, c]) => `${p.replace(/（.*?）/g, "")} ${c}`).join(" · ")} · 共 {n} 题 · {cfg.minutes} 分钟 · 做完逐题解题讲解</p>
+          </div>
+          {pendingExam ? (
+            <Link href={`/parent/study/practice/${pendingExam.id}`} className="btn-primary">继续做卷 ➡️</Link>
+          ) : (
+            <StartFlowButton url="/api/exam" body={{ stage, subjectId: subject }} redirect="/parent/study/practice/{id}" label="开始一套 🚀" busyLabel="正在出卷，第一次约 1-2 分钟…" className="btn-primary" />
+          )}
+        </section>
+      )}
+      <section>
+        <h2 className="font-bold text-lg mb-2">真题题型专讲 · {SECONDARY_SUBJECT_NAME[subject]}</h2>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {topics.map((t) => {
+            const st = stats.get(t.code);
+            const tiers = st?.tiers ?? {};
+            return (
+              <Link key={t.code} href={`/parent/study/topic/${t.code}`} className={`card-flat hover:shadow-md flex flex-col gap-1 ${st && st.best >= 90 ? "border-leaf/50 bg-leaf-soft/30" : ""}`}>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold flex-1 truncate">{t.name}</span>
+                  {st ? <span className={`badge ${st.best >= 90 ? "bg-leaf text-white" : "bg-bee-soft text-bee-dark"}`}>{st.best}%</span> : lecturedSet.has(t.code) ? <span className="badge bg-gray-100 text-gray-500">已讲</span> : null}
+                </div>
+                <p className="text-xs text-gray-500 line-clamp-1">{t.desc}</p>
+                {t.practice === "essay" ? (
+                  <span className="text-[10px] font-bold text-grape">✍️ 主观题 · 讲法 + 范文</span>
+                ) : (
+                  <span className="flex gap-1 text-[10px] font-bold">
+                    {(["basic", "advanced", "challenge"] as const).map((k, i) => {
+                      const v = tiers[k];
+                      return <span key={k} className={`px-1.5 rounded-full ${v === undefined ? "bg-gray-100 text-gray-400" : v >= 90 ? "bg-leaf text-white" : "bg-bee-soft text-bee-dark"}`}>{"★".repeat(i + 1)}</span>;
+                    })}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+      {recent.length > 0 && (
+        <section className="card">
+          <h2 className="font-bold mb-2">最近成绩</h2>
+          <ul className="divide-y divide-line text-sm">
+            {recent.map((x) => (
+              <li key={x.id} className="py-2 flex items-center gap-3">
+                <Link href={`/parent/study/practice/${x.id}`} className="flex-1 font-semibold hover:underline">{x.title}</Link>
+                <span className="font-bold">{x.score}/{x.total}</span>
+                <span className="text-gray-400">{x.completedAt?.toLocaleDateString("zh-CN")}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }

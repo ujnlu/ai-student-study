@@ -9,6 +9,7 @@ import { db } from "@/lib/db";
 import { decrypt } from "@/lib/crypto";
 import { ndAuthHeader, parseCreds, type SmarteduCreds } from "@/lib/smartedu-auth";
 import { lessonCatalog } from "@/lib/lesson-video";
+import { SUBJECT_NAME, SUBJECT_ORDER } from "@/lib/subjects";
 
 const UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36";
 const BASE_HEADERS = { "user-agent": UA, referer: "https://basic.smartedu.cn/" };
@@ -18,20 +19,39 @@ const DETAILS_URL = (id: string) => `https://s-file-1.ykt.cbern.com.cn/zxx/ndrv2
 const TREE_URL = (ebookId: string) => `https://s-file-1.ykt.cbern.com.cn/zxx/ndrv2/national_lesson/trees/${ebookId}.json`;
 const MAX_IMAGE_PAGES = 400;
 
+export type Stage = "primary" | "junior" | "senior";
 export type CatalogBook = {
   smarteduId: string;
   title: string;
-  stage: string; // 小学
+  stage: Stage; // primary 小学 / junior 初中 / senior 高中
+  stageName: string; // 小学
   subjectName: string; // 数学
   subjectId: string | null; // math
   versionName: string; // 人教版
-  grade: number;
-  semester: number;
+  grade: number; // 1-6 小学，7-9 初中，10 必修 / 11 选择性必修 / 12 选修
+  semester: number; // 小学初中 1 上 2 下；全一册 1；高中为册序号
+  volume: string; // 显示用：上册 / 下册 / 全一册 / 必修 第一册
   updateTime: string;
 };
 
-const SUBJECT_MAP: Record<string, string> = { 数学: "math", 语文: "chinese", 英语: "english" };
-const GRADE_MAP: Record<string, number> = { 一年级: 1, 二年级: 2, 三年级: 3, 四年级: 4, 五年级: 5, 六年级: 6 };
+const STAGE_MAP: Record<string, Stage> = { 小学: "primary", 初中: "junior", 高中: "senior" };
+const SUBJECT_MAP: Record<string, string> = {
+  数学: "math", 语文: "chinese", 英语: "english",
+  物理: "physics", 化学: "chemistry", 生物学: "biology", 生物: "biology",
+  历史: "history", 地理: "geography", 道德与法治: "politics", 思想政治: "politics",
+};
+const GRADE_MAP: Record<string, number> = { 一年级: 1, 二年级: 2, 三年级: 3, 四年级: 4, 五年级: 5, 六年级: 6, 七年级: 7, 八年级: 8, 九年级: 9, 高一年级: 10, 高二年级: 11, 高三年级: 12 };
+const CN_NUM: Record<string, number> = { 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6 };
+
+/** 高中教材没有年级标签，按书名的"必修 / 选择性必修 / 选修 + 第几册"推年级和册序号 */
+function seniorVolume(title: string): { grade: number; semester: number; volume: string } | null {
+  const m = title.match(/(选择性必修|必修|选修)\s*(?:第\s*)?([一二三四五六1-6])?\s*册?/);
+  if (!m) return null;
+  const kind = m[1];
+  const idx = m[2] ? (CN_NUM[m[2]] ?? 1) : 1;
+  const grade = kind === "必修" ? 10 : kind === "选择性必修" ? 11 : 12;
+  return { grade, semester: idx, volume: m[2] ? `${kind} 第${m[2]}册`.replace(/第(\d)册/, "$1") : kind };
+}
 /** 平台版本名 → 本站内置版本 code（其余版本按平台名自动新建） */
 const VERSION_ALIAS: Record<string, Record<string, string>> = {
   math: { 人教版: "renjiao", 北师大版: "beishida", 苏教版: "sujiao", 西南大学版: "xishida", 北京版: "beijing", 冀教版: "jijiao", 青岛版: "qingdao" },
@@ -137,22 +157,39 @@ export async function fetchCatalog(force = false): Promise<CatalogBook[]> {
   for (const r of raws) {
     const tp = r.tag_paths?.[0]?.split("/") ?? [];
     const p = tp.map((t) => names.get(t) ?? t);
-    // [教材, 电子教材, 学段, 学科, 版本, 年级, 册]
-    if (p.length < 7 || p[2] !== "小学") continue;
-    const grade = GRADE_MAP[p[5]];
-    if (!grade) continue;
+    // [教材, 电子教材, 学段, 学科, 版本, 年级, 册]（初高中的年级 / 册标签常缺失，按书名判断）
+    const stage = STAGE_MAP[p[2]];
+    if (p.length < 6 || !stage) continue;
+    if (/教师用书|学生读本/.test(p[5] ?? "") || /教师用书|教学参考|学生读本|图册/.test(p[3] + (r.title ?? ""))) continue;
     const title = r.title ?? "";
-    const semester = p[6] === "上册" || /上册/.test(title) ? 1 : p[6] === "下册" || /下册/.test(title) ? 2 : 0;
-    if (!semester) continue;
+    let grade = GRADE_MAP[p[5]] ?? 0;
+    let semester = 0;
+    let volume = "";
+    if (stage === "senior") {
+      const sv = seniorVolume(title);
+      if (!sv) continue;
+      grade = grade || sv.grade;
+      semester = sv.semester;
+      volume = sv.volume;
+    } else {
+      if (!grade) grade = GRADE_MAP[(title.match(/([一二三四五六七八九]年级)/) ?? [])[1] ?? ""] ?? 0;
+      if (!grade) continue;
+      if (p[6] === "上册" || /上册/.test(title)) { semester = 1; volume = "上册"; }
+      else if (p[6] === "下册" || /下册/.test(title)) { semester = 2; volume = "下册"; }
+      else if (p[6] === "全一册" || /全一册/.test(title)) { semester = 1; volume = "全一册"; }
+      else continue;
+    }
     books.push({
       smarteduId: r.id,
       title,
-      stage: p[2],
+      stage,
+      stageName: p[2],
       subjectName: p[3],
       subjectId: SUBJECT_MAP[p[3]] ?? null,
       versionName: p[4],
       grade,
       semester,
+      volume,
       updateTime: r.update_time ?? "",
     });
   }
@@ -194,8 +231,9 @@ function publicUrl(item: TiItem): string | null {
 
 type TreeNode = { id: string; title: string; child_nodes?: TreeNode[] };
 
-const GRADE_CN = ["", "一年级", "二年级", "三年级", "四年级", "五年级", "六年级"];
-const SUBJECT_CN: Record<string, string> = { math: "数学", chinese: "语文", english: "英语" };
+const GRADE_CN = ["", "一年级", "二年级", "三年级", "四年级", "五年级", "六年级", "七年级", "八年级", "九年级", "高一", "高二", "高三"];
+const SUBJECT_CN: Record<string, string> = { math: "数学", chinese: "语文", english: "英语", physics: "物理", chemistry: "化学", biology: "生物学", history: "历史", geography: "地理", politics: "道德与法治" };
+const STAGE_CN: Record<Stage, string> = { primary: "小学", junior: "初中", senior: "高中" };
 
 /**
  * 兜底：电子教材详情里没有 ebook_mapping（多见于四年级以上）时，
@@ -206,7 +244,8 @@ export async function treeFromLessonCatalog(book: CatalogBook): Promise<TreeNode
   const items = await lessonCatalog();
   const subj = SUBJECT_CN[book.subjectId ?? ""];
   const grade = GRADE_CN[book.grade];
-  const vol = book.semester === 1 ? "上册" : "下册";
+  const vol = book.volume || (book.semester === 1 ? "上册" : "下册");
+  const stageCn = STAGE_CN[book.stage];
   // 版本名只留核心字：去掉括号里的主编、"社""版"等，"接力社版" 和 "接力版" 视为同一版本
   const verKey = (x: string) => x.replace(/（.*?）|\(.*?\)/g, "").replace(/出版社|社|版|\s/g, "");
   const ver = verKey(book.versionName);
@@ -217,7 +256,7 @@ export async function treeFromLessonCatalog(book: CatalogBook): Promise<TreeNode
   };
   const wantNew = /2022年版/.test(book.title);
   const cands = items
-    .filter((t) => t.tags.includes("小学") && t.tags.includes(subj) && t.tags.includes(grade) && t.tags.includes(vol))
+    .filter((t) => t.tags.includes(stageCn) && t.tags.includes(subj) && (book.stage === "senior" ? t.title.includes(vol) || t.tags.includes(vol) : t.tags.includes(grade) && t.tags.includes(vol)))
     .filter((t) => t.tags.some(matchVer) || matchVer(t.title))
     .sort((a, b) => {
       const score = (t: { tags: string[] }) => (t.tags.includes("新教材") ? (wantNew ? 2 : 0) : t.tags.includes("旧教材") ? (wantNew ? 0 : 2) : 1);
@@ -336,8 +375,11 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
   const book = books.find((b) => b.smarteduId === smarteduId);
   if (!book) throw new Error("目录里没有这本教材");
   if (!book.subjectId) throw new Error(`暂不支持学科：${book.subjectName}`);
+  await db.subject.upsert({ where: { id: book.subjectId }, create: { id: book.subjectId, name: SUBJECT_NAME[book.subjectId] ?? book.subjectName, sortOrder: SUBJECT_ORDER.indexOf(book.subjectId) + 1 }, update: {} });
   const version = await resolveVersion(book.subjectId, book.versionName);
   const creds = await getCreds();
+  // 初高中教材只留 PDF 文字和章节，不存页面图片、提取后删 PDF（470 多本，按小学方式存图片要 20 多 GB）
+  const keepFiles = book.stage === "primary";
 
   const tb = await db.textbook.upsert({
     where: { smarteduId },
@@ -347,12 +389,13 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
       subjectId: book.subjectId,
       grade: book.grade,
       semester: book.semester,
+      volume: book.volume || null,
       title: book.title,
       status: "downloading",
       progress: 0,
       sourceUpdatedAt: book.updateTime ? new Date(book.updateTime) : null,
     },
-    update: { textbookVersionId: version.id, grade: book.grade, semester: book.semester, title: book.title, status: "downloading", progress: 0, error: null },
+    update: { textbookVersionId: version.id, grade: book.grade, semester: book.semester, volume: book.volume || null, title: book.title, status: "downloading", progress: 0, error: null },
   });
 
   try {
@@ -368,9 +411,9 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
     const mappingUrl = mappingItem ? publicUrl(mappingItem) : null;
     if (!pdfUrl && !imageBase) throw new Error("平台没有提供这本书的 PDF 或页面图片");
 
-    // 1) 正文：优先 PDF，失败退回页面图片
+    // 1) 正文：优先 PDF，失败退回页面图片（初高中不存图片：PDF 拿不到就只有章节）
     const pdfPath = path.join(textbookRoot(), `${smarteduId}.pdf`);
-    let contentSource: "pdf" | "images" = "pdf";
+    let contentSource: "pdf" | "images" | "none" = "pdf";
     let pageCount = 0;
     await db.textbookPage.deleteMany({ where: { textbookId: tb.id } });
 
@@ -381,8 +424,8 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
         await download(pdfUrl, pdfPath, creds, (pct) => void setStatus(tb.id, { progress: Math.round(pct * 0.5) }));
         pdfOk = true;
       } catch (e) {
-        if (!(e instanceof DownloadError) || !imageBase) throw e;
-        log(`PDF 不可下载（${e.status}），改用页面图片`);
+        if (!(e instanceof DownloadError) || (!imageBase && keepFiles)) throw e;
+        log(keepFiles ? `PDF 不可下载（${e.status}），改用页面图片` : `PDF 不可下载（${e.status}），初高中不存页面图片，只导章节`);
       }
     }
 
@@ -404,12 +447,16 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
       }
       if (batch.length) await db.textbookPage.createMany({ data: batch });
       await loadingTask.destroy();
-      // 页面图片：查看原版排版和插图
-      if (imageBase) {
+      if (!keepFiles) await fs.rm(pdfPath, { force: true });
+      // 页面图片：查看原版排版和插图（小学）
+      if (imageBase && keepFiles) {
         await setStatus(tb.id, { progress: 55 });
         const got = await downloadPageImages(tb.id, smarteduId, imageBase, creds, pageCount, (n) => void setStatus(tb.id, { progress: 55 + Math.round((n / pageCount) * 40) }));
         log(`页面图片 ${got}/${pageCount} 页`);
       }
+    } else if (!keepFiles) {
+      contentSource = "none";
+      pageCount = 0;
     } else {
       contentSource = "images";
       await setStatus(tb.id, { status: "downloading", progress: 5 });
@@ -487,7 +534,7 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
         status: "ready",
         progress: 100,
         contentSource,
-        pdfPath: pdfOk ? path.relative(process.cwd(), pdfPath) : null,
+        pdfPath: pdfOk && keepFiles ? path.relative(process.cwd(), pdfPath) : null,
         pageCount,
         frontPage,
         importedAt: new Date(),
@@ -495,7 +542,7 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
       },
     });
     await linkKnowledgePoints(tb.id);
-    log(`完成：${pageCount} 页（${contentSource === "pdf" ? "PDF 文字" : "图片，待 AI 识别"}），${flat.length} 个章节节点`);
+    log(`完成：${pageCount} 页（${contentSource === "pdf" ? "PDF 文字" : contentSource === "images" ? "图片，待 AI 识别" : "无正文"}），${flat.length} 个章节节点`);
     return tb.id;
   } catch (e) {
     await setStatus(tb.id, { status: "failed", error: e instanceof Error ? e.message : String(e) });

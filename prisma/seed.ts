@@ -13,6 +13,12 @@ const SUBJECTS = [
   { id: "math", name: "数学", sortOrder: 1 },
   { id: "chinese", name: "语文", sortOrder: 2 },
   { id: "english", name: "英语", sortOrder: 3 },
+  { id: "physics", name: "物理", sortOrder: 4 },
+  { id: "chemistry", name: "化学", sortOrder: 5 },
+  { id: "biology", name: "生物", sortOrder: 6 },
+  { id: "history", name: "历史", sortOrder: 7 },
+  { id: "geography", name: "地理", sortOrder: 8 },
+  { id: "politics", name: "道法 / 政治", sortOrder: 9 },
 ];
 
 // 各学科常见教材版本（内置，家长端可再添加）

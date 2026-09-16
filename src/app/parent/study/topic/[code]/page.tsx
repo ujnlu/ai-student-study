@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireParent } from "@/lib/auth";
 import { getOrCreateAdultLearner } from "@/lib/adult";
-import { findTopic, getLecture, recommendTier, topicStats, ADULT_EXAMS, TIERS, type AdultSubject, type Tier } from "@/lib/topics";
+import { findTopic, getLecture, recommendTier, topicStats, ADULT_EXAMS, TIERS, SUBJECT_NAME, type AdultSubject, type Tier } from "@/lib/topics";
 import { TopicLectureBox } from "@/components/topic-lecture";
 import { StartPracticeButton } from "@/components/start-practice-button";
 
@@ -11,9 +11,12 @@ export default async function ParentTopicPage({ params }: { params: Promise<{ co
   const s = await requireParent();
   const { code } = await params;
   const topic = findTopic(code);
-  if (!topic || topic.track !== "adult") notFound();
+  if (!topic || topic.track === "olympiad" || topic.track === "quality") notFound();
   const learner = await getOrCreateAdultLearner(s.familyId);
   const exam = ADULT_EXAMS[topic.subjectId as AdultSubject];
+  const stageTrack = topic.track === "gaokao" || topic.track === "zhongkao" ? topic.track : topic.track === "special" ? (topic.grade >= 10 ? "gaokao" : "zhongkao") : null;
+  const crumbHref = stageTrack ? `/parent/study?exam=${stageTrack}&subject=${topic.subjectId}` : `/parent/study?exam=${topic.subjectId}`;
+  const crumbText = stageTrack ? `${stageTrack === "gaokao" ? "高考" : "中考"}真题专讲 · ${SUBJECT_NAME[topic.subjectId]}` : exam?.name ?? "家长自学";
   const [lecture, pending, recent, stats] = await Promise.all([
     getLecture(code),
     db.practiceSet.findFirst({ where: { childId: learner.id, topic: code, status: "ready" }, orderBy: { createdAt: "desc" } }),
@@ -26,13 +29,13 @@ export default async function ParentTopicPage({ params }: { params: Promise<{ co
 
   return (
     <div className="space-y-5 max-w-3xl">
-      <p className="text-sm text-gray-500"><Link href={`/parent/study?exam=${topic.subjectId}`} className="hover:underline">‹ {exam.name}</Link> · {topic.moduleName}</p>
+      <p className="text-sm text-gray-500"><Link href={crumbHref} className="hover:underline">‹ {crumbText}</Link> · {topic.moduleName}</p>
       <div>
         <h1 className="text-2xl font-bold">{topic.emoji} {topic.name}</h1>
         <p className="text-gray-600">{topic.desc}{stat ? ` · 最好 ${stat.best}% · 做过 ${stat.sets} 组` : ""}</p>
       </div>
       <section className="card">
-        <h2 className="font-bold mb-2">讲一讲 <span className="text-xs text-gray-400 font-normal">考情 → 考点 → 套路 → 例题 → 陷阱</span></h2>
+        <h2 className="font-bold mb-2">讲一讲 <span className="text-xs text-gray-400 font-normal">{stageTrack ? "考情 → 套路 → 真题风格例题 → 失分点" : "考情 → 考点 → 套路 → 例题 → 陷阱"}</span></h2>
         <TopicLectureBox code={code} initial={lecture} accent="brand" essay={isEssay} childId={learner.id} />
       </section>
       {isEssay ? (

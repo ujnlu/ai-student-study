@@ -17,7 +17,7 @@ export const ExplanationOut = z.object({
 });
 export type ExplanationStep = z.infer<typeof Step>;
 
-const SUBJECT_NAME: Record<string, string> = { math: "数学", chinese: "语文", english: "英语" };
+import { SUBJECT_NAME } from "@/lib/subjects";
 
 /** 只保留安全的 SVG：去掉脚本、事件、外链、foreignObject */
 export function sanitizeSvg(raw: string): string {

@@ -10,7 +10,7 @@ import { chapterPath } from "@/lib/sync";
 export type DictWord = { word: string; pinyin: string; hint: string };
 export type WordListData = { id: string; chapterId: string; subjectId: string; title: string; words: DictWord[] };
 
-const SUBJECT_NAME: Record<string, string> = { math: "数学", chinese: "语文", english: "英语" };
+import { SUBJECT_NAME } from "@/lib/subjects";
 const MAX_EXCERPT = 4500;
 
 const Extracted = z.object({

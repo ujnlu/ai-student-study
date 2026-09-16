@@ -27,16 +27,19 @@ export async function POST(req: Request) {
       const set = await createAdultExam(learner.id, body.adult as AdultSubject);
       return NextResponse.json({ id: set.id });
     }
-    if (!s.childId) return NextResponse.json({ error: "请先用孩子身份登录" }, { status: 401 });
     if (body.stage === "zhongkao" || body.stage === "gaokao") {
       const stage = body.stage as ExamStage;
       const subject = (body.subjectId ?? "math") as SecondarySubject;
       if (!STAGE_EXAMS[stage][subject]) return NextResponse.json({ error: "这个科目还没有模拟卷" }, { status: 404 });
-      const existing = await db.practiceSet.findFirst({ where: { childId: s.childId, kind: "exam", status: "ready" }, orderBy: { createdAt: "desc" } });
+      // 家长在家长端做中高考模拟卷：用隐藏的家长学习者
+      const learnerId = s.childId ?? (s.role === "parent" ? (await getOrCreateAdultLearner(s.familyId)).id : null);
+      if (!learnerId) return NextResponse.json({ error: "未登录" }, { status: 401 });
+      const existing = await db.practiceSet.findFirst({ where: { childId: learnerId, kind: "exam", status: "ready", topic: `exam-${stage}-${subject}` }, orderBy: { createdAt: "desc" } });
       if (existing) return NextResponse.json({ id: existing.id });
-      const set = await createStageExam(s.childId, stage, subject);
+      const set = await createStageExam(learnerId, stage, subject);
       return NextResponse.json({ id: set.id });
     }
+    if (!s.childId) return NextResponse.json({ error: "请先用孩子身份登录" }, { status: 401 });
     const scope = body.scope === "mid" ? "mid" : "final";
     const subjectId = body.subjectId ?? "math";
     const existing = await db.practiceSet.findFirst({ where: { childId: s.childId, kind: "exam", status: "ready" }, orderBy: { createdAt: "desc" } });

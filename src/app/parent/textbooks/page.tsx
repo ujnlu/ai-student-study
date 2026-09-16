@@ -2,7 +2,19 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireParent } from "@/lib/auth";
 import { addTextbookAction, deleteTextbookAction } from "@/app/actions/children";
-import { fetchCatalog, type CatalogBook } from "@/lib/textbook-import";
+import { fetchCatalog, type CatalogBook, type Stage } from "@/lib/textbook-import";
+import { gradeName } from "@/lib/grade";
+
+const STAGES: { id: Stage; name: string }[] = [
+  { id: "primary", name: "小学" },
+  { id: "junior", name: "初中" },
+  { id: "senior", name: "高中" },
+];
+/** 教材一行的年级 / 册标签 */
+export function bookLabel(b: { grade: number; semester: number; volume?: string | null }) {
+  if (b.grade >= 10) return b.volume || `高${["", "一", "二", "三"][b.grade - 9]}`;
+  return `${gradeName(b.grade)}${b.volume || (b.semester === 1 ? "上册" : "下册")}`;
+}
 import { TextbookImportButton } from "@/components/textbook-import-button";
 import { saveSmarteduTokenAction } from "@/app/actions/textbooks";
 import { SMARTEDU_TOKEN_KEY, TOKEN_SCRIPT } from "@/lib/smartedu-auth";
@@ -12,10 +24,11 @@ export const dynamic = "force-dynamic";
 export default async function TextbooksPage({
   searchParams,
 }: {
-  searchParams: Promise<{ subject?: string; version?: string }>;
+  searchParams: Promise<{ subject?: string; version?: string; stage?: string }>;
 }) {
   const session = await requireParent();
-  const { subject = "math", version } = await searchParams;
+  const { subject = "math", version, stage: stageParam } = await searchParams;
+  const stage: Stage = STAGES.some((s) => s.id === stageParam) ? (stageParam as Stage) : "primary";
   const tokenRow = await db.familySetting.findUnique({ where: { familyId_key: { familyId: session.familyId, key: SMARTEDU_TOKEN_KEY } } });
   const subjects = await db.subject.findMany({
     orderBy: { sortOrder: "asc" },
@@ -29,11 +42,15 @@ export default async function TextbooksPage({
 
   let catalog: CatalogBook[] = [];
   let catalogError: string | null = null;
+  let stageSubjects: string[] = [];
   try {
-    catalog = (await fetchCatalog()).filter((b) => b.subjectId === subject);
+    const all = (await fetchCatalog()).filter((b) => b.stage === stage && b.subjectId);
+    stageSubjects = [...new Set(all.map((b) => b.subjectId!))];
+    catalog = all.filter((b) => b.subjectId === subject);
   } catch (e) {
     catalogError = e instanceof Error ? e.message : String(e);
   }
+  const tabSubjects = subjects.filter((s) => stageSubjects.includes(s.id));
   const versions = [...new Set(catalog.map((b) => b.versionName))];
   const currentVersion = version && versions.includes(version) ? version : versions[0];
   const books = catalog.filter((b) => b.versionName === currentVersion);
@@ -77,21 +94,34 @@ export default async function TextbooksPage({
         ) : (
           <>
             <div className="flex flex-wrap gap-2 text-sm">
-              {subjects.map((s) => (
+              {STAGES.map((s) => (
                 <Link
                   key={s.id}
-                  href={`/parent/textbooks?subject=${s.id}`}
-                  className={`px-3 py-1 rounded-lg ${s.id === subject ? "bg-brand text-white" : "bg-gray-100"}`}
+                  href={`/parent/textbooks?stage=${s.id}&subject=math`}
+                  className={`px-3 py-1 rounded-lg font-semibold ${s.id === stage ? "bg-gray-800 text-white" : "bg-gray-100"}`}
                 >
                   {s.name}
                 </Link>
               ))}
             </div>
+            <div className="flex flex-wrap gap-2 text-sm">
+              {tabSubjects.map((s) => (
+                <Link
+                  key={s.id}
+                  href={`/parent/textbooks?stage=${stage}&subject=${s.id}`}
+                  className={`px-3 py-1 rounded-lg ${s.id === subject ? "bg-brand text-white" : "bg-gray-100"}`}
+                >
+                  {s.name}
+                </Link>
+              ))}
+              {tabSubjects.length === 0 && <span className="text-xs text-gray-500">这个学段的学科还没有入库，导入任意一本后会出现。</span>}
+            </div>
+            {stage !== "primary" && <p className="text-xs text-gray-500">初高中教材只保存 PDF 文字与章节目录（不存页面图片），PDF 需登录的版本只有章节。</p>}
             <div className="flex flex-wrap gap-2 text-xs">
               {versions.map((v) => (
                 <Link
                   key={v}
-                  href={`/parent/textbooks?subject=${subject}&version=${encodeURIComponent(v)}`}
+                  href={`/parent/textbooks?stage=${stage}&subject=${subject}&version=${encodeURIComponent(v)}`}
                   className={`px-2.5 py-1 rounded-lg border ${v === currentVersion ? "border-orange-400 bg-orange-50" : "border-gray-200"}`}
                 >
                   {v}
@@ -103,9 +133,7 @@ export default async function TextbooksPage({
                 const t = byId.get(b.smarteduId);
                 return (
                   <li key={b.smarteduId} className="py-2 flex items-center gap-3 text-sm">
-                    <span className="w-24 text-gray-600">
-                      {b.grade}年级{b.semester === 1 ? "上" : "下"}册
-                    </span>
+                    <span className="w-28 shrink-0 text-gray-600">{bookLabel(b)}</span>
                     <span className="flex-1 truncate">
                       {t?.status === "ready" ? (
                         <Link href={`/parent/textbooks/book/${t.id}`} className="hover:underline">{b.title}</Link>
@@ -135,8 +163,9 @@ export default async function TextbooksPage({
                 <Link href={`/parent/textbooks/book/${t.id}`} className="flex-1 hover:underline truncate">
                   {t.textbookVersion.name} · {t.title}
                 </Link>
-                <span className="text-xs text-gray-500">{t.pageCount} 页 · {t._count.chapters} 节</span>
+                <span className="text-xs text-gray-500">{bookLabel(t)} · {t.pageCount} 页 · {t._count.chapters} 节</span>
                 {t.contentSource === "images" && <span className="badge bg-yellow-100 text-yellow-800">图片版{t.status === "ocr" ? ` · 识别中 ${t.progress}%` : ""}</span>}
+                {t.contentSource === "none" && <span className="badge bg-gray-100 text-gray-600">仅章节</span>}
               </li>
             ))}
           </ul>

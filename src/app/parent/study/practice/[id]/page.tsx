@@ -15,7 +15,8 @@ export default async function ParentPracticePage({ params }: { params: Promise<{
   const set = await db.practiceSet.findFirst({ where: { id, childId: learner.id }, include: { items: { include: { problem: true }, orderBy: { index: "asc" } } } });
   if (!set) notFound();
   const topic = set.topic ? findTopic(set.topic) : null;
-  const backHref = topic ? `/parent/study/topic/${topic.code}` : `/parent/study?exam=${(set.topic ?? "exam-gongkao").replace("exam-", "")}`;
+  const stageExam = /^exam-(gaokao|zhongkao)-([a-z]+)$/.exec(set.topic ?? "");
+  const backHref = topic ? `/parent/study/topic/${topic.code}` : stageExam ? `/parent/study?exam=${stageExam[1]}&subject=${stageExam[2]}` : `/parent/study?exam=${(set.topic ?? "exam-gongkao").replace("exam-", "")}`;
 
   if (set.status !== "done") {
     return (

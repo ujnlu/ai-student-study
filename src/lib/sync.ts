@@ -8,7 +8,7 @@ import { resolveAssistant, runJson } from "@/lib/ai";
 import { gradeText, renderTemplate } from "@/lib/ai/prompts";
 import { withTextbookContext } from "@/lib/textbook-context";
 
-const SUBJECT_NAME: Record<string, string> = { math: "数学", chinese: "语文", english: "英语" };
+import { SUBJECT_NAME } from "@/lib/subjects";
 const SET_SIZE = 8;
 const BANK_BATCH = 12;
 

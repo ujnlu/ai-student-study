@@ -9,7 +9,7 @@ import { gradeText, renderTemplate } from "@/lib/ai/prompts";
 import { sanitizeSvg, ExplanationOut } from "@/lib/ai/explain";
 import { chapterPath } from "@/lib/sync";
 
-const SUBJECT_NAME: Record<string, string> = { math: "数学", chinese: "语文", english: "英语" };
+import { SUBJECT_NAME } from "@/lib/subjects";
 
 export const PreviewCard = z.object({
   summary: z.string().describe("这一课学什么，2-3 句，孩子能懂的话"),

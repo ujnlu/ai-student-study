@@ -30,7 +30,7 @@ export const GradingResult = z.object({
 });
 export type GradingResult = z.infer<typeof GradingResult>;
 
-const SUBJECT_NAME: Record<string, string> = { math: "数学", chinese: "语文", english: "英语" };
+import { SUBJECT_NAME } from "@/lib/subjects";
 const DICTATION_STARS = 5; // 完成一次听写拍照检查
 
 export async function gradeUpload(uploadId: string) {

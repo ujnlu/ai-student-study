@@ -9,7 +9,7 @@ import { gradeText, renderTemplate } from "@/lib/ai/prompts";
 import { withTextbookContext } from "@/lib/textbook-context";
 import { chapterPath, currentChapter, lessonChapters } from "@/lib/sync";
 
-const SUBJECT_NAME: Record<string, string> = { math: "数学", chinese: "语文", english: "英语" };
+import { SUBJECT_NAME } from "@/lib/subjects";
 export const UNIT_TEST_SIZE = 15;
 export const UNIT_TEST_SECONDS = 20 * 60;
 const FILL_PER_LESSON = 8;

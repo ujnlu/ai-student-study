@@ -413,6 +413,7 @@ model Textbook {
   subjectId         String
   grade             Int
   semester          Int
+  volume            String? // 册的显示名：上册/下册/全一册/必修 第一册（初高中按此显示，semester 只作排序）
   smarteduId        String          @unique
   title             String
   pdfPath           String?

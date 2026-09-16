@@ -9,7 +9,7 @@ import { addStars, STAR_RULES } from "@/lib/rewards";
 import { preGenerateInBackground } from "@/lib/ai/explain";
 
 export const REVIEW_INTERVALS_DAYS = [1, 3, 7, 15, 30];
-const SUBJECT_NAME: Record<string, string> = { math: "数学", chinese: "语文", english: "英语" };
+import { SUBJECT_NAME } from "@/lib/subjects";
 
 const GeneratedProblems = z.object({
   problems: z.array(

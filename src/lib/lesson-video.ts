@@ -49,7 +49,7 @@ async function catalog(): Promise<Tm[]> {
 }
 
 const GRADE_NAME = ["", "一年级", "二年级", "三年级", "四年级", "五年级", "六年级"];
-const SUBJ_NAME: Record<string, string> = { math: "数学", chinese: "语文", english: "英语" };
+import { SUBJECT_NAME as SUBJ_NAME } from "@/lib/subjects";
 
 async function treeHasNode(tmId: string, nodeId: string) {
   try {
@@ -74,7 +74,7 @@ async function tmForTextbook(textbookId: string, sampleNodeId: string) {
   const items = await catalog();
   const subj = SUBJ_NAME[tb.subjectId];
   const grade = GRADE_NAME[tb.grade];
-  const vol = tb.semester === 1 ? "上册" : "下册";
+  const vol = tb.volume ?? (tb.semester === 1 ? "上册" : "下册");
   const ver = tb.textbookVersion.name.replace(/（.*?）|\(.*?\)/g, "");
   // 版本别名：部编版 = 统编版；人教 PEP = 人教版
   const verAliases = [ver, ...(/部编|统编/.test(ver) ? ["统编版", "部编版"] : []), ...(/人教/.test(ver) ? ["人教版"] : [])];
