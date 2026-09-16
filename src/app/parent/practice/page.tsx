@@ -9,14 +9,32 @@ export default async function ParentPracticePage({ searchParams }: { searchParam
   const { error, child: childParam } = await searchParams;
   const children = await db.child.findMany({ where: { familyId: s.familyId }, include: { textbooks: true }, orderBy: { createdAt: "asc" } });
   const child = children.find((c) => c.id === childParam) ?? children[0];
+  // 不按孩子年级截断：英语等教材从三年级起，家长也可能想提前出题；默认仍选孩子当前年级
   const kps = child
     ? await db.knowledgePoint.findMany({
-        where: { textbookVersionId: { in: child.textbooks.map((t) => t.textbookVersionId) }, grade: { lte: child.grade } },
+        where: { textbookVersionId: { in: child.textbooks.map((t) => t.textbookVersionId) } },
         orderBy: [{ grade: "asc" }, { semester: "asc" }, { sortOrder: "asc" }],
         include: { subject: true },
       })
     : [];
   const subjectRows = await db.subject.findMany({ where: { id: { in: child?.textbooks.map((t) => t.subjectId) ?? [] } }, orderBy: { sortOrder: "asc" } });
+  const versionRows = await db.textbookVersion.findMany({ where: { id: { in: child?.textbooks.map((t) => t.textbookVersionId) ?? [] } } });
+  // 各学科哪些版本已经有知识点，用于孩子教材版本选错时给出准确提示
+  const kpVersions = await db.knowledgePoint.groupBy({ by: ["subjectId", "textbookVersionId"] });
+  const allVersions = await db.textbookVersion.findMany({ where: { id: { in: kpVersions.map((v) => v.textbookVersionId) } } });
+  const subjectOptions = subjectRows.map((sub) => {
+    const chosenId = child?.textbooks.find((t) => t.subjectId === sub.id)?.textbookVersionId;
+    const chosen = versionRows.find((v) => v.id === chosenId);
+    const hasKp = kps.some((k) => k.subjectId === sub.id);
+    const others = kpVersions.filter((v) => v.subjectId === sub.id && v.textbookVersionId !== chosenId).map((v) => allVersions.find((a) => a.id === v.textbookVersionId)?.name).filter(Boolean);
+    let hint: string | undefined;
+    if (!hasKp) {
+      hint = `${child?.name ?? "孩子"}的${sub.name}教材是「${chosen?.name ?? "未设置"}」，这个版本还没有导入知识点。`
+        + (others.length ? `已导入知识点的${sub.name}版本：${others.join("、")}。可到「孩子」页把教材版本改成其中之一，` : "")
+        + "或到「教材」页导入这个版本（图片版教材需先用 AI 识别文字）。";
+    }
+    return { id: sub.id, name: sub.name, versionName: chosen?.name, hint };
+  });
   const sets = await db.practiceSet.findMany({
     where: { child: { familyId: s.familyId } },
     orderBy: { createdAt: "desc" },
@@ -47,7 +65,7 @@ export default async function ParentPracticePage({ searchParams }: { searchParam
             </div>
             <KpPicker
               kps={kps.map((k) => ({ id: k.id, name: k.name, unit: k.unit, grade: k.grade, semester: k.semester, subjectId: k.subjectId, subjectName: k.subject.name }))}
-              allSubjects={subjectRows.map((x) => ({ id: x.id, name: x.name }))}
+              allSubjects={subjectOptions}
               defaultSubject="math"
               defaultGrade={child?.grade}
               defaultSemester={child?.semester}
