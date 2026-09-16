@@ -444,6 +444,7 @@ model TextbookChapter {
   problems   Problem[]
   progress   ChildProgress[]
   wordList   WordList?
+  reciteText ReciteText?
   recitations Recitation[]
   guide      LessonGuide?
 
@@ -500,6 +501,16 @@ model WordList {
   wordsJson String // [{word, pinyin?, hint?}]
   createdAt DateTime        @default(now())
   chapter   TextbookChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+}
+
+/// 某一课要背的古诗 / 段落（AI 提取一次后落库，避免每次重新花 token）
+model ReciteText {
+  id         String          @id @default(cuid())
+  chapterId  String          @unique
+  title      String
+  piecesJson String // RecitePiece[]
+  createdAt  DateTime        @default(now())
+  chapter    TextbookChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 }
 
 /// 背诵记录（古诗/课文）

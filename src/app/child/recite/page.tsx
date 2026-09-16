@@ -21,7 +21,7 @@ export default async function RecitePage({ searchParams }: { searchParams: Promi
   const chapter = chapterId ? (chapters.find((c) => c.id === chapterId) ?? (await db.textbookChapter.findUnique({ where: { id: chapterId } }))) : null;
 
   const hasText = chapter ? (await chapterText(chapter)).replace(/[^一-龥]/g, "").length >= 20 : false;
-  const cached = chapter ? getCachedReciteText(chapter.id) : null;
+  const cached = chapter ? await getCachedReciteText(chapter.id) : null;
   const best = chapter
     ? await db.recitation.aggregate({ where: { childId: child.id, chapterId: chapter.id }, _max: { accuracy: true }, _count: true })
     : null;
@@ -59,7 +59,8 @@ export default async function RecitePage({ searchParams }: { searchParams: Promi
 
       {chapter &&
         (hasText ? (
-          <RecitePlayer chapterId={chapter.id} chapterTitle={chapter.title} initial={cached} />
+          /* key 按课时切换：换课后组件整体重建，不再残留上一课的内容和状态 */
+          <RecitePlayer key={chapter.id} chapterId={chapter.id} chapterTitle={chapter.title} initial={cached} />
         ) : (
           <div className="card text-lg text-gray-700">这一课的课文还没有文字内容，暂时不能背诵。可以在下面换一课试试～</div>
         ))}

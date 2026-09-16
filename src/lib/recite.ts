@@ -1,5 +1,5 @@
 /**
- * 背诵：从课文原文提取要背的古诗 / 段落（内存缓存），并按字比对孩子背出来的内容。
+ * 背诵：从课文原文提取要背的古诗 / 段落（AI 提取一次后存 ReciteText 表，内存只作一级缓存），并按字比对孩子背出来的内容。
  */
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -23,12 +23,37 @@ const Extracted = z.object({
   ),
 });
 
-// 内存缓存（开发环境热更新也不丢）
+// 一级：内存（开发环境热更新也不丢）；二级：ReciteText 表（服务重启也不丢）
 const g = globalThis as unknown as { __reciteCache?: Map<string, ReciteData> };
 const cache = (g.__reciteCache ??= new Map<string, ReciteData>());
 
-export function getCachedReciteText(chapterId: string) {
-  return cache.get(chapterId) ?? null;
+function parsePieces(json: string): RecitePiece[] {
+  try {
+    const arr = JSON.parse(json) as Partial<RecitePiece>[];
+    return arr
+      .filter((p) => typeof p.text === "string" && p.text.trim())
+      .map((p) => ({ title: p.title ?? "", author: p.author ?? "", kind: p.kind === "poem" ? "poem" : "passage", text: p.text! }));
+  } catch {
+    return [];
+  }
+}
+
+export async function getCachedReciteText(chapterId: string): Promise<ReciteData | null> {
+  const hit = cache.get(chapterId);
+  if (hit) return hit;
+  const row = await db.reciteText.findUnique({ where: { chapterId } });
+  if (!row) return null;
+  const pieces = parsePieces(row.piecesJson);
+  if (pieces.length === 0) return null;
+  const data: ReciteData = { chapterId, title: row.title, pieces };
+  cache.set(chapterId, data);
+  return data;
+}
+
+/** 家长端可删掉某课的提取结果，下次重新提取 */
+export async function clearReciteText(chapterId: string) {
+  cache.delete(chapterId);
+  await db.reciteText.deleteMany({ where: { chapterId } });
 }
 
 /** 只保留汉字 / 字母 / 数字，用来比对 */
@@ -50,7 +75,7 @@ function fallbackPassage(title: string, text: string): RecitePiece {
 }
 
 export async function extractReciteText(chapterId: string, familyId: string): Promise<ReciteData> {
-  const hit = cache.get(chapterId);
+  const hit = await getCachedReciteText(chapterId);
   if (hit) return hit;
 
   const chapter = await db.textbookChapter.findUnique({ where: { id: chapterId }, include: { textbook: true } });
@@ -88,10 +113,19 @@ export async function extractReciteText(chapterId: string, familyId: string): Pr
   } catch (e) {
     console.warn("[recite] AI 提取失败，使用兜底段落", e instanceof Error ? e.message : e);
   }
-  if (pieces.length === 0) pieces = [fallbackPassage(chapter.title, text)];
+  const fromAi = pieces.length > 0;
+  if (!fromAi) pieces = [fallbackPassage(chapter.title, text)];
 
   const data: ReciteData = { chapterId, title: chapter.title, pieces };
   cache.set(chapterId, data);
+  // 只把 AI 成功提取的结果落库；兜底段落不花 token，下次仍可重试 AI
+  if (fromAi) {
+    await db.reciteText.upsert({
+      where: { chapterId },
+      create: { chapterId, title: chapter.title, piecesJson: JSON.stringify(pieces) },
+      update: { title: chapter.title, piecesJson: JSON.stringify(pieces) },
+    });
+  }
   return data;
 }
 
