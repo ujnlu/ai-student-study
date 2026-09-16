@@ -17,7 +17,8 @@ SSH_OPTS="-o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o ConnectTimeout=6
 rs() {
   local n
   for n in 1 2 3 4 5; do
-    rsync -az --partial --timeout=180 -e "ssh $SSH_OPTS" "$@" && return 0
+    # 限速 + 线上低 IO/CPU 优先级：ECS 小盘写几千个小文件时曾把机器写挂
+    rsync -az --partial --timeout=180 --bwlimit=2000 --rsync-path="ionice -c3 nice -n19 rsync" -e "ssh $SSH_OPTS" "$@" && return 0
     echo "rsync 失败（第 $n 次），20 秒后重试…"; sleep 20
   done
   echo "rsync 连续失败，放弃"; return 1
