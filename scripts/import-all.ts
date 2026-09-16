@@ -5,7 +5,7 @@
  *     npx tsx scripts/import-all.ts 2 english          # 只导英语
  *     npx tsx scripts/import-all.ts 3 all junior       # 只导初中
  *     npx tsx scripts/import-all.ts 2 all all --missing          # 只重导"仅章节"（PDF 需登录、没拿到正文）的书，配置平台凭据后用
- *     npx tsx scripts/import-all.ts 2 all all --missing --images # 同上，但拿不到 PDF 时下载页面图片（初高中默认不存图片）
+ *     npx tsx scripts/import-all.ts 2 all all --missing --images # 同上，PDF 仍拿不到的书退回下载页面图片（初高中默认只导章节）
  */
 import "dotenv/config";
 import { fetchCatalog, importTextbook } from "../src/lib/textbook-import";

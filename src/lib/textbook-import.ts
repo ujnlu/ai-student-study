@@ -370,7 +370,7 @@ async function downloadPageImages(
 }
 
 /** 导入一本教材（可重复执行，会覆盖旧内容） */
-export type ImportOptions = { images?: boolean }; // images：初高中也下载页面图片并保留 PDF（默认只有小学这样做）
+export type ImportOptions = { images?: boolean }; // images：初高中 PDF 拿不到时也下载页面图片（默认只导章节）；小学始终保留 PDF 和图片
 export async function importTextbook(smarteduId: string, log: (m: string) => void = () => {}, opts: ImportOptions = {}) {
   const books = await fetchCatalog();
   const book = books.find((b) => b.smarteduId === smarteduId);
@@ -380,7 +380,8 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
   const version = await resolveVersion(book.subjectId, book.versionName);
   const creds = await getCreds();
   // 初高中教材只留 PDF 文字和章节，不存页面图片、提取后删 PDF（470 多本，按小学方式存图片要 20 多 GB）
-  const keepFiles = opts.images ?? book.stage === "primary";
+  const keepFiles = book.stage === "primary";
+  const imagesIfNoPdf = keepFiles || !!opts.images;
 
   const tb = await db.textbook.upsert({
     where: { smarteduId },
@@ -425,8 +426,8 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
         await download(pdfUrl, pdfPath, creds, (pct) => void setStatus(tb.id, { progress: Math.round(pct * 0.5) }));
         pdfOk = true;
       } catch (e) {
-        if (!(e instanceof DownloadError) || (!imageBase && keepFiles)) throw e;
-        log(keepFiles ? `PDF 不可下载（${e.status}），改用页面图片` : `PDF 不可下载（${e.status}），初高中不存页面图片，只导章节`);
+        if (!(e instanceof DownloadError) || (!imageBase && imagesIfNoPdf)) throw e;
+        log(imagesIfNoPdf ? `PDF 不可下载（${e.status}），改用页面图片` : `PDF 不可下载（${e.status}），初高中不存页面图片，只导章节`);
       }
     }
 
@@ -455,7 +456,7 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
         const got = await downloadPageImages(tb.id, smarteduId, imageBase, creds, pageCount, (n) => void setStatus(tb.id, { progress: 55 + Math.round((n / pageCount) * 40) }));
         log(`页面图片 ${got}/${pageCount} 页`);
       }
-    } else if (!keepFiles) {
+    } else if (!imagesIfNoPdf) {
       contentSource = "none";
       pageCount = 0;
     } else {
