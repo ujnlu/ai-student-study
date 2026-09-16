@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "import:textbooks": "tsx scripts/import-textbooks.ts"
+    "import:textbooks": "tsx scripts/import-textbooks.ts",
+    "deploy": "bash scripts/deploy-aliyun.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.125.0",
