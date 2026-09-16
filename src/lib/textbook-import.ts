@@ -173,14 +173,12 @@ export async function resolveVersion(subjectId: string, versionName: string) {
   }
   const byName = await db.textbookVersion.findFirst({ where: { subjectId, name: versionName } });
   if (byName) return byName;
-  return db.textbookVersion.create({
-    data: {
-      subjectId,
-      code: `smartedu-${Buffer.from(versionName).toString("hex").slice(0, 24)}`,
-      name: versionName,
-      regions: "来自国家平台",
-      isBuiltin: false,
-    },
+  // 并行导入时多个 worker 可能同时新建同一版本：用 upsert 避免撞唯一约束
+  const newCode = `smartedu-${Buffer.from(versionName).toString("hex").slice(0, 24)}`;
+  return db.textbookVersion.upsert({
+    where: { subjectId_code: { subjectId, code: newCode } },
+    create: { subjectId, code: newCode, name: versionName, regions: "来自国家平台", isBuiltin: false },
+    update: {},
   });
 }
 
