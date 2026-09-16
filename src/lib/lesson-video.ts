@@ -29,6 +29,11 @@ async function getJson<T>(url: string): Promise<T> {
   return (await res.json()) as T;
 }
 
+/** 课程教学目录（每本教材一个 tm，带标签）；导入教材时也用它兜底取章节树 */
+export async function lessonCatalog(): Promise<Tm[]> {
+  return catalog();
+}
+
 async function catalog(): Promise<Tm[]> {
   if (g.__tmCatalog && Date.now() - g.__tmCatalog.at < 12 * 3600_000) return g.__tmCatalog.items;
   const v = await getJson<{ urls: string[] | string }>(TM_VERSION_URL);

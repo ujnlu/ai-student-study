@@ -8,6 +8,7 @@ import path from "node:path";
 import { db } from "@/lib/db";
 import { decrypt } from "@/lib/crypto";
 import { ndAuthHeader, parseCreds, type SmarteduCreds } from "@/lib/smartedu-auth";
+import { lessonCatalog } from "@/lib/lesson-video";
 
 const UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36";
 const BASE_HEADERS = { "user-agent": UA, referer: "https://basic.smartedu.cn/" };
@@ -195,6 +196,70 @@ function publicUrl(item: TiItem): string | null {
 
 type TreeNode = { id: string; title: string; child_nodes?: TreeNode[] };
 
+const GRADE_CN = ["", "一年级", "二年级", "三年级", "四年级", "五年级", "六年级"];
+const SUBJECT_CN: Record<string, string> = { math: "数学", chinese: "语文", english: "英语" };
+
+/**
+ * 兜底：电子教材详情里没有 ebook_mapping（多见于四年级以上）时，
+ * 到「课程教学」目录按 学段/学科/年级/册/版本 找同一本教材，取它的章节树（没有页码）。
+ * 标题含"2022年版"的优先选"新教材"，否则优先"旧教材"。
+ */
+async function treeFromLessonCatalog(book: CatalogBook): Promise<TreeNode[]> {
+  const items = await lessonCatalog();
+  const subj = SUBJECT_CN[book.subjectId ?? ""];
+  const grade = GRADE_CN[book.grade];
+  const vol = book.semester === 1 ? "上册" : "下册";
+  const ver = book.versionName.replace(/（.*?）|\(.*?\)/g, "");
+  const aliases = [ver, ...(/部编|统编/.test(ver) ? ["统编版", "部编版"] : []), ...(/人教/.test(ver) ? ["人教版"] : [])].filter(Boolean);
+  const matchVer = (x: string) => aliases.some((a) => x.includes(a) || a.includes(x));
+  const wantNew = /2022年版/.test(book.title);
+  const cands = items
+    .filter((t) => t.tags.includes("小学") && t.tags.includes(subj) && t.tags.includes(grade) && t.tags.includes(vol))
+    .filter((t) => t.tags.some(matchVer) || matchVer(t.title))
+    .sort((a, b) => {
+      const score = (t: { tags: string[] }) => (t.tags.includes("新教材") ? (wantNew ? 2 : 0) : t.tags.includes("旧教材") ? (wantNew ? 0 : 2) : 1);
+      return score(b) - score(a);
+    });
+  for (const c of cands) {
+    const tree = await getJson<TreeNode[]>(TREE_URL(c.id)).catch(() => []);
+    if (tree.length) return tree;
+  }
+  return [];
+}
+
+/** 去掉章节标题里的编号（"第一单元""一 ""1.2 "等）和空白，用于在页面文字里定位 */
+function titleKey(title: string) {
+  return title
+    .replace(/^第[一二三四五六七八九十百\d]+[单元课章节部分]+/, "")
+    .replace(/^[一二三四五六七八九十]+[、.\s]/, "")
+    .replace(/^[\d.．]+\s*/, "")
+    .replace(/[\s、，,：:（）()～~\-—·.。！!？?]/g, "");
+}
+
+/**
+ * 兜底：没有页码映射时，按章节标题在页面文字里顺序定位起始页。
+ * 目录页（大半标题都出现在同一页）先排除；定位结果只能单调递增，避免回跳。
+ */
+async function inferPagesFromText(textbookId: string, flat: { node: TreeNode }[], pageOf: Map<string, number>) {
+  const pages = await db.textbookPage.findMany({ where: { textbookId }, orderBy: { pageNo: "asc" }, select: { pageNo: true, text: true } });
+  if (pages.length === 0) return;
+  const texts = pages.map((p) => ({ pageNo: p.pageNo, t: p.text.replace(/[\s、，,：:（）()～~\-—·.。！!？?]/g, "") }));
+  const keys = flat.map((f) => titleKey(f.node.title)).map((k) => (k.length >= 2 ? k : ""));
+  const distinct = keys.filter(Boolean);
+  const toc = new Set(texts.filter((p) => distinct.filter((k) => p.t.includes(k)).length >= Math.max(5, distinct.length * 0.4)).map((p) => p.pageNo));
+  let cursor = 0;
+  for (let i = 0; i < flat.length; i++) {
+    const k = keys[i];
+    if (!k) continue;
+    const hit = texts.find((p) => p.pageNo >= cursor && !toc.has(p.pageNo) && p.t.includes(k));
+    if (!hit) continue;
+    // 一次跳过超过全书 1/3 的多半是误匹配（比如正文里提到了后面的标题），忽略，免得后面的章节全部定位不到
+    if (cursor > 0 && hit.pageNo - cursor > texts.length / 3) continue;
+    pageOf.set(flat[i].node.id, hit.pageNo);
+    cursor = hit.pageNo;
+  }
+}
+
 async function setStatus(id: string, data: { status?: string; progress?: number; error?: string | null }) {
   await db.textbook.update({ where: { id }, data });
 }
@@ -363,6 +428,10 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
         log(`目录映射获取失败（忽略）：${e instanceof Error ? e.message : e}`);
       }
     }
+    if (tree.length === 0) {
+      tree = await treeFromLessonCatalog(book).catch(() => []);
+      if (tree.length) log(`平台没有目录映射，改用课程教学目录的章节树`);
+    }
     await db.textbookChapter.deleteMany({ where: { textbookId: tb.id } });
     const flat: { node: TreeNode; level: number; parentNodeId: string | null }[] = [];
     const walk = (nodes: TreeNode[], level: number, parent: string | null) => {
@@ -372,6 +441,10 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
       }
     };
     walk(tree, 0, null);
+    if (flat.length && pageOf.size === 0 && pdfOk) {
+      await inferPagesFromText(tb.id, flat, pageOf);
+      log(`按标题在页面文字里定位到 ${pageOf.size}/${flat.length} 个章节的页码`);
+    }
     const starts = flat.map((f) => pageOf.get(f.node.id) ?? null);
     const idByNode = new Map<string, string>();
     for (let i = 0; i < flat.length; i++) {
