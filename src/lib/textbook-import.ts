@@ -202,14 +202,19 @@ const SUBJECT_CN: Record<string, string> = { math: "数学", chinese: "语文", 
  * 到「课程教学」目录按 学段/学科/年级/册/版本 找同一本教材，取它的章节树（没有页码）。
  * 标题含"2022年版"的优先选"新教材"，否则优先"旧教材"。
  */
-async function treeFromLessonCatalog(book: CatalogBook): Promise<TreeNode[]> {
+export async function treeFromLessonCatalog(book: CatalogBook): Promise<TreeNode[]> {
   const items = await lessonCatalog();
   const subj = SUBJECT_CN[book.subjectId ?? ""];
   const grade = GRADE_CN[book.grade];
   const vol = book.semester === 1 ? "上册" : "下册";
-  const ver = book.versionName.replace(/（.*?）|\(.*?\)/g, "");
-  const aliases = [ver, ...(/部编|统编/.test(ver) ? ["统编版", "部编版"] : []), ...(/人教/.test(ver) ? ["人教版"] : [])].filter(Boolean);
-  const matchVer = (x: string) => aliases.some((a) => x.includes(a) || a.includes(x));
+  // 版本名只留核心字：去掉括号里的主编、"社""版"等，"接力社版" 和 "接力版" 视为同一版本
+  const verKey = (x: string) => x.replace(/（.*?）|\(.*?\)/g, "").replace(/出版社|社|版|\s/g, "");
+  const ver = verKey(book.versionName);
+  const aliases = [ver, ...(/部编|统编/.test(ver) ? ["统编", "部编"] : []), ...(/人教/.test(ver) ? ["人教"] : [])].filter(Boolean);
+  const matchVer = (x: string) => {
+    const k = verKey(x);
+    return k.length > 0 && aliases.some((a) => k.includes(a) || a.includes(k));
+  };
   const wantNew = /2022年版/.test(book.title);
   const cands = items
     .filter((t) => t.tags.includes("小学") && t.tags.includes(subj) && t.tags.includes(grade) && t.tags.includes(vol))
@@ -219,8 +224,9 @@ async function treeFromLessonCatalog(book: CatalogBook): Promise<TreeNode[]> {
       return score(b) - score(a);
     });
   for (const c of cands) {
-    const tree = await getJson<TreeNode[]>(TREE_URL(c.id)).catch(() => []);
-    if (tree.length) return tree;
+    // 部分条目（多为"新教材"上册）这个接口返回 null，跳过继续试下一个候选
+    const tree = await getJson<TreeNode[] | null>(TREE_URL(c.id)).catch(() => null);
+    if (Array.isArray(tree) && tree.length) return tree;
   }
   return [];
 }
