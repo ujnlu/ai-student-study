@@ -8,7 +8,7 @@ import { useSfx } from "./fx";
  * 专题「讲一讲」：课前故事 → 知识导引 → 方法口诀 → 典题精讲（一例一练）→ 名师点拨。
  * 有缓存直接展示，没有则点按钮让 AI 生成一次。
  */
-export function TopicLectureBox({ code, initial, accent = "brand", essay = false }: { code: string; initial: Lecture | null; accent?: "brand" | "grape" | "sky" | "leaf"; essay?: boolean }) {
+export function TopicLectureBox({ code, initial, accent = "brand", essay = false, childId }: { code: string; initial: Lecture | null; accent?: "brand" | "grape" | "sky" | "leaf"; essay?: boolean; childId?: string }) {
   const [lecture, setLecture] = useState<Lecture | null>(initial);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -20,7 +20,7 @@ export function TopicLectureBox({ code, initial, accent = "brand", essay = false
     setBusy(true);
     setErr(null);
     try {
-      const r = await fetch("/api/topic", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ code, what: "lecture" }) });
+      const r = await fetch("/api/topic", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ code, what: "lecture", childId }) });
       const j = (await r.json()) as { lecture?: Lecture; error?: string };
       if (!r.ok || !j.lecture) throw new Error(j.error ?? "生成失败");
       setLecture(j.lecture);
@@ -101,6 +101,7 @@ export function TopicLectureBox({ code, initial, accent = "brand", essay = false
         })}
       </div>
       <p className="text-sm font-bold"><span className="badge bg-bee-soft text-bee-dark mr-1">名师点拨</span>{lecture.tips}</p>
+      {lecture.extra && <p className="text-sm font-bold text-muted rounded-2xl bg-gray-50 p-3"><span className="badge bg-gray-200 text-gray-700 mr-1">课堂内外</span>{lecture.extra}</p>}
     </div>
   );
 }

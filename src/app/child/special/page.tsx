@@ -14,7 +14,7 @@ const TABS: { key: TopicSubject; theme: ThemeKey; label: string; emoji: string }
   { key: "coding", theme: "quality", label: "编程思维", emoji: "💻" },
   { key: "culture", theme: "quality", label: "国学人文", emoji: "🏯" },
 ];
-const BLURB: Record<TopicSubject, string> = {
+const BLURB: Partial<Record<TopicSubject, string>> = {
   math: "按模块专练：计算、数与概念、图形、量与计量、应用题。",
   chinese: "大语文四板块：基础知识、阅读理解、写作、文学与国学。",
   english: "听说读写八模块：语音拼读、词汇、语法、听力、阅读、写作、世界百科（口语在「英语口语」里）。",

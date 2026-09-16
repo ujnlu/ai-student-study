@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireChild } from "@/lib/auth";
-import { findTopic, getLecture, lecturesOfLevel, topicsFor, topicStats, TIERS, SUBJECT_NAME, type Tier } from "@/lib/topics";
+import { findTopic, getLecture, lecturesOfLevel, recommendTier, topicsFor, topicStats, TIERS, SUBJECT_NAME, type Tier } from "@/lib/topics";
 import { TopicLectureBox } from "@/components/topic-lecture";
 import { StartPracticeButton } from "@/components/start-practice-button";
 import { Mascot } from "@/components/mascot";
@@ -25,6 +25,7 @@ export default async function TopicPage({ params }: { params: Promise<{ code: st
     topicStats(child.id, [code]),
   ]);
   const stat = stats.get(code);
+  const rec = recommendTier(stat);
   const siblings = topic.track === "olympiad" ? lecturesOfLevel(topic.level!) : topicsFor(topic.track, topic.subjectId, topic.grade);
   const idx = siblings.findIndex((t) => t.code === code);
   const next = idx >= 0 && idx < siblings.length - 1 ? siblings[idx + 1] : null;
@@ -78,7 +79,7 @@ export default async function TopicPage({ params }: { params: Promise<{ code: st
             <Mascot mood="happy" size={64} />
             <div className="flex-1">
               <h2 className="font-black text-lg">练一练</h2>
-              <p className="text-sm font-bold text-muted">三档难度，从 ★ 到 ★★★，不限时，错了有动画讲解。</p>
+              <p className="text-sm font-bold text-muted">三档难度，从 ★ 到 ★★★；橙橙按你最近的成绩推荐一档。</p>
             </div>
           </div>
           {pending && (
@@ -95,14 +96,14 @@ export default async function TopicPage({ params }: { params: Promise<{ code: st
               return (
                 <div key={k} className={`rounded-2xl border-2 p-3 flex flex-col gap-1 ${best !== undefined && best >= 90 ? "border-leaf/40 bg-leaf-soft/40" : "border-line bg-white"}`}>
                   <div className="flex items-center justify-between">
-                    <span className="font-black">{cfg.stars} {cfg.name}</span>
+                    <span className="font-black">{cfg.stars} {cfg.name}{k === rec && <span className="badge bg-brand text-white ml-1">推荐</span>}</span>
                     {best !== undefined && <span className={`badge ${best >= 90 ? "bg-leaf text-white" : "bg-bee-soft text-bee-dark"}`}>{best}%</span>}
                   </div>
                   <p className="text-xs font-bold text-muted flex-1">{cfg.blurb} · {cfg.size} 题</p>
                   {pending ? (
                     <span className="btn-secondary text-sm py-2 opacity-60">先做完上一组</span>
                   ) : (
-                    <StartPracticeButton kind="topic" topic={code} tier={k} label={best === undefined ? "开始 🚀" : "再来一组"} className={`${k === "basic" ? T.btn : "btn-secondary"} text-sm py-2`} />
+                    <StartPracticeButton kind="topic" topic={code} tier={k} label={best === undefined ? "开始 🚀" : "再来一组"} className={`${k === rec ? T.btn : "btn-secondary"} text-sm py-2`} />
                   )}
                 </div>
               );

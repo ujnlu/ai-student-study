@@ -8,7 +8,7 @@ import { screenTimeStatus } from "@/lib/screen-time";
 export default async function ParentHome() {
   const s = await requireParent();
   const [children, providers, assistants, uploads, pendingRedemptions] = await Promise.all([
-    db.child.findMany({ where: { familyId: s.familyId }, orderBy: { createdAt: "asc" } }),
+    db.child.findMany({ where: { familyId: s.familyId, kind: "child" }, orderBy: { createdAt: "asc" } }),
     db.aiProvider.count({ where: { familyId: s.familyId } }),
     db.aiAssistant.findMany({ where: { familyId: s.familyId } }),
     db.upload.findMany({ where: { child: { familyId: s.familyId } }, orderBy: { createdAt: "desc" }, take: 6, include: { child: true, subject: true, problems: { include: { attempts: { take: 1, orderBy: { createdAt: "desc" } } } } } }),

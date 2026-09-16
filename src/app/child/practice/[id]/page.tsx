@@ -8,6 +8,8 @@ import { StartPracticeButton } from "@/components/start-practice-button";
 import { existingExplanations } from "@/lib/explanations";
 import { Mascot } from "@/components/mascot";
 import { ResultFx } from "@/components/result-fx";
+import { WalkthroughBox } from "@/components/walkthrough-box";
+import { LEVEL_PASS } from "@/lib/level-test";
 
 export default async function PracticeSetPage({ params }: { params: Promise<{ id: string }> }) {
   const { child } = await requireChild();
@@ -50,6 +52,8 @@ export default async function PracticeSetPage({ params }: { params: Promise<{ id
         {set.kind === "variant" && set.mistake && (
           <p className="mt-3 text-sm font-bold">{perfect ? "这道错题消灭了！过 1 天橙橙会再来考你一次。" : "还没完全掌握，再做一组试试。"}</p>
         )}
+        {set.kind === "leveltest" && <p className="mt-3 text-sm font-bold">{rate >= LEVEL_PASS ? `🎉 ${rate}% ≥ ${LEVEL_PASS}%，这一级通关了，可以去下一级！` : `${rate}%，还差一点到 ${LEVEL_PASS}%。把错的讲再看看讲一讲，过几天再测。`}</p>}
+        {set.kind === "exam" && <p className="mt-3 text-sm font-bold">模拟卷做完了，每道题都可以看「解题讲解」，错题已经进错题本。</p>}
       </div>
 
       <ol className="space-y-2">
@@ -58,13 +62,19 @@ export default async function PracticeSetPage({ params }: { params: Promise<{ id
             <div className="flex items-start gap-3">
               <span className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-black shrink-0 ${it.isCorrect ? "bg-leaf" : "bg-berry"}`}>{it.isCorrect ? "✓" : "✗"}</span>
               <div className="flex-1 min-w-0">
-                <p className="font-extrabold whitespace-pre-wrap">{it.index + 1}. {it.problem.stem}</p>
+                <p className="font-extrabold whitespace-pre-wrap">{it.index + 1}. {it.problem.stem.replace(/🔊\s*\{\{([\s\S]+?)\}\}/, "🔊 $1 ")}<span className="ml-2 text-[10px] text-bee-dark align-middle">{"★".repeat(Math.max(1, Math.min(5, it.problem.difficulty)))}</span></p>
                 <p className="text-sm font-bold text-muted">
                   你答：<b className={it.isCorrect ? "text-leaf-dark" : "text-berry"}>{it.childAnswer || "（没写）"}</b>
                   {!it.isCorrect && <> · 正确：<b className="text-leaf-dark">{it.problem.answer}</b></>}
                 </p>
                 {!it.isCorrect && it.problem.solution && <p className="text-xs font-bold text-muted mt-1">{it.problem.solution}</p>}
-                {!it.isCorrect && <div className="mt-2"><ExplainButton problemId={it.problemId} existingId={explained.get(it.problemId)} className="btn-secondary text-xs py-1.5" /></div>}
+                {!it.isCorrect && (
+                  <div className="mt-2 flex flex-wrap gap-2 items-start">
+                    <ExplainButton problemId={it.problemId} existingId={explained.get(it.problemId)} className="btn-secondary text-xs py-1.5" />
+                    <WalkthroughBox problemId={it.problemId} initial={it.problem.walkthrough} />
+                  </div>
+                )}
+                {it.isCorrect && (set.kind === "exam" || set.kind === "leveltest") && <div className="mt-2"><WalkthroughBox problemId={it.problemId} initial={it.problem.walkthrough} className="btn-ghost text-xs py-1" /></div>}
               </div>
             </div>
           </li>
@@ -75,6 +85,8 @@ export default async function PracticeSetPage({ params }: { params: Promise<{ id
         {set.kind === "oral" && <StartPracticeButton kind="oral" count={set.total} timeLimitSec={set.timeLimitSec} label="再来一组 🔁" />}
         {set.kind === "sync" && <StartPracticeButton kind="sync" subjectId={set.items[0]?.problem.subjectId ?? "math"} label="再来一组同步练 🔁" />}
         {set.kind === "variant" && !perfect && set.mistakeId && <StartPracticeButton kind="variant" mistakeId={set.mistakeId} label="再做一组变式题" />}
+        {set.kind === "leveltest" && <Link href="/child/olympiad" className="btn-secondary">回奥数</Link>}
+        {set.kind === "exam" && <Link href="/child/exam" className="btn-secondary">回真题演练</Link>}
         <Link href="/child/practice" className="btn-secondary">返回练习</Link>
         <Link href="/child" className="btn-secondary">回首页</Link>
       </div>

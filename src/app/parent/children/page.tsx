@@ -6,7 +6,7 @@ import { deleteChildAction } from "@/app/actions/children";
 export default async function ChildrenPage() {
   const s = await requireParent();
   const children = await db.child.findMany({
-    where: { familyId: s.familyId },
+    where: { familyId: s.familyId, kind: "child" },
     include: { textbooks: { include: { subject: true, textbookVersion: true } } },
     orderBy: { createdAt: "asc" },
   });

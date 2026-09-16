@@ -8,12 +8,18 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { resolveAssistant, runJson } from "@/lib/ai";
 import { gradeText, renderTemplate } from "@/lib/ai/prompts";
-import { allTopics, MODULES, type SubjectId, type Topic, type TopicSubject, type Track } from "@/lib/topic-catalog";
+import { allTopics, ADULT_EXAMS, MODULES, type AdultSubject, type SubjectId, type Topic, type TopicSubject, type Track } from "@/lib/topic-catalog";
 
-export { allTopics, MODULES };
-export type { SubjectId, Topic, TopicSubject, Track };
+export { allTopics, ADULT_EXAMS, MODULES };
+export type { AdultSubject, SubjectId, Topic, TopicSubject, Track };
 
-export const SUBJECT_NAME: Record<TopicSubject, string> = { math: "数学", chinese: "语文", english: "英语", science: "科学", coding: "编程思维", culture: "国学人文" };
+export const SUBJECT_NAME: Record<TopicSubject, string> = { math: "数学", chinese: "语文", english: "英语", science: "科学", coding: "编程思维", culture: "国学人文", gongkao: "公务员考试", kuaiji: "初级会计", ielts: "雅思", teacher: "教师资格证", cet: "英语四六级" };
+
+/** 成人考试专题用的系统提示（不套孩子的年级模板） */
+export function adultSystemPrompt(subjectId: TopicSubject) {
+  const exam = ADULT_EXAMS[subjectId as AdultSubject];
+  return `你是${exam ? exam.name : "职业考试"}的资深培训讲师，面向备考的成年人。讲解要直击考点、给出解题套路和真题常见陷阱；出题要贴近历年真题的题型、难度与表述。`;
+}
 const DB_SUBJECTS = new Set<string>(["math", "chinese", "english"]);
 
 export type Tier = "basic" | "advanced" | "challenge";
@@ -26,8 +32,16 @@ export const TOPIC_SET_SIZE = 6;
 const BANK_BATCH = 12;
 
 export function topicsFor(track: Track, subjectId: TopicSubject, grade: number) {
-  const g = Math.min(6, Math.max(1, grade));
+  const g = track === "adult" ? 0 : Math.min(6, Math.max(1, grade));
   return allTopics().filter((t) => t.track === track && t.subjectId === subjectId && t.grade === g);
+}
+
+/** 按最近成绩推荐下一档：基础 ≥80% → 进阶，进阶 ≥80% → 挑战 */
+export function recommendTier(stat?: { tiers: Partial<Record<Tier, number>> } | null): Tier {
+  const t = stat?.tiers ?? {};
+  if ((t.basic ?? 0) < 80) return "basic";
+  if ((t.advanced ?? 0) < 80) return "advanced";
+  return "challenge";
 }
 
 /** 奥数：某一级的全部讲次（级 = 年级×2−1 上学期 / 年级×2 下学期） */
@@ -43,7 +57,7 @@ export function findTopic(code: string) {
 }
 
 export function trackName(track: Track) {
-  return track === "olympiad" ? "奥数" : track === "quality" ? "素养" : "专项";
+  return track === "olympiad" ? "奥数" : track === "quality" ? "素养" : track === "adult" ? "备考" : "专项";
 }
 
 /** 按模块分组（保持目录顺序） */
@@ -78,6 +92,7 @@ export const Lecture = z.object({
     .min(2)
     .max(3),
   tips: z.string().describe("名师点拨：易错点或小窍门，一两句"),
+  extra: z.string().optional().describe("课堂内外：与本讲有关的数学史、生活应用或趣味小知识，2-3 句"),
 });
 export type Lecture = z.infer<typeof Lecture>;
 
@@ -98,6 +113,7 @@ async function childVars(childId: string, subjectId: TopicSubject) {
 }
 
 function topicBrief(t: Topic) {
+  if (t.track === "adult") return `考试：${SUBJECT_NAME[t.subjectId]}\n模块：${t.moduleName}\n专题：${t.name}\n专题说明：${t.hint}`;
   const where = t.track === "olympiad" ? `奥数第 ${t.level} 级第 ${t.no} 讲（${gradeText(t.grade)}${t.semester === 1 ? "上" : "下"}学期）· ${t.moduleName}模块` : `${gradeText(t.grade)}${SUBJECT_NAME[t.subjectId]} · ${t.moduleName}`;
   return `专题：${t.name}（${where}）\n专题说明：${t.hint}`;
 }
@@ -119,15 +135,19 @@ export async function getOrCreateLecture(code: string, childId: string): Promise
   if (!t) throw new Error("没有这个专题");
   const { child, vars } = await childVars(childId, t.subjectId);
   const assistant = await resolveAssistant(child.familyId, "generate");
+  const who = t.track === "adult" ? "备考的成年人" : `${gradeText(t.grade)}的孩子`;
   const system =
-    renderTemplate(assistant.systemPrompt, vars) +
-    `\n\n现在的任务不是出练习题，而是给${gradeText(t.grade)}的孩子写一份「讲一讲」小讲义，结构固定为：` +
+    (t.track === "adult" ? adultSystemPrompt(t.subjectId) : renderTemplate(assistant.systemPrompt, vars)) +
+    `\n\n现在的任务不是出练习题，而是给${who}写一份「讲一讲」小讲义，结构固定为：` +
     `\n1. story 课前故事：2-3 句生活小场景引出本讲；` +
     `\n2. intro 知识导引：这讲学什么、哪里用得到；` +
     `\n3. methods 方法口诀：2-5 条，好记；` +
     `\n4. examples 典题精讲：2-3 道典型例题，每题分步讲解并给答案，并且"一例一练"——每道例题配一道同类型的 practice（题目 + 答案）让孩子马上试；` +
-    `\n5. tips 名师点拨：易错点或小窍门。` +
-    (t.track === "olympiad"
+    `\n5. tips 名师点拨：易错点或小窍门；` +
+    `\n6. extra 课堂内外：相关的数学史 / 背景 / 生活应用小知识，2-3 句（可选）。` +
+    (t.track === "adult"
+      ? "\n这是成人考试专题：story 换成一句考情概述（分值、题量、常考形式），methods 写解题套路和秒杀技巧，examples 用真题风格例题。"
+      : t.track === "olympiad"
       ? "\n这是奥数思维专题，例题要体现思维方法（画图、列表、找规律、假设），难度适合该年级学有余力的孩子，但不超出该年级能理解的范围。"
       : t.practice === "essay"
         ? "\n这是写作专题：examples 里的 q 写成'题目 + 示范片段'，steps 写成技法拆解，answer 写一句点评；practice 给孩子一个可以动笔的小题目，answer 写要点提示。"
@@ -159,8 +179,8 @@ async function fillTopicBank(t: Topic, childId: string, need: number, tier?: Tie
     ? `全部题目难度为 ${TIERS[tier].difficulty[0]}${TIERS[tier].difficulty[1] !== TIERS[tier].difficulty[0] ? `-${TIERS[tier].difficulty[1]}` : ""}（${TIERS[tier].name}：${TIERS[tier].blurb}）`
     : "难度分布：约一半为 1-2（基础，和讲义例题同类型），约三分之一为 3（进阶，换情境），其余为 4-5（挑战，综合）";
   const system =
-    renderTemplate(assistant.systemPrompt, vars) +
-    (t.track === "olympiad" ? "\n\n这次出的是奥数思维题：要有思维含量，数字和情境适合该年级。" : t.track === "quality" ? "\n\n这次出的是素养拓展题：有趣、有知识点、不超出该年级理解范围。" : "\n\n这次出的是校内专项练习题：紧扣该年级要求。") +
+    (t.track === "adult" ? adultSystemPrompt(t.subjectId) : renderTemplate(assistant.systemPrompt, vars)) +
+    (t.track === "adult" ? "\n\n这次出的是备考练习题：贴近历年真题的题型与难度。" : t.track === "olympiad" ? "\n\n这次出的是奥数思维题：要有思维含量，数字和情境适合该年级。" : t.track === "quality" ? "\n\n这次出的是素养拓展题：有趣、有知识点、不超出该年级理解范围。" : "\n\n这次出的是校内专项练习题：紧扣该年级要求。") +
     `\n${diffText}。` +
     "\n题目全部用文字描述（不能依赖图片）；answer 只写最终答案（数字、字母或词语），不要写'答：'；solution 用 2-4 句讲清方法。" +
     (lecture ? `\n\n【这个专题的讲义（题目方法请与之一致）】\n方法：${lecture.methods.join("；")}\n例题：${lecture.examples.map((e) => e.q).join(" / ")}` : "");

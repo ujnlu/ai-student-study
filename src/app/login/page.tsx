@@ -8,7 +8,7 @@ import { Mascot } from "@/components/mascot";
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ mode?: string }> }) {
   const { mode } = await searchParams;
   const family = await ensureFamily();
-  const children = await db.child.findMany({ where: { familyId: family.id }, orderBy: { createdAt: "asc" } });
+  const children = await db.child.findMany({ where: { familyId: family.id, kind: "child" }, orderBy: { createdAt: "asc" } });
 
   return (
     <main className="flex-1 flex flex-col items-center justify-center px-4 py-10 bg-[radial-gradient(circle_at_20%_10%,#fff1e3_0,transparent_40%),radial-gradient(circle_at_80%_90%,#e6f6ff_0,transparent_40%)]">

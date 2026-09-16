@@ -106,6 +106,7 @@ async function fillBank(childId: string, chapterId: string, need: number) {
           role: "user",
           content:
             `课时：${path}\n请围绕这一课的例题和"做一做"，出 ${need} 道同步练习题，难度从易到难（1-3），题型仿照教材（口算、填空、看图列式、简单应用题）。` +
+            `其中 2 题按新课标"新题新考法"出：有真实生活情境的应用性题或跨学科（科学 / 生活）情境题，但答案仍然唯一。` +
             `answer 只写最终答案。不要与下面这些已有题目重复：\n${existing.map((e) => "- " + e.stem).join("\n")}`,
         },
       ],

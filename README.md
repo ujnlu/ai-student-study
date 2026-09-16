@@ -55,6 +55,9 @@ src/app/child/video/      视频教学：本册每一课的国家平台老师讲
 src/lib/topic-catalog.ts  专题目录：奥数 12 级 × 20 讲（八大问题）、语文四板块、英语八模块、素养（科学 / 编程 / 国学）
 src/lib/topics.ts         讲义（故事→导引→一例一练→点拨）与三档题库的生成与复用
 src/lib/plan.ts           首页"本周计划"自动目标与完成统计
+src/lib/level-test.ts     奥数级末定级测；src/lib/reading.ts 分级阅读；src/lib/exam.ts 模拟卷 / 成人真题演练；src/lib/walkthrough.ts 解题讲解
+src/app/child/reading/    分级阅读；src/app/child/exam/ 真题演练；src/app/child/map/ 知识图谱（过滤练）；src/app/child/olympiad/tree 知识树
+src/app/parent/study/     家长自学：公考 / 初级会计 / 雅思 / 教资 / 四六级，讲义 + 三档练习 + 真题演练 + 错题本
 src/lib/speaking.ts       英语口语主题目录、跟读句子生成与复用、对话提示词
 src/app/parent/report/    家长学情报告 + AI 周评
 src/app/explain/[id]      动画讲解播放器（家长和孩子都可看）

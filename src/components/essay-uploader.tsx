@@ -7,7 +7,7 @@ export function EssayUploader({ childId }: { childId: string }) {
   return (
     <Uploader
       childId={childId}
-      subjects={[{ id: "chinese", name: "语文" }]}
+      subjects={[{ id: "chinese", name: "语文" }, { id: "english", name: "英语" }]}
       defaultSubject="chinese"
       kind="essay"
       gradeUrl={(id) => `/api/uploads/${id}/essay`}

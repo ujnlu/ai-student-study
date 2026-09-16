@@ -8,9 +8,10 @@
  *  - 学而思素养板块：科学、编程通识、人文。
  */
 
-export type Track = "special" | "olympiad" | "quality";
+export type Track = "special" | "olympiad" | "quality" | "adult";
 export type SubjectId = "math" | "chinese" | "english";
-export type TopicSubject = SubjectId | "science" | "coding" | "culture";
+export type TopicSubject = SubjectId | "science" | "coding" | "culture" | AdultSubject;
+export type AdultSubject = "gongkao" | "kuaiji" | "ielts" | "teacher" | "cet";
 export type PracticeMode = "quiz" | "essay" | "speaking";
 
 export type Topic = {
@@ -59,6 +60,27 @@ export const MODULES: Record<string, { name: string; emoji: string }> = {
   ereading: { name: "阅读", emoji: "📚" },
   ewriting: { name: "写作", emoji: "📝" },
   world: { name: "世界百科", emoji: "🌍" },
+  // 成人考试（家长自学）
+  yanyu: { name: "言语理解", emoji: "📝" },
+  shuliang: { name: "数量关系", emoji: "🔢" },
+  panduan: { name: "判断推理", emoji: "🧩" },
+  ziliao: { name: "资料分析", emoji: "📊" },
+  changshi: { name: "常识判断", emoji: "🌐" },
+  shenlun: { name: "申论", emoji: "🖋️" },
+  shiwu: { name: "初级会计实务", emoji: "📒" },
+  jingjifa: { name: "经济法基础", emoji: "⚖️" },
+  ilisten: { name: "Listening", emoji: "🎧" },
+  iread: { name: "Reading", emoji: "📖" },
+  iwrite: { name: "Writing", emoji: "✍️" },
+  ispeak: { name: "Speaking", emoji: "🗣️" },
+  ivocab: { name: "Vocabulary & Grammar", emoji: "🔤" },
+  zonghe: { name: "综合素质", emoji: "🎓" },
+  jiaoyu: { name: "教育教学知识与能力", emoji: "🏫" },
+  cvocab: { name: "词汇语法", emoji: "🔤" },
+  clisten: { name: "听力", emoji: "🎧" },
+  cread: { name: "阅读", emoji: "📖" },
+  ctrans: { name: "翻译", emoji: "🔁" },
+  cwrite: { name: "写作", emoji: "✍️" },
   // 素养
   science: { name: "科学", emoji: "🔬" },
   coding: { name: "编程思维", emoji: "💻" },
@@ -590,6 +612,81 @@ const QUALITY: Record<"g12" | "g34" | "g56", Q[]> = {
   ],
 };
 
+
+// ---------- 成人考试（家长自学）：按考试科目 → 模块 → 专题 ----------
+const AD_OBJ = "题目一律出成客观题：单项选择题（题干最后另起行列出 A. B. C. D. 四个选项，答案只写字母），风格贴近该考试历年真题。";
+const AD_LISTEN = "这是听力题：每题的题干必须以 🔊{{一段英文}} 开头（双花括号里是要朗读的英文，程序会朗读、不显示文字），后面用英文或中文提问，列 A. B. C. D. 选项，答案只写字母。";
+type A = [module: string, slug: string, name: string, desc: string, hint: string, practice?: PracticeMode];
+export const ADULT_EXAMS: Record<AdultSubject, { name: string; emoji: string; blurb: string; examSize: number; examMinutes: number; examHint: string; parts: [module: string, count: number][] }> = {
+  gongkao: { name: "公务员考试", emoji: "🏛️", blurb: "行测五大模块 + 申论", examSize: 30, examMinutes: 35, examHint: "国考 / 省考行政职业能力测验风格", parts: [["言语理解（逻辑填空、片段阅读、语句表达）", 8], ["数量关系（数字推理、数学运算）", 5], ["判断推理（定义判断、类比推理、逻辑判断）", 8], ["资料分析（题干内给出一段 100 字左右的统计材料）", 5], ["常识判断", 4]] },
+  kuaiji: { name: "初级会计职称", emoji: "📒", blurb: "初级会计实务 + 经济法基础", examSize: 30, examMinutes: 30, examHint: "初级会计职称考试风格，单选为主，涉及计算的给出数据", parts: [["初级会计实务（资产、负债、所有者权益）", 8], ["初级会计实务（收入费用利润、财务报表）", 7], ["经济法基础（法律基础、支付结算、增值税消费税）", 8], ["经济法基础（所得税、其他税收、劳动合同与社保）", 7]] },
+  ielts: { name: "雅思 IELTS", emoji: "🌍", blurb: "听说读写 + 词汇语法", examSize: 20, examMinutes: 25, examHint: "IELTS 风格，题干用英文", parts: [["Listening（🔊{{}} 格式，日常对话与学术讲座）", 6], ["Reading（题干内给 60-100 词短文，True/False/Not Given 或 multiple choice）", 8], ["Vocabulary & Grammar", 6]] },
+  teacher: { name: "教师资格证（小学）", emoji: "🎓", blurb: "综合素质 + 教育教学知识与能力", examSize: 30, examMinutes: 30, examHint: "小学教师资格笔试风格", parts: [["综合素质（职业理念、法律法规、职业道德）", 8], ["综合素质（文化素养、逻辑与信息处理）", 7], ["教育教学知识与能力（教育基础、学生指导、班级管理）", 8], ["教育教学知识与能力（教学设计、实施、评价）", 7]] },
+  cet: { name: "英语四六级", emoji: "🎯", blurb: "词汇语法、听力、阅读、翻译、写作", examSize: 25, examMinutes: 30, examHint: "CET-4/6 风格，题干用英文", parts: [["听力（🔊{{}} 格式，短对话与短文）", 6], ["阅读（题干内给 80-120 词短文或选词填空）", 10], ["词汇语法", 9]] },
+};
+const ADULT: Record<AdultSubject, A[]> = {
+  gongkao: [
+    ["yanyu", "luoji", "逻辑填空", "实词、成语辨析", `${AD_OBJ}行测言语理解·逻辑填空：一空或两空，考实词辨析、成语搭配、语境呼应`],
+    ["yanyu", "pianduan", "片段阅读", "主旨、意图、细节", `${AD_OBJ}行测言语理解·片段阅读：给 150-250 字材料，问主旨概括、意图判断、细节理解、标题添加`],
+    ["yanyu", "yuju", "语句表达", "排序、衔接", `${AD_OBJ}行测言语理解·语句表达：语句排序（给 5-6 句编号）、语句衔接、下文推断`],
+    ["shuliang", "shuzi", "数字推理", "数列规律", `${AD_OBJ}行测数量关系·数字推理：等差、等比、多级、递推、分组数列`],
+    ["shuliang", "yunsuan", "数学运算", "工程、行程、经济利润", `${AD_OBJ}行测数量关系·数学运算：工程、行程、经济利润、排列组合、概率、几何、最值、和差倍比`],
+    ["panduan", "dingyi", "定义判断", "符合 / 不符合定义", `${AD_OBJ}行测判断推理·定义判断：给一个定义，选最符合或最不符合的选项`],
+    ["panduan", "leibi", "类比推理", "词项间关系", `${AD_OBJ}行测判断推理·类比推理：两项式、三项式、括号式，考察并列、包容、对应、语义关系`],
+    ["panduan", "luojipanduan", "逻辑判断", "翻译推理、加强削弱", `${AD_OBJ}行测判断推理·逻辑判断：翻译推理、真假推理、分析推理、加强削弱型`],
+    ["ziliao", "ziliao", "资料分析", "增长率、比重、平均数", `${AD_OBJ}行测资料分析：题干内给出一段 100-200 字的统计材料（含年份、总量、增速），问增长量、增长率、比重、平均数、倍数，给可速算的数据`],
+    ["changshi", "changshi", "常识判断", "政治、法律、科技、人文", `${AD_OBJ}行测常识判断：时政与政治理论、法律常识、科技生活、历史人文、地理国情`],
+    ["shenlun", "gaikuo", "申论·归纳概括", "从材料里找要点", "申论归纳概括题的作答方法：审题、找要点、分类合并、规范书写；给一段 300 字左右的材料示范如何提炼要点；练习给材料让学习者写", "essay"],
+    ["shenlun", "duice", "申论·提出对策", "问题 → 对策", "申论提出对策题：从材料问题推对策，对策要有针对性、可行性、条理性；示范；练习给材料", "essay"],
+    ["shenlun", "dazuowen", "申论·大作文", "立意、结构、论证", "申论议论文写作：审题立意、标题、总分总结构、分论点论证、结尾升华；示范提纲；练习给题目", "essay"],
+  ],
+  kuaiji: [
+    ["shiwu", "zichan", "资产", "货币资金、存货、固定资产", `${AD_OBJ}初级会计实务·资产：货币资金、应收款项、存货计价、固定资产折旧、无形资产，含分录判断与计算`],
+    ["shiwu", "fuzhai", "负债", "短期借款、应付职工薪酬、应交税费", `${AD_OBJ}初级会计实务·负债：短期借款、应付账款、应付职工薪酬、应交税费的核算`],
+    ["shiwu", "quanyi", "所有者权益", "实收资本、留存收益", `${AD_OBJ}初级会计实务·所有者权益：实收资本、资本公积、盈余公积、未分配利润`],
+    ["shiwu", "shouru", "收入费用利润", "收入确认、利润计算", `${AD_OBJ}初级会计实务·收入、费用和利润：收入确认五步法、期间费用、营业利润与净利润计算`],
+    ["shiwu", "baobiao", "财务报表", "资产负债表、利润表", `${AD_OBJ}初级会计实务·财务报表：资产负债表、利润表项目填列与勾稽关系`],
+    ["jingjifa", "falv", "法律基础与会计法律制度", "会计法、会计档案", `${AD_OBJ}经济法基础：法律基础、会计法律制度、会计档案管理、会计职业道德`],
+    ["jingjifa", "zhifu", "支付结算法律制度", "票据、银行账户", `${AD_OBJ}经济法基础·支付结算：银行结算账户、票据（汇票本票支票）、银行卡、网上支付`],
+    ["jingjifa", "zengzhi", "增值税与消费税", "税率、应纳税额", `${AD_OBJ}经济法基础·增值税、消费税法律制度：征税范围、税率、应纳税额计算、征收管理`],
+    ["jingjifa", "suodeshui", "企业与个人所得税", "税前扣除、专项附加", `${AD_OBJ}经济法基础·企业所得税、个人所得税：应纳税所得额、扣除项目、专项附加扣除、税率计算`],
+    ["jingjifa", "qitashui", "其他税收与征管", "印花税、房产税、征管", `${AD_OBJ}经济法基础·其他税收法律制度与税收征收管理：房产税、契税、印花税、资源税、税务登记、纳税申报`],
+    ["jingjifa", "laodong", "劳动合同与社会保险", "试用期、社保", `${AD_OBJ}经济法基础·劳动合同与社会保险法律制度：劳动合同订立解除、工作时间、社会保险`],
+  ],
+  ielts: [
+    ["ilisten", "listen1", "Listening · 日常对话", "Section 1-2 风格", `${AD_LISTEN}IELTS Listening Section 1-2 风格：住宿、旅行、活动安排等日常对话，问数字、地点、时间、姓名拼写`],
+    ["ilisten", "listen2", "Listening · 学术讲座", "Section 3-4 风格", `${AD_LISTEN}IELTS Listening Section 3-4 风格：学术讨论与讲座片段，问观点、原因、结论`],
+    ["iread", "tfng", "Reading · True/False/Not Given", "判断题技巧", `${AD_OBJ}IELTS Reading：题干内给一段 80-120 词学术短文，出 True / False / Not Given 判断（选项 A True B False C Not Given），题干英文`],
+    ["iread", "matching", "Reading · Matching & MC", "段落匹配与多选", `${AD_OBJ}IELTS Reading：题干内给短文，出段落信息匹配或 multiple choice，题干英文`],
+    ["iwrite", "task1", "Writing Task 1", "图表描述", "IELTS Writing Task 1：用文字描述给出的图表数据（题干内给出数据），overview、对比、数据支撑；示范范文段落；练习给数据描述", "essay"],
+    ["iwrite", "task2", "Writing Task 2", "议论文", "IELTS Writing Task 2：审题、立场、段落结构、论证与例子、词汇多样性；示范范文提纲；练习给题目", "essay"],
+    ["ispeak", "part1", "Speaking Part 1-2", "话题卡", "IELTS Speaking Part 1 常见问题与 Part 2 话题卡的答题框架（观点 + 细节 + 例子 + 感受）、高分表达；示范回答；练习给话题卡", "essay"],
+    ["ivocab", "vocab", "Vocabulary", "学术词汇、同义替换", `${AD_OBJ}IELTS 学术词汇与同义替换：选词填空、近义词辨析，题干英文`],
+    ["ivocab", "grammar", "Grammar", "复杂句、时态、语态", `${AD_OBJ}IELTS 语法：从句、时态、被动、非谓语、冠词介词，题干英文`],
+  ],
+  teacher: [
+    ["zonghe", "linian", "职业理念", "教育观、学生观、教师观", `${AD_OBJ}小学教师资格·综合素质·职业理念：素质教育观、"以人为本"学生观、教师观，多为情境判断题`],
+    ["zonghe", "fagui", "教育法律法规", "教育法、教师法、未成年人保护法", `${AD_OBJ}小学教师资格·综合素质·教育法律法规：教育法、义务教育法、教师法、未成年人保护法、预防未成年人犯罪法`],
+    ["zonghe", "daode", "教师职业道德", "职业道德规范", `${AD_OBJ}小学教师资格·综合素质·教师职业道德规范与行为，情境判断`],
+    ["zonghe", "wenhua", "文化素养", "科学、文学、艺术常识", `${AD_OBJ}小学教师资格·综合素质·文化素养：历史、科技、文学、艺术常识`],
+    ["zonghe", "luoji", "逻辑与信息处理", "逻辑推理、阅读理解", `${AD_OBJ}小学教师资格·综合素质·基本能力：逻辑推理、信息处理、阅读理解`],
+    ["jiaoyu", "jichu", "教育基础", "教育学、心理学基础", `${AD_OBJ}小学教师资格·教育教学知识与能力·教育基础：教育与教育学、课程、教学、学习理论、心理学基础`],
+    ["jiaoyu", "xuesheng", "学生指导", "身心发展、学习心理", `${AD_OBJ}小学教师资格·学生指导：小学生身心发展、学习兴趣与动机、德育、心理辅导`],
+    ["jiaoyu", "banji", "班级管理", "班主任工作、课外活动", `${AD_OBJ}小学教师资格·班级管理：班级与班集体、班主任工作、课外活动、家校合作`],
+    ["jiaoyu", "shishi", "教学设计与实施", "教学目标、方法、评价", `${AD_OBJ}小学教师资格·教学设计、教学实施与教学评价：教学目标、教学方法、教学原则、教学评价`],
+    ["jiaoyu", "sheji", "教学设计题", "写一份教学设计", "小学教师资格·教学设计题的写法：教学目标（三维）、重难点、教学过程（导入 / 新授 / 巩固 / 小结 / 作业）、板书；示范一份语文或数学教学设计片段；练习给课题", "essay"],
+  ],
+  cet: [
+    ["cvocab", "vocab", "核心词汇", "高频词、词组", `${AD_OBJ}CET-4/6 核心词汇与词组：选词填空、近义辨析，题干英文`],
+    ["cvocab", "grammar", "语法", "从句、非谓语、虚拟语气", `${AD_OBJ}CET-4/6 语法：从句、非谓语、虚拟语气、倒装，题干英文`],
+    ["clisten", "listen", "听力", "短对话、短文", `${AD_LISTEN}CET-4/6 听力：短对话、新闻报道、长对话片段，问主旨、细节、态度`],
+    ["cread", "read", "仔细阅读", "细节、推断、主旨", `${AD_OBJ}CET-4/6 仔细阅读：题干内给 80-120 词短文，出细节、推断、主旨题，题干英文`],
+    ["cread", "cloze", "选词填空", "15 选 10 风格", `${AD_OBJ}CET-4/6 选词填空：题干内给一段短文挖 1 空，四个选项选词，题干英文`],
+    ["ctrans", "trans", "汉译英", "中国文化段落翻译", "CET-4/6 段落翻译：拆分长句、主干优先、固定表达；示范一段中国文化主题的汉译英；练习给一段中文", "essay"],
+    ["cwrite", "write", "写作", "议论文、书信", "CET-4/6 写作：审题、三段结构、连接词、高分句型；示范范文；练习给题目", "essay"],
+  ],
+};
+
 // ---------- 组装 ----------
 const GRADE_CN = ["", "一", "二", "三", "四", "五", "六"];
 
@@ -633,6 +730,11 @@ function buildAll(): Topic[] {
   for (const [g, list] of Object.entries(ENGLISH)) {
     for (const [slug, module, name, desc, hint, practice] of list) {
       out.push({ code: `special-english-g${g}-${slug}`, track: "special", subjectId: "english", grade: Number(g), module, moduleName: MODULES[module]?.name ?? module, slug, name, emoji: MODULE_EMOJI(module), desc, hint, practice: practice ?? "quiz" });
+    }
+  }
+  for (const [subject, list] of Object.entries(ADULT) as [AdultSubject, A[]][]) {
+    for (const [module, slug, name, desc, hint, practice] of list) {
+      out.push({ code: `adult-${subject}-${slug}`, track: "adult", subjectId: subject, grade: 0, module, moduleName: MODULES[module]?.name ?? module, slug, name, emoji: MODULE_EMOJI(module), desc, hint, practice: practice ?? "quiz" });
     }
   }
   for (const [band, list] of Object.entries(QUALITY)) {

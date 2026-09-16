@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function StartPracticeButton({ kind, mistakeId, subjectId, topic, tier, count, timeLimitSec, label, className = "btn-primary" }: { kind: "oral" | "variant" | "review" | "sync" | "topic"; mistakeId?: string; subjectId?: string; topic?: string; tier?: "basic" | "advanced" | "challenge"; count?: number; timeLimitSec?: number | null; label: string; className?: string }) {
+export function StartPracticeButton({ kind, mistakeId, subjectId, topic, tier, count, timeLimitSec, label, className = "btn-primary", childId, redirect = "/child/practice/{id}" }: { kind: "oral" | "variant" | "review" | "sync" | "topic"; mistakeId?: string; subjectId?: string; topic?: string; tier?: "basic" | "advanced" | "challenge"; count?: number; timeLimitSec?: number | null; label: string; className?: string; childId?: string; redirect?: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -20,11 +20,11 @@ export function StartPracticeButton({ kind, mistakeId, subjectId, topic, tier, c
             const r = await fetch("/api/practice/create", {
               method: "POST",
               headers: { "content-type": "application/json" },
-              body: JSON.stringify({ kind, mistakeId, subjectId, topic, tier, count, timeLimitSec }),
+              body: JSON.stringify({ kind, mistakeId, subjectId, topic, tier, count, timeLimitSec, childId }),
             });
             const j = (await r.json()) as { id?: string; error?: string };
             if (!r.ok || !j.id) throw new Error(j.error ?? "失败");
-            router.push(`/child/practice/${j.id}`);
+            router.push(redirect.replace("{id}", j.id));
           } catch (e) {
             setErr(e instanceof Error ? e.message : String(e));
             setBusy(false);

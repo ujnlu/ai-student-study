@@ -55,7 +55,7 @@ function parseChoices(stem: string): { body: string; options: { key: string; tex
   return { body: stem, options: [] };
 }
 
-export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = "math" }: { setId: string; items: Item[]; timeLimitSec: number | null; title: string; subjectId?: string }) {
+export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = "math", resultHref, childId }: { setId: string; items: Item[]; timeLimitSec: number | null; title: string; subjectId?: string; resultHref?: string; childId?: string }) {
   const router = useRouter();
   const play = useSfx();
   const [i, setI] = useState(0);
@@ -113,7 +113,7 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
     try {
       const r = await fetch(`/api/practice/${setId}/submit`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ durationSec: elapsedRef.current }) });
       if (!r.ok) throw new Error(((await r.json()) as { error?: string }).error ?? "提交失败");
-      router.push(`/child/practice/${setId}`);
+      router.push(resultHref ?? `/child/practice/${setId}`);
       router.refresh();
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));
@@ -240,7 +240,7 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
                   <p className="h-display text-2xl text-berry">不对哦</p>
                   <p className="font-bold">正确答案 <b className="text-leaf-dark text-2xl">{feedback.correctAnswer}</b></p>
                   {feedback.solution && <p className="text-xs font-bold text-muted mt-1 max-w-xs">{feedback.solution}</p>}
-                  <div className="mt-2"><ExplainButton problemId={feedback.problemId} label="🎬 看动画讲解" className="btn-secondary text-sm py-2" /></div>
+                  <div className="mt-2"><ExplainButton problemId={feedback.problemId} childId={childId} label="🎬 看动画讲解" className="btn-secondary text-sm py-2" /></div>
                 </>
               )}
             </div>

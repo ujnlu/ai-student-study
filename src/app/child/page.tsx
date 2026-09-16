@@ -161,6 +161,8 @@ export default async function ChildHome({ searchParams }: { searchParams: Promis
                     <div className="mt-1">{mathChapter ? <StartPracticeButton kind="sync" subjectId="math" label="开始" className="btn-primary text-xs py-1.5 px-3" /> : <Link href="/child/progress?subject=math" className="btn-secondary text-xs py-1.5 px-3">先设置进度</Link>}</div>
                   </div>
                   <EntryTile href="/child/unit-test" icon="🏁" label="单元测" sub="15 题 · 20 分钟" theme="math" />
+                  <EntryTile href="/child/exam?subject=math" icon="📄" label="真题演练" sub="期中 / 期末模拟卷 · 解题讲解" theme="math" />
+                  <EntryTile href="/child/map?subject=math" icon="🗺️" label="知识图谱" sub="哪里没掌握，只练那里" theme="math" />
                   <EntryTile href="/child/review" icon="🔁" label="加固复习" sub="薄弱点 · 周末总复习" theme="math" />
                   <EntryTile href="/child/pk" icon="⚔️" label="口算 PK" sub="和橙橙比一比" theme="math" />
                 </div>
@@ -206,6 +208,8 @@ export default async function ChildHome({ searchParams }: { searchParams: Promis
                     <div className="mt-1">{chineseChapter ? <StartPracticeButton kind="sync" subjectId="chinese" label="开始" className={`${T.btn} text-xs py-1.5 px-3`} /> : <Link href="/child/progress?subject=chinese" className="btn-secondary text-xs py-1.5 px-3">先设置进度</Link>}</div>
                   </div>
                   <EntryTile href="/child/essay" icon="📝" label="作文点评" sub="拍作文给橙橙看" theme="chinese" />
+                  <EntryTile href="/child/reading?lang=zh" icon="📚" label="分级阅读" sub="L1-L6 · 读一读 答一答" theme="chinese" />
+                  <EntryTile href="/child/exam?subject=chinese" icon="📄" label="真题演练" sub="期中 / 期末模拟卷" theme="chinese" />
                 </div>
               </div>
               <div>
@@ -240,6 +244,7 @@ export default async function ChildHome({ searchParams }: { searchParams: Promis
                   {speakTopics.slice(0, 6).map((t) => (
                     <Link key={t.code} href={`/child/speaking/${t.code}`} className="chip border-sky/30">{t.emoji} {t.name}</Link>
                   ))}
+                  <Link href="/child/reading?lang=en" className="chip border-sky bg-sky-soft text-sky-dark">📚 英文分级阅读</Link>
                 </div>
               </div>
               <div>

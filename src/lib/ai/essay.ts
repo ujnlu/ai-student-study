@@ -10,6 +10,13 @@ import { addStars } from "@/lib/rewards";
 
 export const ESSAY_STARS = 5;
 export const ESSAY_DIMENSIONS = ["内容", "结构", "语言", "书写", "错别字", "亮点"] as const;
+/** 英语作文：对标剑桥 KET / PET 写作评分（学而思学习机英语作文批改也按此标准） */
+const ENGLISH_RUBRIC = `
+
+这是一篇英语作文。请改按剑桥 KET / PET 写作标准，从四个维度点评（每项 1-5 分并说明）：Content 内容是否切题完整、Communicative Achievement 表达是否符合体裁与读者、Organisation 组织与连接词、Language 词汇语法准确性与多样性。
+- 先用中文总评，再逐条列出拼写与语法错误（原句 → 改正）。
+- 给出 3 个可以替换的更好表达（简单 → 地道）。
+- 不要替孩子重写全文；语气鼓励。`;
 
 export async function gradeEssay(uploadId: string) {
   const upload = await db.upload.findUniqueOrThrow({
@@ -34,8 +41,9 @@ export async function gradeEssay(uploadId: string) {
       region: child.region,
     });
     const buf = await fs.readFile(uploadAbsPath(upload.filePath));
+    const finalSystem = subjectId === "english" ? system + ENGLISH_RUBRIC : system;
     const r = await runComplete(assistant, {
-      system,
+      system: finalSystem,
       messages: [
         {
           role: "user",

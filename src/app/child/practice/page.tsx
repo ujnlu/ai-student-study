@@ -5,7 +5,7 @@ import { StartPracticeButton } from "@/components/start-practice-button";
 import { dueReviews } from "@/lib/practice";
 import { chapterPath, currentChapter } from "@/lib/sync";
 
-const KIND: Record<string, string> = { oral: "口算", sync: "同步练", variant: "变式题", review: "复习", ai: "老师布置", pk: "PK", unit: "单元测", consolidate: "巩固练", weekly: "总复习", topic: "专项", olympiad: "奥数" };
+const KIND: Record<string, string> = { oral: "口算", sync: "同步练", variant: "变式题", review: "复习", ai: "老师布置", pk: "PK", unit: "单元测", consolidate: "巩固练", weekly: "总复习", topic: "专项", olympiad: "奥数", leveltest: "定级测", exam: "模拟卷" };
 
 export default async function PracticePage() {
   const { child } = await requireChild();
