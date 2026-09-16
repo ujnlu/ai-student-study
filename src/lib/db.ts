@@ -31,7 +31,7 @@ function makeClient() {
  */
 function isSqliteIoError(e: unknown) {
   const err = e as { code?: string; message?: string } | null;
-  return !!err && err.code === "P2039" && /disk I\/O error|SHORT_READ|IOERR/i.test(err.message ?? "");
+  return !!err && err.code === "P2039" && /disk I\/O error|SHORT_READ|IOERR|disk image is malformed|SQLITE_CORRUPT/i.test(err.message ?? "");
 }
 
 type Base = ReturnType<typeof makeClient>;

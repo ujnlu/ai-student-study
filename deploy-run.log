@@ -1,9 +1,8 @@
-另一个部署正在进行，等待其完成…
 
 [1;36m==> 本机构建（/tmp/study-build 副本）[0m
-✓ Running next.config.ts took 23ms
-✓ Compiled successfully in 11.3s
-✓ Generating static pages using 3 workers (60/60) in 288ms
+✓ Running next.config.ts took 46ms
+✓ Compiled successfully in 11.4s
+✓ Generating static pages using 3 workers (63/63) in 301ms
 Turbopack build encountered 1 warning:
 
 [1;36m==> 同步源码到 root@123.56.92.161:/opt/ai-student-study[0m
@@ -12,8 +11,10 @@ Turbopack build encountered 1 warning:
 
 [1;36m==> 线上：安装依赖、迁移、构建、重启[0m
 依赖未变化，跳过 npm ci
-✔ Generated Prisma Client (7.10.0) to ./src/generated/prisma in 515ms
-             at schema-engine/connectors/sql-schema-connector/src/sql_migration_persistence.rs:17
-   1: schema_core::state::ApplyMigrations
-             at schema-engine/core/src/state.rs:255
-EXIT 1
+✔ Generated Prisma Client (7.10.0) to ./src/generated/prisma in 530ms
+14 migrations found in prisma/migrations
+No pending migrations to apply.
+健康检查 /login -> 200
+
+[1;36m==> 完成：http://123.56.92.161/[0m
+EXIT 0

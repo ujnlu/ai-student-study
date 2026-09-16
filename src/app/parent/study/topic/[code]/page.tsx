@@ -6,17 +6,19 @@ import { getOrCreateAdultLearner } from "@/lib/adult";
 import { findTopic, getLecture, recommendTier, topicStats, ADULT_EXAMS, TIERS, SUBJECT_NAME, type AdultSubject, type Tier } from "@/lib/topics";
 import { TopicLectureBox } from "@/components/topic-lecture";
 import { StartPracticeButton } from "@/components/start-practice-button";
+import { gradeName } from "@/lib/grade";
 
 export default async function ParentTopicPage({ params }: { params: Promise<{ code: string }> }) {
   const s = await requireParent();
   const { code } = await params;
   const topic = findTopic(code);
-  if (!topic || topic.track === "olympiad" || topic.track === "quality") notFound();
+  if (!topic) notFound();
   const learner = await getOrCreateAdultLearner(s.familyId);
   const exam = ADULT_EXAMS[topic.subjectId as AdultSubject];
-  const stageTrack = topic.track === "gaokao" || topic.track === "zhongkao" ? topic.track : topic.track === "special" ? (topic.grade >= 10 ? "gaokao" : "zhongkao") : null;
-  const crumbHref = stageTrack ? `/parent/study?exam=${stageTrack}&subject=${topic.subjectId}` : `/parent/study?exam=${topic.subjectId}`;
-  const crumbText = stageTrack ? `${stageTrack === "gaokao" ? "高考" : "中考"}真题专讲 · ${SUBJECT_NAME[topic.subjectId]}` : exam?.name ?? "家长自学";
+  const stageTrack = topic.track === "gaokao" || topic.track === "zhongkao" ? topic.track : topic.track === "special" && topic.grade >= 7 ? (topic.grade >= 10 ? "gaokao" : "zhongkao") : null;
+  const fromBrowse = topic.track !== "adult" && !(topic.track === "gaokao" || topic.track === "zhongkao");
+  const crumbHref = fromBrowse ? `/parent/browse?g=${topic.grade}&subject=${["science", "coding", "culture"].includes(topic.subjectId) ? "math" : topic.subjectId}` : stageTrack ? `/parent/study?exam=${stageTrack}&subject=${topic.subjectId}` : `/parent/study?exam=${topic.subjectId}`;
+  const crumbText = fromBrowse ? `内容总览 · ${gradeName(topic.grade)}${SUBJECT_NAME[topic.subjectId]}` : stageTrack ? `${stageTrack === "gaokao" ? "高考" : "中考"}真题专讲 · ${SUBJECT_NAME[topic.subjectId]}` : exam?.name ?? "家长自学";
   const [lecture, pending, recent, stats] = await Promise.all([
     getLecture(code),
     db.practiceSet.findFirst({ where: { childId: learner.id, topic: code, status: "ready" }, orderBy: { createdAt: "desc" } }),

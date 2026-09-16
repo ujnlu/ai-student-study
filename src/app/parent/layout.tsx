@@ -7,6 +7,7 @@ const NAV = [
   { href: "/parent/children", label: "孩子档案", icon: "👧" },
   { href: "/parent/practice", label: "出题与练习", icon: "📝" },
   { href: "/parent/rewards", label: "奖励兑换", icon: "🎁" },
+  { href: "/parent/browse", label: "内容总览", icon: "🗂️" },
   { href: "/parent/textbooks", label: "教材", icon: "📚" },
   { href: "/parent/screen-time", label: "学习时长", icon: "⏱️" },
   { href: "/parent/ai", label: "AI 设置", icon: "🤖" },
