@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { GRADE_NAMES as GRADE_TEXT } from "@/lib/grade";
 import { notFound } from "next/navigation";
+import { after } from "next/server";
 import { db } from "@/lib/db";
 import { requireChild } from "@/lib/auth";
-import { findTopic, getLecture, lecturesOfLevel, recommendTier, topicsFor, topicStats, TIERS, SUBJECT_NAME, type Tier } from "@/lib/topics";
+import { findTopic, getLecture, lecturesOfLevel, recommendTier, topicsFor, topicStats, warmTopicInBackground, TIERS, SUBJECT_NAME, type Tier } from "@/lib/topics";
 import { TopicLectureBox } from "@/components/topic-lecture";
 import { StartPracticeButton } from "@/components/start-practice-button";
 import { Mascot } from "@/components/mascot";
@@ -29,6 +30,11 @@ export default async function TopicPage({ params }: { params: Promise<{ code: st
   const siblings = topic.track === "olympiad" ? lecturesOfLevel(topic.level!) : topicsFor(topic.track, topic.subjectId, topic.grade);
   const idx = siblings.findIndex((t) => t.code === code);
   const next = idx >= 0 && idx < siblings.length - 1 ? siblings[idx + 1] : null;
+  // 响应发出后顺带预热：这讲的题库（讲义已有时）和下一讲的讲义 + 题库，孩子点过去就不用等
+  after(() => {
+    if (lecture) warmTopicInBackground(code, { familyId: child.familyId });
+    if (next) warmTopicInBackground(next.code, { familyId: child.familyId });
+  });
   const backHref = topic.track === "olympiad" ? `/child/olympiad?level=${topic.level}` : topic.track === "quality" ? "/child?s=quality" : topic.track === "gaokao" || topic.track === "zhongkao" ? `/child/prep?stage=${topic.track}&subject=${topic.subjectId}` : topic.grade >= 7 ? `/child/special?subject=${topic.subjectId}&g=${topic.grade}` : `/child?s=${topic.subjectId}`;
   const accent = themeKey === "chinese" ? "grape" : themeKey === "english" ? "sky" : themeKey === "quality" ? "leaf" : "brand";
   const isEssay = topic.practice === "essay";

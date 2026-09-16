@@ -97,20 +97,34 @@ export const Lecture = z.object({
 });
 export type Lecture = z.infer<typeof Lecture>;
 
-async function childVars(childId: string, subjectId: TopicSubject) {
-  const child = await db.child.findUniqueOrThrow({ where: { id: childId }, include: { textbooks: { include: { textbookVersion: true } } } });
-  return {
-    child,
-    vars: {
-      childName: child.name,
-      grade: child.grade,
-      gradeText: gradeText(child.grade),
-      semester: child.semester === 1 ? "上学期" : "下学期",
-      subject: SUBJECT_NAME[subjectId],
-      textbook: child.textbooks.find((t) => t.subjectId === subjectId)?.textbookVersion.name ?? "人教版",
-      region: child.region,
-    },
+/**
+ * 生成共享内容（讲义 / 题库）用的上下文。讲义和题库按专题 code 全家共用，
+ * 所以提示词里一律用中性身份（"同学"、专题自身的年级、不限教材版本），不带某个孩子的名字和教材，
+ * 只用孩子 / 家庭来决定走哪个 AI 服务。
+ */
+export type GenOpts = { childId?: string; familyId?: string; model?: string | null; fast?: boolean };
+
+async function genContext(t: Topic, opts: GenOpts) {
+  let familyId = opts.familyId;
+  if (!familyId && opts.childId) familyId = (await db.child.findUniqueOrThrow({ where: { id: opts.childId }, select: { familyId: true } })).familyId;
+  if (!familyId) familyId = (await db.aiProvider.findFirst({ orderBy: { createdAt: "asc" }, select: { familyId: true } }))?.familyId;
+  if (!familyId) throw new Error("还没有配置 AI 服务，请先到家长端 → AI 设置 添加");
+  const base = await resolveAssistant(familyId, "generate");
+  // fast：DeepSeek 下改用 deepseek-chat（推理模型一次 30 秒以上，批量预热太慢）
+  const isDeepSeek = /deepseek/i.test(base.provider.baseUrl ?? "") || /deepseek/i.test(base.provider.defaultModel);
+  const model = opts.model || (opts.fast && isDeepSeek ? "deepseek-chat" : base.model);
+  const assistant = { ...base, model };
+  const vars = {
+    childName: "同学",
+    grade: t.grade,
+    gradeText: gradeText(t.grade),
+    semester: t.semester === 2 ? "下学期" : t.semester === 1 ? "上学期" : "全学年",
+    subject: SUBJECT_NAME[t.subjectId],
+    textbook: "通用（不限教材版本）",
+    region: "全国",
   };
+  const system = t.track === "adult" ? adultSystemPrompt(t.subjectId) : renderTemplate(assistant.systemPrompt, vars);
+  return { assistant, system };
 }
 
 function topicBrief(t: Topic) {
@@ -130,15 +144,18 @@ export async function getLecture(code: string) {
 }
 
 export async function getOrCreateLecture(code: string, childId: string): Promise<Lecture> {
+  return ensureLecture(code, { childId });
+}
+
+export async function ensureLecture(code: string, opts: GenOpts = {}): Promise<Lecture> {
   const cached = await getLecture(code);
   if (cached) return cached;
   const t = findTopic(code);
   if (!t) throw new Error("没有这个专题");
-  const { child, vars } = await childVars(childId, t.subjectId);
-  const assistant = await resolveAssistant(child.familyId, "generate");
+  const { assistant, system: base } = await genContext(t, opts);
   const who = t.track === "adult" ? "备考的成年人" : t.grade >= 7 ? `${gradeText(t.grade)}的学生` : `${gradeText(t.grade)}的孩子`;
   const system =
-    (t.track === "adult" ? adultSystemPrompt(t.subjectId) : renderTemplate(assistant.systemPrompt, vars)) +
+    base +
     `\n\n现在的任务不是出练习题，而是给${who}写一份「讲一讲」小讲义，结构固定为：` +
     `\n1. story 课前故事：2-3 句生活小场景引出本讲；` +
     `\n2. intro 知识导引：这讲学什么、哪里用得到；` +
@@ -173,16 +190,15 @@ const Bank = z.object({
   ),
 });
 
-async function fillTopicBank(t: Topic, childId: string, need: number, tier?: Tier) {
-  const { child, vars } = await childVars(childId, t.subjectId);
-  const assistant = await resolveAssistant(child.familyId, "generate");
+async function fillTopicBank(t: Topic, opts: GenOpts, need: number, tier?: Tier) {
+  const { assistant, system: base } = await genContext(t, opts);
   const existing = await db.problem.findMany({ where: { topic: t.code, source: "bank" }, select: { stem: true }, take: 60 });
   const lecture = await getLecture(t.code);
   const diffText = tier
     ? `全部题目难度为 ${TIERS[tier].difficulty[0]}${TIERS[tier].difficulty[1] !== TIERS[tier].difficulty[0] ? `-${TIERS[tier].difficulty[1]}` : ""}（${TIERS[tier].name}：${TIERS[tier].blurb}）`
     : "难度分布：约一半为 1-2（基础，和讲义例题同类型），约三分之一为 3（进阶，换情境），其余为 4-5（挑战，综合）";
   const system =
-    (t.track === "adult" ? adultSystemPrompt(t.subjectId) : renderTemplate(assistant.systemPrompt, vars)) +
+    base +
     (t.track === "adult" ? "\n\n这次出的是备考练习题：贴近历年真题的题型与难度。" : t.track === "gaokao" || t.track === "zhongkao" ? `\n\n这次出的是${t.track === "gaokao" ? "高考" : "中考"}真题风格训练题：题型、难度、表述贴近真实试卷，原创不抄。` : t.grade >= 7 ? "\n\n这次出的是初高中专项练习题：紧扣课标与教材要求，题型贴近考试。" : t.track === "olympiad" ? "\n\n这次出的是奥数思维题：要有思维含量，数字和情境适合该年级。" : t.track === "quality" ? "\n\n这次出的是素养拓展题：有趣、有知识点、不超出该年级理解范围。" : "\n\n这次出的是校内专项练习题：紧扣该年级要求。") +
     `\n${diffText}。` +
     "\n题目全部用文字描述（不能依赖图片）；answer 只写最终答案（数字、字母或词语），不要写'答：'；solution 用 2-4 句讲清方法。" +
@@ -228,10 +244,10 @@ export async function createTopicSet(childId: string, code: string, tier: Tier =
   if (pool.length < cfg.size) {
     const anyBank = await db.problem.count({ where: { topic: code, source: "bank" } });
     // 第一次：按分布出一整批；之后：只补这一档
-    await fillTopicBank(t, childId, anyBank === 0 ? BANK_BATCH : Math.max(cfg.size, cfg.size - pool.length + 2), anyBank === 0 ? undefined : tier);
+    await fillTopicBank(t, { childId }, anyBank === 0 ? BANK_BATCH : Math.max(cfg.size, cfg.size - pool.length + 2), anyBank === 0 ? undefined : tier);
     pool = await load();
     if (pool.length < Math.min(3, cfg.size)) {
-      await fillTopicBank(t, childId, cfg.size + 2, tier);
+      await fillTopicBank(t, { childId }, cfg.size + 2, tier);
       pool = await load();
     }
   }
@@ -243,6 +259,56 @@ export async function createTopicSet(childId: string, code: string, tier: Tier =
   });
   for (let i = 0; i < picked.length; i++) await db.practiceItem.create({ data: { setId: set.id, index: i, problemId: picked[i].id } });
   return set;
+}
+
+// ---------- 预热：提前把讲义和三档题库生成好（脚本批量跑 / 页面后台顺带跑） ----------
+
+/** 每档题库至少备多少题（档位题量 + 2 道余量，孩子做过的不再出） */
+function bankTarget(tier: Tier) {
+  return TIERS[tier].size + 2;
+}
+
+/** 某专题还缺什么：讲义没有 / 哪几档题不够 */
+export async function topicShortage(code: string) {
+  const t = findTopic(code);
+  if (!t) throw new Error("没有这个专题");
+  const lecture = (await db.topicLecture.count({ where: { code } })) > 0;
+  const tiers: Tier[] = [];
+  if (t.practice === "quiz") {
+    for (const tier of Object.keys(TIERS) as Tier[]) {
+      const [lo, hi] = TIERS[tier].difficulty;
+      const n = await db.problem.count({ where: { topic: code, source: "bank", difficulty: { gte: lo, lte: hi } } });
+      if (n < bankTarget(tier)) tiers.push(tier);
+    }
+  }
+  return { topic: t, lecture, tiers, ready: lecture && tiers.length === 0 };
+}
+
+/** 把一个专题预热到"点开即用"：讲义 + 三档题库；已齐的部分跳过，可重复调用 */
+export async function warmTopic(code: string, opts: GenOpts = {}) {
+  const s = await topicShortage(code);
+  const did: string[] = [];
+  if (!s.lecture) {
+    await ensureLecture(code, opts);
+    did.push("lecture");
+  }
+  for (const tier of s.tiers) {
+    const [lo, hi] = TIERS[tier].difficulty;
+    const have = await db.problem.count({ where: { topic: code, source: "bank", difficulty: { gte: lo, lte: hi } } });
+    const rows = await fillTopicBank(s.topic, opts, Math.max(3, bankTarget(tier) - have), tier);
+    did.push(`${tier}+${rows.length}`);
+  }
+  return did;
+}
+
+const warming = new Set<string>();
+/** 页面里顺带预热（不等待、同一专题不重复起）：孩子打开某讲时把下一讲备好 */
+export function warmTopicInBackground(code: string, opts: GenOpts = {}) {
+  if (warming.has(code)) return;
+  warming.add(code);
+  warmTopic(code, { fast: true, ...opts })
+    .catch((e) => console.warn(`[topic-warm] ${code}: ${e instanceof Error ? e.message : e}`))
+    .finally(() => warming.delete(code));
 }
 
 export type TopicStat = { sets: number; correct: number; total: number; best: number; tiers: Partial<Record<Tier, number>> };
