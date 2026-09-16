@@ -22,22 +22,36 @@ function toOai(m: ChatMessage): OaiMessage {
   };
 }
 
+function tryParse(t: string): unknown {
+  try {
+    return JSON.parse(t);
+  } catch {
+    // 模型把 PDF / 网页里的控制字符原样带进字符串：先去掉不可见控制字符，再把裸换行 / 制表符换成空格
+    const cleaned = t.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, "");
+    try {
+      return JSON.parse(cleaned);
+    } catch {
+      return JSON.parse(cleaned.replace(/[\r\n\t]+/g, " "));
+    }
+  }
+}
+
 function extractJson(text: string): unknown {
   const trimmed = text.trim();
   try {
-    return JSON.parse(trimmed);
+    return tryParse(trimmed);
   } catch {
     const fence = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
     if (fence) {
       try {
-        return JSON.parse(fence[1]);
+        return tryParse(fence[1]);
       } catch {
         /* 继续尝试截取 */
       }
     }
     const start = trimmed.indexOf("{");
     const end = trimmed.lastIndexOf("}");
-    if (start >= 0 && end > start) return JSON.parse(trimmed.slice(start, end + 1));
+    if (start >= 0 && end > start) return tryParse(trimmed.slice(start, end + 1));
     throw new Error("模型返回内容不是 JSON");
   }
 }

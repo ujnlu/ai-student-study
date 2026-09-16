@@ -96,7 +96,7 @@ async function extractText(paperId: string, familyId: string): Promise<string> {
       parts.push(r.text.trim());
     }
   }
-  const all = parts.join("\n\n").trim();
+  const all = parts.join("\n\n").replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, " ").trim();
   if (!all) throw new Error("没有可用的文字内容");
   return all;
 }
