@@ -11,6 +11,9 @@ DIR=${DEPLOY_DIR:-/opt/ai-student-study}
 WITH_DB=0; WITH_TB=0; REMOTE_BUILD=0
 for a in "$@"; do case "$a" in --db) WITH_DB=1;; --textbooks) WITH_TB=1;; --remote-build) REMOTE_BUILD=1;; *) echo "未知参数 $a"; exit 1;; esac; done
 cd "$(dirname "$0")/.."
+# 同机可能有多个会话同时部署（共用 /tmp/study-build 和线上机器）：用文件锁排队，不并发
+exec 9>/tmp/study-deploy.lock
+if ! flock -n 9; then echo "另一个部署正在进行，等待其完成…"; flock 9; fi
 step() { printf '\n\033[1;36m==> %s\033[0m\n' "$*"; }
 # 跨国链路慢且会断：rsync 断点续传 + 超时 + 最多重试 5 次
 SSH_OPTS="-o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o ConnectTimeout=60"
