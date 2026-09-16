@@ -12,6 +12,16 @@ WITH_DB=0; WITH_TB=0; REMOTE_BUILD=0
 for a in "$@"; do case "$a" in --db) WITH_DB=1;; --textbooks) WITH_TB=1;; --remote-build) REMOTE_BUILD=1;; *) echo "未知参数 $a"; exit 1;; esac; done
 cd "$(dirname "$0")/.."
 step() { printf '\n\033[1;36m==> %s\033[0m\n' "$*"; }
+# 跨国链路慢且会断：rsync 断点续传 + 超时 + 最多重试 5 次
+SSH_OPTS="-o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o ConnectTimeout=60"
+rs() {
+  local n
+  for n in 1 2 3 4 5; do
+    rsync -az --partial --timeout=180 -e "ssh $SSH_OPTS" "$@" && return 0
+    echo "rsync 失败（第 $n 次），20 秒后重试…"; sleep 20
+  done
+  echo "rsync 连续失败，放弃"; return 1
+}
 
 if [ "$REMOTE_BUILD" = 0 ]; then
   step "本机构建（/tmp/study-build 副本）"
@@ -30,13 +40,13 @@ if [ "$REMOTE_BUILD" = 0 ]; then
 fi
 
 step "同步源码到 $HOST:$DIR"
-rsync -az --delete \
+rs --delete \
   --exclude node_modules --exclude .next --exclude data --exclude .git --exclude '*.tmp.ts' --exclude 'scripts/.*' \
   ./ "$HOST:$DIR/"
 
 if [ "$REMOTE_BUILD" = 0 ]; then
   step "同步构建产物 .next（不含 cache）"
-  rsync -az --delete --exclude cache "$BUILD/.next/" "$HOST:$DIR/.next/"
+  rs --delete --exclude cache "$BUILD/.next/" "$HOST:$DIR/.next/"
 fi
 
 if [ "$WITH_DB" = 1 ]; then
@@ -47,13 +57,13 @@ if [ "$WITH_DB" = 1 ]; then
     d.backup("/tmp/deploy-db.db").then(() => { d.close(); console.log("snapshot ok"); });
   '
   step "上传数据库快照与上传文件"
-  rsync -az /tmp/deploy-db.db "$HOST:$DIR/data/dev.db.new"
-  rsync -az data/uploads "$HOST:$DIR/data/"
+  rs /tmp/deploy-db.db "$HOST:$DIR/data/dev.db.new"
+  rs data/uploads "$HOST:$DIR/data/"
   rm -f /tmp/deploy-db.db
 fi
 
 step "线上：安装依赖、迁移、构建、重启"
-ssh "$HOST" bash -s "$WITH_DB" "$WITH_TB" "$DIR" "$REMOTE_BUILD" <<'REMOTE'
+ssh $SSH_OPTS "$HOST" bash -s "$WITH_DB" "$WITH_TB" "$DIR" "$REMOTE_BUILD" <<'REMOTE'
 set -euo pipefail
 WITH_DB=$1; WITH_TB=$2; DIR=$3; REMOTE_BUILD=$4
 cd "$DIR"
