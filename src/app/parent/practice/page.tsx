@@ -16,6 +16,7 @@ export default async function ParentPracticePage({ searchParams }: { searchParam
         include: { subject: true },
       })
     : [];
+  const subjectRows = await db.subject.findMany({ where: { id: { in: child?.textbooks.map((t) => t.subjectId) ?? [] } }, orderBy: { sortOrder: "asc" } });
   const sets = await db.practiceSet.findMany({
     where: { child: { familyId: s.familyId } },
     orderBy: { createdAt: "desc" },
@@ -46,6 +47,7 @@ export default async function ParentPracticePage({ searchParams }: { searchParam
             </div>
             <KpPicker
               kps={kps.map((k) => ({ id: k.id, name: k.name, unit: k.unit, grade: k.grade, semester: k.semester, subjectId: k.subjectId, subjectName: k.subject.name }))}
+              allSubjects={subjectRows.map((x) => ({ id: x.id, name: x.name }))}
               defaultSubject="math"
               defaultGrade={child?.grade}
               defaultSemester={child?.semester}

@@ -5,12 +5,13 @@ import { useMemo, useState } from "react";
 export type KpOption = { id: string; name: string; unit: string; grade: number; semester: number; subjectId: string; subjectName: string };
 
 /** 学科 → 年级学期 → 单元/知识点 三级选择，最终提交 knowledgePointId */
-export function KpPicker({ kps, defaultSubject = "math", defaultGrade, defaultSemester }: { kps: KpOption[]; defaultSubject?: string; defaultGrade?: number; defaultSemester?: number }) {
+export function KpPicker({ kps, allSubjects, defaultSubject = "math", defaultGrade, defaultSemester }: { kps: KpOption[]; allSubjects?: { id: string; name: string }[]; defaultSubject?: string; defaultGrade?: number; defaultSemester?: number }) {
   const subjects = useMemo(() => {
     const m = new Map<string, string>();
+    for (const s of allSubjects ?? []) m.set(s.id, s.name);
     for (const k of kps) m.set(k.subjectId, k.subjectName);
     return [...m.entries()];
-  }, [kps]);
+  }, [kps, allSubjects]);
   const [subject, setSubject] = useState(subjects.some(([id]) => id === defaultSubject) ? defaultSubject : (subjects[0]?.[0] ?? "math"));
   const terms = useMemo(() => {
     const set = new Set<string>();
@@ -45,7 +46,8 @@ export function KpPicker({ kps, defaultSubject = "math", defaultGrade, defaultSe
       </div>
       <div className="sm:col-span-2">
         <label className="label">知识点（{list.length} 个）</label>
-        <select name="knowledgePointId" value={effectiveKp} onChange={(e) => setKpId(e.target.value)} className="input" required>
+        {list.length === 0 && <p className="text-sm font-bold text-berry mb-2">这个学科还没有知识点：教材是图片版时，请先到「教材」页用 AI 识别文字并重新导入，或手动添加知识点。</p>}
+        <select name="knowledgePointId" value={effectiveKp} onChange={(e) => setKpId(e.target.value)} className="input" required disabled={list.length === 0}>
           {units.map((u) => (
             <optgroup key={u} label={u}>
               {list.filter((k) => k.unit === u).map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
