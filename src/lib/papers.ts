@@ -210,7 +210,16 @@ export async function parsePaper(paperId: string, familyId: string) {
         }
       }
     }
-    const list = [...byNo.values()].sort((a, b) => a.no - b.no);
+    // 答案 / 解析文件里常把原题再抄一遍：题号不同但题干相同的，按题干前 40 字去重
+    const seen = new Set<string>();
+    const list = [...byNo.values()]
+      .sort((a, b) => a.no - b.no)
+      .filter((p) => {
+        const key = p.stem.replace(/[\s$\\{}（）()，,。.:：;；、]/g, "").slice(0, 40);
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
     if (list.length === 0) throw new Error("没有识别出题目，请检查原文格式");
     const dbSubject = ["math", "chinese", "english"].includes(paper.subject) ? paper.subject : null;
     await db.problem.deleteMany({ where: { topic: paperCode(paperId) } });
