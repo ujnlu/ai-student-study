@@ -32,7 +32,7 @@ export default async function AssistantEditPage({ params, searchParams }: { para
           </div>
           <div><label className="label">模型（留空用服务默认）</label><input name="model" defaultValue={a?.model ?? ""} className="input" /></div>
           <div><label className="label">temperature（Claude 5 系列忽略）</label><input name="temperature" type="number" step="0.1" min="0" max="2" defaultValue={a?.temperature ?? 0.3} className="input" /></div>
-          <div><label className="label">最大输出 tokens</label><input name="maxTokens" type="number" defaultValue={a?.maxTokens ?? 8000} className="input" /></div>
+          <div><label className="label">最大输出 tokens（0 = 自动：尽量大，被截断会自动续写）</label><input name="maxTokens" type="number" min="0" defaultValue={a?.maxTokens ?? 0} className="input" /></div>
         </div>
         <div>
           <label className="label">系统提示词（可用变量：{"{childName} {grade} {gradeText} {semester} {subject} {textbook} {region} {problem} {childAnswer} {correctAnswer} {solution}"}）</label>

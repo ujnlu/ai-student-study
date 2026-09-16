@@ -56,7 +56,7 @@ export async function saveAssistantAction(formData: FormData) {
     model: String(formData.get("model") ?? "").trim() || null,
     systemPrompt: String(formData.get("systemPrompt") ?? ""),
     temperature: Number(formData.get("temperature") ?? 0.3),
-    maxTokens: Number(formData.get("maxTokens") ?? 8000),
+    maxTokens: Math.max(0, Math.floor(Number(formData.get("maxTokens")) || 0)),
     isDefault: formData.get("isDefault") === "on",
     supportVision: formData.get("supportVision") === "on",
   };

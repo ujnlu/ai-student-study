@@ -83,7 +83,6 @@ export function appendContinuation(prev: string, next: string): string {
   let piece = next.replace(/^\s*```(?:json)?\s*/, "").replace(/\s*```\s*$/, "");
   const head = prev.trimStart().slice(0, 24);
   if (head.length >= 8 && piece.trimStart().startsWith(head)) return piece;
-  if (piece.trimStart().startsWith(head.slice(0, 1)) && head.startsWith("{") && piece.trimStart().slice(0, 24) === head) return piece;
   // 模型有时把断点前的最后几个字符又重抄一遍：找最长的重叠去掉
   const tail = prev.slice(-80);
   for (let n = Math.min(tail.length, piece.length); n >= 6; n--) {

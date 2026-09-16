@@ -164,8 +164,8 @@ export async function parsePaper(paperId: string, familyId: string) {
     const base = await resolveAssistant(familyId, "generate");
     // 抽题是"照抄 + 结构化"，不需要推理：DeepSeek 下改用 deepseek-chat（推理模型的思考内容会吃掉输出上限），并放宽输出上限
     const isDeepSeek = /deepseek/i.test(base.provider.baseUrl ?? "") || /deepseek/i.test(base.provider.defaultModel);
-    const assistant = { ...base, model: isDeepSeek ? "deepseek-chat" : base.model, maxTokens: Math.max(base.maxTokens, 16000) };
-    const solver = { ...base, maxTokens: Math.max(base.maxTokens, 16000) };
+    const assistant = { ...base, model: isDeepSeek ? "deepseek-chat" : base.model, maxTokens: base.maxTokens > 0 ? Math.max(base.maxTokens, 16000) : 0 };
+    const solver = { ...base, maxTokens: base.maxTokens > 0 ? Math.max(base.maxTokens, 16000) : 0 };
     const subjectName = SUBJECT_NAME[paper.subject as TopicSubject] ?? paper.subject;
     const stageName = PAPER_STAGES[paper.stage] ?? paper.stage;
     const system =

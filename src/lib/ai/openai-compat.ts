@@ -1,5 +1,6 @@
 import { z, type ZodType } from "zod";
 import type { AiProviderClient, ChatMessage, ChatOptions, ChatResult, JsonResult } from "./types";
+import { appendContinuation, capFromError, CONTINUE_PROMPT, MAX_CONTINUATIONS, parseJsonText, resolveMaxTokens, truncatedError } from "./json";
 
 /**
  * 兼容 OpenAI Chat Completions 协议的服务：DeepSeek、通义千问、智谱、Moonshot、Ollama、LM Studio 等。
@@ -22,56 +23,6 @@ function toOai(m: ChatMessage): OaiMessage {
   };
 }
 
-function tryParse(t: string): unknown {
-  try {
-    return JSON.parse(t);
-  } catch {
-    // 模型把 PDF / 网页里的控制字符原样带进字符串：先去掉不可见控制字符，再把裸换行 / 制表符换成空格
-    const cleaned = t.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, "");
-    try {
-      return JSON.parse(cleaned);
-    } catch {
-      return JSON.parse(cleaned.replace(/[\r\n\t]+/g, " "));
-    }
-  }
-}
-
-function extractJson(text: string): unknown {
-  const trimmed = text.trim();
-  try {
-    return tryParse(trimmed);
-  } catch {
-    const fence = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (fence) {
-      try {
-        return tryParse(fence[1]);
-      } catch {
-        /* 继续尝试截取 */
-      }
-    }
-    const start = trimmed.indexOf("{");
-    const end = trimmed.lastIndexOf("}");
-    if (start >= 0 && end > start) return tryParse(trimmed.slice(start, end + 1));
-    throw new Error("模型返回内容不是 JSON");
-  }
-}
-
-/** 先按原样校验；不行再试"只有一个键且值为对象"的包裹形式 */
-function parseWithSchema<T>(schema: ZodType<T>, raw: unknown, text: string): T {
-  const first = schema.safeParse(raw);
-  if (first.success) return first.data;
-  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
-    const keys = Object.keys(raw as Record<string, unknown>);
-    if (keys.length === 1) {
-      const inner = (raw as Record<string, unknown>)[keys[0]];
-      const second = schema.safeParse(inner);
-      if (second.success) return second.data;
-    }
-  }
-  const issues = first.error.issues.map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`).join("; ");
-  throw new Error(`模型返回的 JSON 不符合要求（${issues}）。原文开头：${text.slice(0, 200)}`);
-}
-
 export class OpenAICompatClient implements AiProviderClient {
   private base: string;
   constructor(
@@ -79,6 +30,19 @@ export class OpenAICompatClient implements AiProviderClient {
     baseUrl?: string | null,
   ) {
     this.base = (baseUrl || "https://api.openai.com/v1").replace(/\/+$/, "");
+  }
+
+  /** 各模型实际的输出上限（服务商 400 报错里学来的；0 = 这个服务不接受 max_tokens 参数） */
+  private caps = new Map<string, number>();
+
+  private withMax(body: Record<string, unknown>, model: string, want: number): Record<string, unknown> {
+    const cap = this.caps.get(model);
+    if (cap === 0) {
+      const { max_tokens: _omit, ...rest } = body;
+      void _omit;
+      return rest;
+    }
+    return { ...body, max_tokens: cap ? Math.min(cap, want) : want };
   }
 
   private async post(body: Record<string, unknown>, signal?: AbortSignal): Promise<Response> {
@@ -90,15 +54,60 @@ export class OpenAICompatClient implements AiProviderClient {
     });
     if (!res.ok) {
       const t = await res.text().catch(() => "");
-      // 某些服务对 max_tokens 有上限（如 8192），超过会 400：去掉该参数重试一次
-      if (res.status === 400 && /max_tokens/i.test(t) && "max_tokens" in body) {
-        const { max_tokens: _omit, ...rest } = body;
-        void _omit;
-        return this.post(rest, signal);
+      // 服务商对 max_tokens 有上限（DeepSeek-chat 8192、reasoner 65536 等）：从报错里读出上限重试；读不出就去掉该参数
+      if (res.status === 400 && /max_tokens/i.test(t) && typeof body.max_tokens === "number") {
+        const model = String(body.model ?? "");
+        const cap = capFromError(t, body.max_tokens);
+        this.caps.set(model, cap ?? 0);
+        return this.post(this.withMax(body, model, body.max_tokens), signal);
       }
       throw new Error(`HTTP ${res.status}: ${t.slice(0, 300)}`);
     }
     return res;
+  }
+
+  private async postOnce(body: Record<string, unknown>) {
+    const model = String(body.model ?? "");
+    const res = await this.post(this.withMax(body, model, Number(body.max_tokens)));
+    const json = (await res.json()) as {
+      choices: { message: { content: string | null }; finish_reason?: string }[];
+      usage?: { prompt_tokens?: number; completion_tokens?: number };
+    };
+    return {
+      text: json.choices?.[0]?.message?.content ?? "",
+      truncated: json.choices?.[0]?.finish_reason === "length",
+      inputTokens: json.usage?.prompt_tokens ?? 0,
+      outputTokens: json.usage?.completion_tokens ?? 0,
+    };
+  }
+
+  /**
+   * 发请求；输出被截断（finish_reason = length）就把已有内容当作 assistant 消息接回去让模型续写，最多续几次。
+   * 这样家长端不用手动调"最大输出 tokens"，长内容也能出完。
+   */
+  private async postWithContinuation(body: Record<string, unknown>, messages: OaiMessage[]): Promise<ChatResult> {
+    let text = "";
+    let inputTokens = 0;
+    let outputTokens = 0;
+    for (let round = 0; ; round++) {
+      const r = await this.postOnce(
+        round === 0
+          ? { ...body, messages }
+          : (() => {
+              // 续写时不能再要求"只输出一个完整 JSON 对象"，否则模型会从头重来
+              const { response_format: _rf, ...rest } = body;
+              void _rf;
+              return { ...rest, messages: [...messages, { role: "assistant", content: text }, { role: "user", content: CONTINUE_PROMPT }] };
+            })(),
+      );
+      inputTokens += r.inputTokens;
+      outputTokens += r.outputTokens;
+      text = round === 0 ? r.text : appendContinuation(text, r.text);
+      if (!r.truncated) return { text, inputTokens, outputTokens };
+      // 推理模型把预算全花在思考上、一个字都没出：续写也没有意义
+      if (!text.trim()) throw truncatedError(outputTokens, round);
+      if (round >= MAX_CONTINUATIONS) throw truncatedError(outputTokens, round);
+    }
   }
 
   private buildMessages(opts: ChatOptions): OaiMessage[] {
@@ -109,72 +118,33 @@ export class OpenAICompatClient implements AiProviderClient {
   }
 
   async complete(opts: ChatOptions): Promise<ChatResult> {
-    const res = await this.post({
-      model: opts.model,
-      messages: this.buildMessages(opts),
-      temperature: opts.temperature ?? 0.3,
-      max_tokens: opts.maxTokens ?? 8000,
-    });
-    const json = (await res.json()) as {
-      choices: { message: { content: string } }[];
-      usage?: { prompt_tokens?: number; completion_tokens?: number };
-    };
-    return {
-      text: json.choices?.[0]?.message?.content ?? "",
-      inputTokens: json.usage?.prompt_tokens ?? 0,
-      outputTokens: json.usage?.completion_tokens ?? 0,
-    };
+    return this.postWithContinuation(
+      { model: opts.model, temperature: opts.temperature ?? 0.3, max_tokens: resolveMaxTokens(opts.maxTokens) },
+      this.buildMessages(opts),
+    );
   }
 
   async completeJson<T>(opts: ChatOptions, schema: ZodType<T>): Promise<JsonResult<T>> {
     const jsonSchema = JSON.stringify(z.toJSONSchema(schema as z.ZodType));
     const system = `${opts.system ?? ""}\n\n输出格式要求：你必须只输出一个 JSON 对象，不要输出任何其他文字、不要用 markdown 代码块。JSON 必须严格符合下面这个 JSON Schema（字段名、类型、必填项都要一致，不要额外包一层）：\n${jsonSchema}`;
-    const res = await this.post({
-      model: opts.model,
-      messages: this.buildMessages({ ...opts, system }),
-      temperature: opts.temperature ?? 0.2,
-      max_tokens: opts.maxTokens ?? 8000,
-      response_format: { type: "json_object" },
-    }).catch(() =>
+    const messages = this.buildMessages({ ...opts, system });
+    const body = { model: opts.model, temperature: opts.temperature ?? 0.2, max_tokens: resolveMaxTokens(opts.maxTokens) };
+    const r = await this.postWithContinuation({ ...body, response_format: { type: "json_object" } }, messages).catch((e) => {
       // 有些服务不支持 response_format，退回普通请求
-      this.post({
-        model: opts.model,
-        messages: this.buildMessages({ ...opts, system }),
-        temperature: opts.temperature ?? 0.2,
-        max_tokens: opts.maxTokens ?? 8000,
-      }),
-    );
-    const json = (await res.json()) as {
-      choices: { message: { content: string }; finish_reason?: string }[];
-      usage?: { prompt_tokens?: number; completion_tokens?: number };
-    };
-    const text = json.choices?.[0]?.message?.content ?? "";
-    if (json.choices?.[0]?.finish_reason === "length") {
-      throw new Error(`模型输出被截断（已输出 ${json.usage?.completion_tokens ?? "?"} tokens）。请到家长端把这个助手的"最大输出 tokens"调大，或换支持更长输出的模型。`);
-    }
-    let raw: unknown;
-    try {
-      raw = extractJson(text);
-    } catch (e) {
-      throw new Error(`${e instanceof Error ? e.message : String(e)}（返回长度 ${text.length} 字符，开头：${text.slice(0, 120)}）`);
-    }
-    const data = parseWithSchema(schema, raw, text);
-    return {
-      data,
-      text,
-      inputTokens: json.usage?.prompt_tokens ?? 0,
-      outputTokens: json.usage?.completion_tokens ?? 0,
-    };
+      if (e instanceof Error && /^HTTP 4\d\d/.test(e.message) && /response_format|json_object/i.test(e.message)) return this.postWithContinuation(body, messages);
+      throw e;
+    });
+    return { ...r, data: parseJsonText(schema, r.text) };
   }
 
   async *stream(opts: ChatOptions): AsyncIterable<string> {
-    const res = await this.post({
-      model: opts.model,
-      messages: this.buildMessages(opts),
-      temperature: opts.temperature ?? 0.3,
-      max_tokens: opts.maxTokens ?? 8000,
-      stream: true,
-    });
+    const res = await this.post(
+      this.withMax(
+        { model: opts.model, messages: this.buildMessages(opts), temperature: opts.temperature ?? 0.3, max_tokens: resolveMaxTokens(opts.maxTokens), stream: true },
+        opts.model,
+        resolveMaxTokens(opts.maxTokens),
+      ),
+    );
     const reader = res.body!.getReader();
     const dec = new TextDecoder();
     let buf = "";

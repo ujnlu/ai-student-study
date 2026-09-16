@@ -170,7 +170,7 @@ model AiAssistant {
   model         String? // 不填则用 provider 默认模型
   systemPrompt  String
   temperature   Float      @default(0.3)
-  maxTokens     Int        @default(8000)
+  maxTokens     Int        @default(0) // 0 = 自动（尽量大，截断自动续写）
   isDefault     Boolean    @default(false) // 该 role 的默认助手
   supportVision Boolean    @default(true)
   createdAt     DateTime   @default(now())

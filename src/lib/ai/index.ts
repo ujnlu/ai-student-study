@@ -129,7 +129,7 @@ export async function ensureDefaultAssistants(familyId: string, providerId: stri
         isDefault: true,
         supportVision: role === "grade" || role === "essay",
         temperature: role === "grade" ? 0.1 : 0.4,
-        maxTokens: role === "explain" ? 16000 : 8000,
+        maxTokens: 0, // 0 = 自动：尽量大，被截断自动续写
       },
     });
   }
