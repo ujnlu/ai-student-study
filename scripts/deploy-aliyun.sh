@@ -86,6 +86,8 @@ else
   echo "依赖未变化，跳过 npm ci"
 fi
 npx prisma generate 2>&1 | grep -E "Generated|error" || true
+# 运行中的应用握着 SQLite（WAL），schema engine 会报 database is locked：迁移前先停应用（反正后面要重启）
+pm2 stop study >/dev/null 2>&1 || true
 npx prisma migrate deploy 2>&1 | grep -vE "^\s*$|Prisma schema|Datasource|Loaded" | tail -3
 if [ "$REMOTE_BUILD" = 1 ]; then
   # 小内存机器：先停应用、限制堆 1.5G、低优先级，避免构建把 sshd/nginx 一起拖死；首次部署请先运行 scripts/ecs-first-setup.sh 建 swap
