@@ -204,6 +204,8 @@ export function answersMatch(given: string | null | undefined, expected: string)
   const g = norm(given ?? ""), e = norm(expected);
   if (!g) return false;
   if (g === e) return true;
+  // 多选题：字母集合相同即可（bd = db）
+  if (/^[a-d]{2,4}$/.test(e) && /^[a-d]{1,4}$/.test(g)) return [...new Set(g)].sort().join("") === [...new Set(e)].sort().join("");
   // 数值比较：支持整数/小数、分数（2/4 = 1/2）、百分数（25% = 0.25）
   const toNum = (x: string): number => {
     const m = x.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);

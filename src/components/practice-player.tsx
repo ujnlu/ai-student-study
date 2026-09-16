@@ -6,7 +6,7 @@ import { ExplainButton } from "./explain-button";
 import { Mascot } from "./mascot";
 import { useSfx } from "./fx";
 
-type Item = { index: number; stem: string; kind?: string | null; answer?: string | null };
+type Item = { index: number; stem: string; kind?: string | null; answer?: string | null; multi?: boolean };
 type Feedback = { isCorrect: boolean; correctAnswer: string; solution: string | null; problemId: string };
 
 /** 题干开头的 🔊{{English sentence}} → 听力题：朗读但不显示 */
@@ -208,9 +208,9 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
         ) : isChoice ? (
           <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
             {parsed.options.map((o) => {
-              const picked = input.trim().toUpperCase() === o.key;
+              const picked = input.trim().toUpperCase().includes(o.key);
               const cls = feedback
-                ? feedback.correctAnswer.trim().toUpperCase() === o.key
+                ? feedback.correctAnswer.trim().toUpperCase().includes(o.key)
                   ? "border-leaf bg-leaf-soft text-leaf-dark"
                   : picked
                     ? "border-berry bg-berry-soft text-berry line-through"
@@ -219,7 +219,7 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
                   ? "border-brand bg-brand-soft"
                   : "border-line bg-white hover:bg-gray-50";
               return (
-                <button key={o.key} type="button" disabled={!!feedback || busy} className={`rounded-2xl border-2 px-4 py-3 font-extrabold text-lg flex gap-2 items-start transition-colors ${cls}`} onClick={() => { play("tap"); setInput(o.key); void check(o.key); }}>
+                <button key={o.key} type="button" disabled={!!feedback || busy} className={`rounded-2xl border-2 px-4 py-3 font-extrabold text-lg flex gap-2 items-start transition-colors ${cls}`} onClick={() => { play("tap"); if (item.multi) { setInput((v) => (v.includes(o.key) ? v.replace(o.key, "") : (v + o.key).split("").sort().join(""))); } else { setInput(o.key); void check(o.key); } }}>
                   <span className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center shrink-0">{o.key}</span>
                   <span className="flex-1 whitespace-pre-wrap">{o.text}</span>
                 </button>
@@ -285,6 +285,10 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
         {feedback ? (
           <button type="button" className="btn-primary flex-1 text-lg py-4" disabled={busy} onClick={goNext}>
             {isLast ? (busy ? "提交中…" : "看成绩 🏁") : "下一题 ➡️"}
+          </button>
+        ) : isChoice && item.multi ? (
+          <button type="button" className="btn-leaf flex-1 text-lg py-4" disabled={busy || !input.trim()} onClick={() => void check()}>
+            {busy ? "判分中…" : `多选 · 确定 ${input ? `(${input})` : ""}`}
           </button>
         ) : isChoice || subjective ? (
           <p className="flex-1 text-center text-sm font-bold text-muted py-3">{busy ? "判分中…" : isChoice ? "点一个选项作答" : "解答题：写完后对照参考答案自评"}</p>
