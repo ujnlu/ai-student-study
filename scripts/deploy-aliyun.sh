@@ -86,17 +86,26 @@ else
   echo "依赖未变化，跳过 npm ci"
 fi
 npx prisma generate 2>&1 | grep -E "Generated|error" || true
-# 运行中的应用握着 SQLite（WAL），schema engine 会报 database is locked：迁移前先停应用（反正后面要重启）
+# 运行中的应用握着 SQLite（WAL），schema engine 会报 database is locked：迁移前先停应用（反正后面要重启）。
+# 迁移失败（比如线上正有导入脚本在写库）也必须把应用拉起来，不能留着 502；锁冲突先重试几次。
+start_app() { pm2 restart study --update-env >/dev/null 2>&1 || pm2 start npm --name study --cwd "$DIR" -- start -- -p 3002 >/dev/null; pm2 save >/dev/null; }
+trap 'echo "部署中断，拉起应用"; start_app' ERR
 pm2 stop study >/dev/null 2>&1 || true
-npx prisma migrate deploy 2>&1 | grep -vE "^\s*$|Prisma schema|Datasource|Loaded" | tail -3
+migrated=0
+for try in 1 2 3 4 5 6; do
+  if out=$(npx prisma migrate deploy 2>&1) && ! echo "$out" | grep -q "database is locked"; then
+    echo "$out" | grep -vE "^\s*$|Prisma schema|Datasource|Loaded" | tail -3; migrated=1; break
+  fi
+  echo "迁移未能获得数据库锁（第 $try 次），10 秒后重试…"; sleep 10
+done
+if [ "$migrated" != 1 ]; then echo "迁移失败：数据库被其他进程占用（线上是否在跑导入脚本？）"; start_app; exit 1; fi
 if [ "$REMOTE_BUILD" = 1 ]; then
   # 小内存机器：先停应用、限制堆 1.5G、低优先级，避免构建把 sshd/nginx 一起拖死；首次部署请先运行 scripts/ecs-first-setup.sh 建 swap
   pm2 stop study >/dev/null 2>&1 || true
   NODE_OPTIONS=--max-old-space-size=1536 nice -n 15 npm run build 2>&1 | grep -E "Compiled|error|Error|✓|✗" | tail -5
 fi
-[ -f .next/BUILD_ID ] || { echo "没有构建产物 .next/BUILD_ID，放弃重启"; exit 1; }
-pm2 restart study --update-env >/dev/null 2>&1 || pm2 start npm --name study --cwd "$DIR" -- start -- -p 3002 >/dev/null
-pm2 save >/dev/null
+[ -f .next/BUILD_ID ] || { echo "没有构建产物 .next/BUILD_ID，放弃重启"; start_app; exit 1; }
+start_app
 sleep 4
 code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3002/login)
 echo "健康检查 /login -> $code"
