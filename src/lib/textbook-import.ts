@@ -370,7 +370,8 @@ async function downloadPageImages(
 }
 
 /** 导入一本教材（可重复执行，会覆盖旧内容） */
-export async function importTextbook(smarteduId: string, log: (m: string) => void = () => {}) {
+export type ImportOptions = { images?: boolean }; // images：初高中也下载页面图片并保留 PDF（默认只有小学这样做）
+export async function importTextbook(smarteduId: string, log: (m: string) => void = () => {}, opts: ImportOptions = {}) {
   const books = await fetchCatalog();
   const book = books.find((b) => b.smarteduId === smarteduId);
   if (!book) throw new Error("目录里没有这本教材");
@@ -379,7 +380,7 @@ export async function importTextbook(smarteduId: string, log: (m: string) => voi
   const version = await resolveVersion(book.subjectId, book.versionName);
   const creds = await getCreds();
   // 初高中教材只留 PDF 文字和章节，不存页面图片、提取后删 PDF（470 多本，按小学方式存图片要 20 多 GB）
-  const keepFiles = book.stage === "primary";
+  const keepFiles = opts.images ?? book.stage === "primary";
 
   const tb = await db.textbook.upsert({
     where: { smarteduId },
