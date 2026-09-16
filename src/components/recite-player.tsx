@@ -52,6 +52,7 @@ export function RecitePlayer({ chapterId, chapterTitle, initial }: { chapterId: 
   const [manual, setManual] = useState(false);
   const [peek, setPeek] = useState(0);
   const [hint, setHint] = useState(false);
+  const [reading, setReading] = useState(false); // 先读一读：完整显示课文，直到孩子自己藏起来或开始背
   const [result, setResult] = useState<Result | null>(null);
   const [srMsg, setSrMsg] = useState<string | null>(null);
   const srRef = useRef<SR | null>(null);
@@ -107,6 +108,8 @@ export function RecitePlayer({ chapterId, chapterTitle, initial }: { chapterId: 
     }
     play("tap");
     setSrMsg(null);
+    setReading(false);
+    setPeek(0);
     finalRef.current = "";
     setTranscript("");
     setResult(null);
@@ -201,6 +204,7 @@ export function RecitePlayer({ chapterId, chapterTitle, initial }: { chapterId: 
     setResult(null);
     setPeek(0);
     setHint(false);
+    setReading(false);
     setSrMsg(null);
     setPhase("ready");
   }
@@ -297,7 +301,14 @@ export function RecitePlayer({ chapterId, chapterTitle, initial }: { chapterId: 
 
       {/* 课文：默认藏起来 */}
       <div className="rounded-2xl bg-grape-soft/60 p-4 min-h-24 text-center">
-        {peek > 0 ? (
+        {reading && !recording ? (
+          <div className="text-2xl leading-loose tracking-wider anim-pop">
+            {lines.map((l, i) => (
+              <p key={i}>{l}</p>
+            ))}
+            <p className="text-sm text-muted mt-2">读熟了就点「藏起来」，再背给橙橙听</p>
+          </div>
+        ) : peek > 0 ? (
           <div className="text-2xl leading-loose tracking-wider anim-pop">
             {lines.map((l, i) => (
               <p key={i}>{l}</p>
@@ -311,7 +322,10 @@ export function RecitePlayer({ chapterId, chapterTitle, initial }: { chapterId: 
         )}
       </div>
       <div className="flex gap-2 justify-center flex-wrap">
-        <button type="button" className="chip" disabled={peek > 0} onClick={() => { play("tap"); setPeek(3); }}>
+        <button type="button" className={reading ? "chip-on" : "chip"} disabled={recording} onClick={() => { play("tap"); setReading((r) => !r); setPeek(0); }}>
+          {reading ? "🙈 藏起来" : "📖 看全文"}
+        </button>
+        <button type="button" className="chip" disabled={peek > 0 || reading || recording} onClick={() => { play("tap"); setPeek(3); }}>
           👀 看一眼（3 秒）
         </button>
         <button type="button" className={hint ? "chip-on" : "chip"} onClick={() => { play("tap"); setHint((h) => !h); }}>
