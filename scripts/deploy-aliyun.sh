@@ -45,7 +45,8 @@ fi
 npm ci --no-audit --no-fund 2>&1 | tail -1
 npx prisma generate 2>&1 | grep -E "Generated|error" || true
 npx prisma migrate deploy 2>&1 | grep -vE "^\s*$|Prisma schema|Datasource|Loaded" | tail -3
-NODE_OPTIONS=--max-old-space-size=2560 npm run build 2>&1 | grep -E "Compiled|error|Error|✓|✗" | tail -5
+# 小内存机器：限制堆 1.5G、低优先级，避免构建把 sshd/nginx 一起拖死；首次部署请先运行 scripts/ecs-first-setup.sh 建 swap
+NODE_OPTIONS=--max-old-space-size=1536 nice -n 15 npm run build 2>&1 | grep -E "Compiled|error|Error|✓|✗" | tail -5
 pm2 restart study --update-env >/dev/null 2>&1 || pm2 start npm --name study --cwd "$DIR" -- start -- -p 3002 >/dev/null
 pm2 save >/dev/null
 sleep 4
