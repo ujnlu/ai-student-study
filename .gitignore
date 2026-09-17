@@ -46,3 +46,8 @@ next-env.d.ts
 !.env.example
 dev-*.log
 import-*.log
+
+# Backup files
+*.bak
+*.bak.*
+*.sqlite.bak
