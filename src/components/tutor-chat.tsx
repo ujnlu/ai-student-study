@@ -74,14 +74,30 @@ export function TutorChat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function speak(text: string) {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "zh-CN";
-    u.rate = 0.9;
-    u.onerror = (e) => { console.error('[tts] error', e); };
-    window.speechSynthesis.speak(u);
+  let currentAudio: HTMLAudioElement | null = null;
+  async function speak(text: string) {
+    // Stop any playing audio first
+    if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; currentAudio = null; }
+    if (typeof window === "undefined") return;
+    try {
+      const r = await fetch("/api/tts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text }) });
+      if (!r.ok) throw new Error("TTS request failed");
+      const j = await r.json() as { audioBase64?: string; contentType?: string; error?: string };
+      if (!j.audioBase64) throw new Error(j.error ?? "No audio data");
+      const audio = new Audio(`data:${j.contentType || "audio/mpeg"};base64,${j.audioBase64}`);
+      currentAudio = audio;
+      audio.play().catch((e) => console.error("[tts] play error:", e));
+    } catch (e) {
+      console.error("[tts] error:", e);
+      // Fallback to browser speechSynthesis
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = "zh-CN";
+        u.rate = 0.9;
+        window.speechSynthesis.speak(u);
+      }
+    }
   }
 
   function listen() {

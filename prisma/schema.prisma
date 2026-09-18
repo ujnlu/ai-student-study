@@ -567,8 +567,8 @@ model LessonGuide {
   chapterId     String          @unique
   previewJson   String? @db.LongText // {summary, keyPoints[], example, questions[{q,a}]}
   explanationId String? // 微课动画（Explanation）
-  videoUrl      String? // 国家平台课程教学页
-  videoTitle    String?
+  videoUrl      String? @db.VarChar(512) // 国家平台课程教学页
+  videoTitle    String? @db.VarChar(512)
   updatedAt     DateTime        @updatedAt
   createdAt     DateTime        @default(now())
   chapter       TextbookChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)

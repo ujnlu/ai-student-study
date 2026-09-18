@@ -16,6 +16,7 @@
     "@prisma/adapter-mariadb": "^7.10.0",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
+    "@types/ws": "^8.18.1",
     "better-sqlite3": "^13.0.3",
     "dotenv": "^17.4.2",
     "katex": "^0.18.7",
@@ -26,6 +27,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "sharp": "^0.35.4",
+    "ws": "^8.21.3",
     "zod": "^4.6.5"
   },
   "devDependencies": {

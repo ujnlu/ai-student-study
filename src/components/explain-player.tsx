@@ -1,5 +1,4 @@
 "use client";
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ExplanationStep } from "@/lib/ai/explain";
 import { MathText } from "./math-text";
@@ -41,6 +40,25 @@ function splitSentences(text: string): string[] {
   return parts.map((x) => x.trim()).filter(Boolean);
 }
 
+/** 服务端 TTS：调用 /api/tts 获取音频 URL */
+async function serverTts(text: string): Promise<string | null> {
+  try {
+    const resp = await fetch("/api/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    // 兼容新旧两种返回格式
+    if (data?.audioUrl) return data.audioUrl;
+    if (data?.audioBase64) return `data:${data.contentType || "audio/mpeg"};base64,${data.audioBase64}`;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export function ExplainPlayer({
   title,
   steps,
@@ -65,12 +83,15 @@ export function ExplainPlayer({
   const token = useRef(0);
   const autoRef = useRef(auto);
   const voiceRef = useRef(voice);
-  const utterRef = useRef<SpeechSynthesisUtterance | null>(null); // 保住引用，Chrome 会把没引用的 utterance 回收导致中途停
+  const utterRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const unlocked = useRef(false);
+
   useEffect(() => {
     autoRef.current = auto;
     voiceRef.current = voice;
   }, [auto, voice]);
+
   const step = steps[i];
   const last = i >= steps.length - 1;
 
@@ -78,11 +99,18 @@ export function ExplainPlayer({
     if (timer.current) window.clearTimeout(timer.current);
     timer.current = null;
   };
+
   const stopSpeech = () => {
     token.current += 1;
     if (speakTimer.current) window.clearTimeout(speakTimer.current);
     speakTimer.current = null;
     synth()?.cancel();
+    // 停止服务端音频
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
   };
 
   /** 必须在点击事件里同步调用一次：Safari/iOS 只允许用户手势里启动的朗读 */
@@ -100,7 +128,56 @@ export function ExplainPlayer({
     }
   };
 
-  /** 朗读一段文字；无论朗读成功、失败还是被拦截，都保证至少展示 minDuration 后才回调 */
+  /** 浏览器 TTS 朗读（原有逻辑，作为兜底） */
+  const playBrowserTts = useCallback((text: string, onDone: () => void) => {
+    const s = synth();
+    if (!s) { onDone(); return; }
+    const my = token.current;
+    void waitVoices().then(() => {
+      if (my !== token.current) return;
+      speakTimer.current = window.setTimeout(() => {
+        if (my !== token.current) return;
+        if (s.getVoices().length === 0) {
+          setSpeechNote("这个浏览器没有可用的朗读语音，换 Chrome / Edge / Safari 试试");
+          onDone();
+          return;
+        }
+        const v = pickVoice();
+        const chunks = splitSentences(text);
+        let k = 0;
+        const next = () => {
+          if (my !== token.current) return;
+          if (k >= chunks.length) { onDone(); return; }
+          const u = new SpeechSynthesisUtterance(chunks[k++]);
+          u.lang = "zh-CN";
+          u.rate = 0.9;
+          if (v) u.voice = v;
+          u.onend = next;
+          u.onerror = (e) => {
+            if (my !== token.current || e.error === "interrupted" || e.error === "canceled") return;
+            setSpeechNote(e.error === "not-allowed" ? "浏览器拦截了自动朗读，点一下「再听一遍」" : `朗读失败（${e.error}）`);
+            onDone();
+          };
+          let speechStarted = false;
+          u.onstart = () => { speechStarted = true; };
+          utterRef.current = u;
+          s.resume();
+          s.speak(u);
+          window.setTimeout(() => {
+            if (my !== token.current || speechStarted || k > 1) return;
+            try { s.cancel(); } catch {}
+            window.setTimeout(() => {
+              if (my !== token.current) return;
+              s.speak(u);
+            }, 150);
+          }, 800);
+        };
+        next();
+      }, 300);
+    });
+  }, []);
+
+  /** 朗读一段文字：优先服务端 TTS，失败则兜底浏览器 TTS */
   const play = useCallback((text: string, onDone: () => void) => {
     clearTimer();
     stopSpeech();
@@ -114,58 +191,43 @@ export function ExplainPlayer({
       const remain = minMs - (Date.now() - startedAt);
       timer.current = window.setTimeout(onDone, Math.max(900, remain));
     };
-    const s = synth();
-    if (!voiceRef.current || !s) {
-      finish();
-      return;
-    }
-    // cancel() 之后立刻 speak() 在 Chrome 里经常没声音：等语音列表就绪、再延迟一点再读
-    void waitVoices().then(() => {
+
+    if (!voiceRef.current) { finish(); return; }
+
+    // 优先尝试服务端 TTS
+    serverTts(text).then((audioUrl) => {
       if (my !== token.current) return;
-      speakTimer.current = window.setTimeout(() => {
-        if (my !== token.current) return;
-        if (s.getVoices().length === 0) setSpeechNote("这个浏览器没有可用的朗读语音，换 Chrome / Edge / Safari 试试");
-        const v = pickVoice();
-        const chunks = splitSentences(text);
-        let k = 0;
-        const next = () => {
+      if (audioUrl) {
+        // 服务端 TTS 成功：用 <audio> 播放
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+        audio.onended = () => finish();
+        audio.onerror = () => {
+          // 音频播放失败，兜底到浏览器 TTS
           if (my !== token.current) return;
-          if (k >= chunks.length) {
-            finish();
-            return;
-          }
-          const u = new SpeechSynthesisUtterance(chunks[k++]);
-          u.lang = "zh-CN";
-          u.rate = 0.9;
-          if (v) u.voice = v;
-          u.onend = next;
-          u.onerror = (e) => {
-            if (my !== token.current || e.error === "interrupted" || e.error === "canceled") return;
-            setSpeechNote(e.error === "not-allowed" ? "浏览器拦截了自动朗读，点一下「再听一遍」" : `朗读失败（${e.error}）`);
-            finish();
-          };
-          let speechStarted = false;
-          u.onstart = () => { speechStarted = true; };
-          utterRef.current = u;
-          s.resume();
-          s.speak(u);
-          // Chrome may silently swallow speak() after cancel(): detect and retry once
-          window.setTimeout(() => {
-            if (my !== token.current || speechStarted || k > 1) return;
-            try { s.cancel(); } catch {}
-            window.setTimeout(() => {
-              if (my !== token.current) return;
-              s.speak(u);
-            }, 150);
-          }, 800);
+          playBrowserTts(text, finish);
         };
-        next();
-        // 某些浏览器既不触发 onend 也不触发 onerror：兜底
-        window.setTimeout(finish, minMs + 15000);
-      }, 300);
+        audio.play().catch(() => {
+          // autoplay 被阻止，兜底到浏览器 TTS
+          if (my !== token.current) return;
+          playBrowserTts(text, finish);
+        });
+        // 兜底超时
+        window.setTimeout(() => {
+          if (my !== token.current || finished) return;
+          finish();
+        }, minMs + 15000);
+      } else {
+        // 服务端 TTS 不可用，兜底浏览器 TTS
+        playBrowserTts(text, finish);
+        // 兜底超时
+        window.setTimeout(() => {
+          if (my !== token.current || finished) return;
+          finish();
+        }, minMs + 15000);
+      }
     });
-     
-  }, []);
+  }, [playBrowserTts]);
 
   const playStep = useCallback(
     (k: number) => {
@@ -186,13 +248,11 @@ export function ExplainPlayer({
   }, [i, started]);
 
   useEffect(() => {
-    // 提前加载语音列表
     synth()?.getVoices();
     return () => {
       clearTimer();
       stopSpeech();
     };
-     
   }, []);
 
   if (!step) return null;
@@ -213,7 +273,6 @@ export function ExplainPlayer({
         <h1 className="text-xl font-bold">{title}</h1>
         <span className="text-sm text-gray-500">第 {i + 1} / {steps.length} 步</span>
       </div>
-
       <div className="card p-2 bg-white relative">
         <div className="aspect-[16/9] w-full [&>svg]:w-full [&>svg]:h-full" dangerouslySetInnerHTML={{ __html: step.svg }} />
         {!started && (
@@ -232,13 +291,11 @@ export function ExplainPlayer({
           </button>
         )}
       </div>
-
       <div className="card py-3">
         <MathText as="p" className="font-semibold text-lg" text={step.caption} />
         <MathText as="p" className="text-gray-600 mt-1 leading-relaxed" text={step.narration} />
         {speechNote && voice && <p className="text-xs text-berry font-bold mt-2">🔇 {speechNote}</p>}
       </div>
-
       <div className="flex items-center justify-center gap-1">
         {steps.map((_, k) => (
           <button
@@ -254,7 +311,6 @@ export function ExplainPlayer({
           />
         ))}
       </div>
-
       <div className="grid grid-cols-5 gap-2 text-sm">
         <button type="button" className="btn-secondary" disabled={i === 0} onClick={() => { unlock(); setStarted(true); goto(i - 1); }}>⬅️ 上一步</button>
         <button
@@ -276,7 +332,6 @@ export function ExplainPlayer({
           <button type="button" className="btn-primary" onClick={() => { unlock(); setStarted(true); goto(i + 1, auto); }}>下一步 ➡️</button>
         )}
       </div>
-
       {last && (
         <div className="card bg-orange-50 border-orange-100 space-y-3">
           {summary && <p><b>方法小结：</b><MathText text={summary} /></p>}

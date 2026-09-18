@@ -62,17 +62,13 @@ export default async function LessonPage({ searchParams }: { searchParams: Promi
       </section>
 
       <section className="grid sm:grid-cols-2 gap-3">
-        <div className="card border-sky/30">
-          <div className="flex items-center gap-2 mb-2"><span className="text-3xl">📺</span><h3 className="font-black text-lg">看老师讲课</h3></div>
-          {video ? (
-            <>
-              <p className="text-sm font-bold text-muted mb-3">国家中小学智慧教育平台的官方课：{video.title}</p>
-              <a href={video.url} target="_blank" rel="noopener" className="btn-sky w-full">▶️ 去平台看课（新窗口）</a>
-            </>
-          ) : (
-            <p className="text-sm font-bold text-muted">平台上暂时没找到这一课的视频。</p>
-          )}
-        </div>
+        {video && (
+          <div className="card border-sky/30">
+            <div className="flex items-center gap-2 mb-2"><span className="text-3xl">📺</span><h3 className="font-black text-lg">看老师讲课</h3></div>
+            <p className="text-sm font-bold text-muted mb-3">国家中小学智慧教育平台的官方课：{video.title}</p>
+            <a href={video.url} target="_blank" rel="noopener" className="btn-sky w-full">▶️ 去平台看课（新窗口）</a>
+          </div>
+        )}
         <div className="card border-brand/30">
           <div className="flex items-center gap-2 mb-2"><span className="text-3xl">🎬</span><h3 className="font-black text-lg">橙橙微课</h3></div>
           <p className="text-sm font-bold text-muted mb-3">4-6 步动画讲清楚这一课的方法，{micro ? "已经准备好了。" : "第一次需要生成。"}</p>
