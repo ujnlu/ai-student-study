@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
 }
 
 // ---------- 家庭 / 账号 ----------
@@ -28,7 +28,7 @@ model FamilySetting {
   id       String @id @default(cuid())
   familyId String
   key      String
-  value    String
+  value    String @db.LongText
   family   Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
 
   @@unique([familyId, key])
@@ -116,7 +116,7 @@ model KnowledgePoint {
   semester          Int
   unit              String
   name              String
-  description       String?
+  description       String? @db.LongText
   sortOrder         Int             @default(0)
   chapterId         String?
   subject           Subject         @relation(fields: [subjectId], references: [id], onDelete: Cascade)
@@ -168,7 +168,7 @@ model AiAssistant {
   role          String // grade | tutor | generate | essay | ocr
   name          String
   model         String? // 不填则用 provider 默认模型
-  systemPrompt  String
+  systemPrompt  String @db.LongText
   temperature   Float      @default(0.3)
   maxTokens     Int        @default(0) // 0 = 自动（尽量大，截断自动续写）
   isDefault     Boolean    @default(false) // 该 role 的默认助手
@@ -186,7 +186,7 @@ model AiAssistant {
 model AiPromptVersion {
   id           String      @id @default(cuid())
   assistantId  String
-  systemPrompt String
+  systemPrompt String @db.LongText
   note         String?
   createdAt    DateTime    @default(now())
   assistant    AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
@@ -201,7 +201,7 @@ model AiUsage {
   outputTokens Int          @default(0)
   latencyMs    Int          @default(0)
   ok           Boolean      @default(true)
-  error        String?
+  error        String? @db.LongText
   createdAt    DateTime     @default(now())
   provider     AiProvider   @relation(fields: [providerId], references: [id], onDelete: Cascade)
   assistant    AiAssistant? @relation(fields: [assistantId], references: [id], onDelete: SetNull)
@@ -214,15 +214,15 @@ model Upload {
   childId     String
   subjectId   String?
   kind        String    @default("homework") // homework | single | exam | dictation
-  meta        String? // JSON：听写时的词表等
+  meta        String? @db.LongText // JSON：听写时的词表等
   filePath    String
   mimeType    String
   width       Int?
   height      Int?
   status      String    @default("pending") // pending | grading | graded | failed
-  error       String?
-  summary     String? // AI 一句话总结
-  rawResult   String? // AI 原始 JSON
+  error       String? @db.LongText
+  summary     String? @db.LongText // AI 一句话总结
+  rawResult   String? @db.LongText // AI 原始 JSON
   createdAt   DateTime  @default(now())
   gradedAt    DateTime?
   child       Child     @relation(fields: [childId], references: [id], onDelete: Cascade)
@@ -241,12 +241,12 @@ model Problem {
   index            Int             @default(0)
   stem             String
   answer           String? // 正确答案
-  solution         String? // 解析
+  solution         String? @db.LongText // 解析
   difficulty       Int             @default(2) // 1-5
   source           String          @default("upload") // upload | generated | bank | variant | lesson
   topic            String? // 专项 / 奥数专题代码（见 src/lib/topics.ts）；真题卷为 paper-<paperId>
   kind             String? // choice 选择 | fill 填空 | subjective 解答（解答题由学生对照参考答案自评）
-  walkthrough      String? // AI 解题讲解（审题→思路→步骤→答案→易错），生成一次后缓存
+  walkthrough      String? @db.LongText // AI 解题讲解（审题→思路→步骤→答案→易错），生成一次后缓存
   parentProblemId  String?
   createdAt        DateTime        @default(now())
   subject          Subject?        @relation(fields: [subjectId], references: [id])
@@ -265,10 +265,10 @@ model Attempt {
   id          String   @id @default(cuid())
   childId     String
   problemId   String
-  childAnswer String?
+  childAnswer String? @db.LongText
   isCorrect   Boolean?
   errorType   String? // concept | calculation | reading | careless | unknown
-  aiComment   String?
+  aiComment   String? @db.LongText
   box         String? // 图片上的位置 {x,y,w,h}，0-1 比例
   overridden  Boolean  @default(false) // 家长手动改判
   durationSec Int?
@@ -317,7 +317,7 @@ model Message {
   id             String       @id @default(cuid())
   conversationId String
   role           String // user | assistant
-  content        String
+  content        String @db.LongText
   createdAt      DateTime     @default(now())
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
@@ -354,12 +354,12 @@ model Explanation {
   childId     String
   assistantId String?
   title       String
-  stepsJson   String // [{caption, narration, svg}]
-  summary     String?
-  quizQ       String?
-  quizA       String?
+  stepsJson   String @db.LongText // [{caption, narration, svg}]
+  summary     String? @db.LongText
+  quizQ       String? @db.LongText
+  quizA       String? @db.LongText
   status      String   @default("ready") // ready | failed
-  error       String?
+  error       String? @db.LongText
   createdAt   DateTime @default(now())
   problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   child       Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
@@ -398,7 +398,7 @@ model PracticeItem {
   setId       String
   index       Int
   problemId   String
-  childAnswer String?
+  childAnswer String? @db.LongText
   isCorrect   Boolean?
   set         PracticeSet @relation(fields: [setId], references: [id], onDelete: Cascade)
   problem     Problem     @relation(fields: [problemId], references: [id], onDelete: Cascade)
@@ -423,7 +423,7 @@ model Textbook {
   status            String          @default("pending") // pending | downloading | extracting | ocr | ready | failed
   contentSource     String          @default("pdf") // pdf | images
   progress          Int             @default(0) // 0-100
-  error             String?
+  error             String? @db.LongText
   sourceUpdatedAt   DateTime?
   importedAt        DateTime?
   createdAt         DateTime        @default(now())
@@ -491,7 +491,7 @@ model StarEvent {
   id        String   @id @default(cuid())
   childId   String
   amount    Int
-  reason    String
+  reason    String @db.LongText
   createdAt DateTime @default(now())
   child     Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
 
@@ -506,7 +506,7 @@ model WordList {
   chapterId String          @unique
   subjectId String
   title     String
-  wordsJson String // [{word, pinyin?, hint?}]
+  wordsJson String @db.LongText // [{word, pinyin?, hint?}]
   createdAt DateTime        @default(now())
   chapter   TextbookChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 }
@@ -516,7 +516,7 @@ model ReciteText {
   id         String          @id @default(cuid())
   chapterId  String          @unique
   title      String
-  piecesJson String // RecitePiece[]
+  piecesJson String @db.LongText // RecitePiece[]
   createdAt  DateTime        @default(now())
   chapter    TextbookChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 }
@@ -528,7 +528,7 @@ model Recitation {
   chapterId  String?
   title      String
   text       String
-  transcript String?
+  transcript String? @db.LongText
   accuracy   Int              @default(0) // 0-100
   kind       String           @default("recite") // recite 背诵 | speaking 英语跟读
   createdAt  DateTime         @default(now())
@@ -565,7 +565,7 @@ model Redemption {
 model LessonGuide {
   id            String          @id @default(cuid())
   chapterId     String          @unique
-  previewJson   String? // {summary, keyPoints[], example, questions[{q,a}]}
+  previewJson   String? @db.LongText // {summary, keyPoints[], example, questions[{q,a}]}
   explanationId String? // 微课动画（Explanation）
   videoUrl      String? // 国家平台课程教学页
   videoTitle    String?
@@ -580,7 +580,7 @@ model LessonGuide {
 model TopicLecture {
   id        String   @id @default(cuid())
   code      String   @unique // 见 src/lib/topics.ts
-  json      String // {intro, methods[], examples[{q, steps[], answer}], tips}
+  json      String @db.LongText // {intro, methods[], examples[{q, steps[], answer}], tips}
   createdAt DateTime @default(now())
 }
 
@@ -589,7 +589,7 @@ model SpeakingLesson {
   id        String   @id @default(cuid())
   code      String   @unique // 见 src/lib/speaking.ts
   title     String
-  itemsJson String // [{en, zh, tip}]
+  itemsJson String @db.LongText // [{en, zh, tip}]
   createdAt DateTime @default(now())
 }
 
@@ -600,7 +600,7 @@ model ReadingPiece {
   level         Int // 1-6
   title         String
   text          String
-  questionsJson String // [{q, options[], answer}]
+  questionsJson String @db.LongText // [{q, options[], answer}]
   createdAt     DateTime @default(now())
 
   @@index([lang, level])
@@ -615,10 +615,10 @@ model Paper {
   subject   String // math | chinese | english | physics | ...
   year      Int?
   source    String   @default("pdf") // pdf | image | text
-  filePaths String? // JSON: 上传文件相对路径数组
-  rawText   String? // 提取 / 识别出的原文
+  filePaths String? @db.LongText // JSON: 上传文件相对路径数组
+  rawText   String? @db.LongText // 提取 / 识别出的原文
   status    String   @default("pending") // pending | parsing | ready | failed
-  error     String?
+  error     String? @db.LongText
   total     Int      @default(0)
   minutes   Int      @default(60)
   createdAt DateTime @default(now())

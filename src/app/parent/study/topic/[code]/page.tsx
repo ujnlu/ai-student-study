@@ -7,6 +7,7 @@ import { findTopic, getLecture, recommendTier, topicStats, ADULT_EXAMS, TIERS, S
 import { TopicLectureBox } from "@/components/topic-lecture";
 import { StartPracticeButton } from "@/components/start-practice-button";
 import { gradeName } from "@/lib/grade";
+export const dynamic = "force-dynamic";
 
 export default async function ParentTopicPage({ params }: { params: Promise<{ code: string }> }) {
   const s = await requireParent();

@@ -40,11 +40,17 @@ export function SpeakingChat({ childName, initial }: { childName: string; initia
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [msgs, busy]);
+  // 预加载语音列表 + 监听异步加载完成
+  const [voicesReady, setVoicesReady] = useState(false);
   useEffect(() => {
-    window.speechSynthesis?.getVoices();
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+    const check = () => { if (synth.getVoices().length > 0) setVoicesReady(true); };
+    check();
+    synth.addEventListener("voiceschanged", check);
     return () => {
-      srRef.current?.abort();
-      window.speechSynthesis?.cancel();
+      synth.removeEventListener("voiceschanged", check);
+      synth.cancel();
     };
   }, []);
 
@@ -57,6 +63,7 @@ export function SpeakingChat({ childName, initial }: { childName: string; initia
     const voices = window.speechSynthesis.getVoices();
     const v = voices.find((x) => /en[-_]US/i.test(x.lang)) ?? voices.find((x) => /^en/i.test(x.lang));
     if (v) u.voice = v;
+    u.onerror = (e) => { console.error('[tts] error', e); };
     window.speechSynthesis.speak(u);
   }
 

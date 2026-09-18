@@ -19,7 +19,9 @@ const PAUSES = [4, 6, 8];
 const GRAPE_BTN = "btn bg-grape text-white shadow-[0_4px_0_0_#7c3aed] active:translate-y-[4px] active:shadow-none hover:brightness-105";
 
 function pickVoice(lang: string) {
+  if (typeof window === "undefined" || !window.speechSynthesis) return null;
   const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
   const want = lang.toLowerCase();
   return voices.find((v) => v.lang.replace("_", "-").toLowerCase() === want) ?? voices.find((v) => v.lang.toLowerCase().startsWith(want.slice(0, 2))) ?? null;
 }
@@ -129,9 +131,14 @@ export function DictationPlayer({
     };
   }, [phase, paused, idx, replay, words, runWord]);
 
-  // 有些浏览器要先触发一次 getVoices 才会加载中文语音
+  // 预加载语音列表 + 监听异步加载完成
   useEffect(() => {
-    if (supported) window.speechSynthesis.getVoices();
+    if (!supported || !window.speechSynthesis) return;
+    const synth = window.speechSynthesis;
+    const check = () => synth.getVoices();
+    check();
+    synth.addEventListener("voiceschanged", check);
+    return () => synth.removeEventListener("voiceschanged", check);
   }, [supported]);
 
   async function start() {

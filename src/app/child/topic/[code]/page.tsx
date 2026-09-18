@@ -9,6 +9,7 @@ import { TopicLectureBox } from "@/components/topic-lecture";
 import { StartPracticeButton } from "@/components/start-practice-button";
 import { Mascot } from "@/components/mascot";
 import { THEME, type ThemeKey } from "@/components/subject-ui";
+export const dynamic = "force-dynamic";
 
 
 export default async function TopicPage({ params }: { params: Promise<{ code: string }> }) {

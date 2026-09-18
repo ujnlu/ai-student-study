@@ -26,10 +26,11 @@ function useSrSupported() {
 const PASS = 80;
 const SKY_BTN = "btn-sky";
 
-function pickVoice() {
+function pickVoice(voices?: SpeechSynthesisVoice[]) {
   if (typeof window === "undefined" || !window.speechSynthesis) return null;
-  const voices = window.speechSynthesis.getVoices();
-  return voices.find((v) => /en[-_]US/i.test(v.lang) && /female|samantha|zira|jenny|aria/i.test(v.name)) ?? voices.find((v) => /en[-_]US/i.test(v.lang)) ?? voices.find((v) => /^en/i.test(v.lang)) ?? null;
+  const list = voices ?? window.speechSynthesis.getVoices();
+  if (!list.length) return null;
+  return list.find((v) => /en[-_]US/i.test(v.lang) && /female|samantha|zira|jenny|aria/i.test(v.name)) ?? list.find((v) => /en[-_]US/i.test(v.lang)) ?? list.find((v) => /^en/i.test(v.lang)) ?? null;
 }
 
 export function SpeakingPlayer({ code, initial, backHref = "/child/speaking" }: { code: string; initial: Data | null; backHref?: string }) {
@@ -75,13 +76,19 @@ export function SpeakingPlayer({ code, initial, backHref = "/child/speaking" }: 
     return () => window.clearTimeout(t);
   }, [initial, load]);
 
-  // 预加载语音列表；卸载时停掉朗读和麦克风
+  // 预加载语音列表 + 监听异步加载完成；卸载时停掉朗读和麦克风
+  const [voicesReady, setVoicesReady] = useState(false);
   useEffect(() => {
-    window.speechSynthesis?.getVoices();
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+    const check = () => { if (synth.getVoices().length > 0) setVoicesReady(true); };
+    check();
+    synth.addEventListener("voiceschanged", check);
     return () => {
+      synth.removeEventListener("voiceschanged", check);
       listeningRef.current = false;
       srRef.current?.abort();
-      window.speechSynthesis?.cancel();
+      synth.cancel();
     };
   }, []);
 
@@ -94,12 +101,19 @@ export function SpeakingPlayer({ code, initial, backHref = "/child/speaking" }: 
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "en-US";
     u.rate = rate;
-    const v = pickVoice();
+    // 优先用已缓存的语音列表，避免异步加载未完成导致无声
+    const v = pickVoice() ?? pickVoice(window.speechSynthesis.getVoices());
     if (v) u.voice = v;
-    u.onstart = () => setSpeaking(true);
+    else if (!voicesReady) setMsg("语音引擎加载中，请稍候再点…");
+    u.onstart = () => { setSpeaking(true); setMsg(null); };
     u.onend = () => setSpeaking(false);
-    u.onerror = () => setSpeaking(false);
+    u.onerror = (e) => { setSpeaking(false); console.error("[tts] error", e); setMsg("朗读出错，请重试或换个浏览器"); };
     window.speechSynthesis.speak(u);
+    // Chrome bug: 长文本合成可能中途停止，15秒后检查并恢复
+    setTimeout(() => {
+      if (window.speechSynthesis?.speaking && !window.speechSynthesis.paused) return;
+      if (window.speechSynthesis?.paused) window.speechSynthesis.resume();
+    }, 15000);
   }
 
   function startListening() {

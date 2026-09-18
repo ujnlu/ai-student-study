@@ -80,6 +80,7 @@ export function TutorChat({
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "zh-CN";
     u.rate = 0.9;
+    u.onerror = (e) => { console.error('[tts] error', e); };
     window.speechSynthesis.speak(u);
   }
 

@@ -72,7 +72,7 @@ export function MicroLessonButton({ chapterId, existingId }: { chapterId: string
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   if (existingId) {
-    return <a href={`/explain/${existingId}`} className="btn-primary">🎬 看微课动画</a>;
+    return <a href={`/explain/${existingId}?from=lesson`} className="btn-primary">🎬 看微课动画</a>;
   }
   return (
     <span className="inline-flex flex-col">
@@ -87,7 +87,7 @@ export function MicroLessonButton({ chapterId, existingId }: { chapterId: string
             const r = await fetch("/api/lesson", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ chapterId, what: "micro" }) });
             const j = (await r.json()) as { explanationId?: string; error?: string };
             if (!r.ok || !j.explanationId) throw new Error(j.error ?? "生成失败");
-            router.push(`/explain/${j.explanationId}`);
+            router.push(`/explain/${j.explanationId}?from=lesson`);
           } catch (e) {
             setErr(e instanceof Error ? e.message : String(e));
             setBusy(false);

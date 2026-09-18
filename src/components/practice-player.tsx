@@ -26,7 +26,8 @@ function speakEn(text: string, rate = 0.85) {
   const voices = window.speechSynthesis.getVoices();
   const v = voices.find((x) => /en[-_]US/i.test(x.lang)) ?? voices.find((x) => /^en/i.test(x.lang));
   if (v) u.voice = v;
-  window.speechSynthesis.speak(u);
+  u.onerror = (e) => { console.error('[tts] error', e); };
+    window.speechSynthesis.speak(u);
 }
 
 /** 题干末尾的 "A. xx / B. xx" 选项行 → 选择题 */

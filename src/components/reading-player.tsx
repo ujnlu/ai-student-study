@@ -66,12 +66,17 @@ export function ReadingPlayer({ lang, level, initial }: { lang: "zh" | "en"; lev
     const t = window.setTimeout(() => void load(), 0);
     return () => window.clearTimeout(t);
   }, [initial, load]);
+  // 预加载语音列表 + 监听异步加载完成
+  const [voicesReady, setVoicesReady] = useState(false);
   useEffect(() => {
-    window.speechSynthesis?.getVoices();
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+    const check = () => { if (synth.getVoices().length > 0) setVoicesReady(true); };
+    check();
+    synth.addEventListener("voiceschanged", check);
     return () => {
-      recRef.current = false;
-      srRef.current?.abort();
-      window.speechSynthesis?.cancel();
+      synth.removeEventListener("voiceschanged", check);
+      synth.cancel();
     };
   }, []);
 
@@ -84,6 +89,7 @@ export function ReadingPlayer({ lang, level, initial }: { lang: "zh" | "en"; lev
     const voices = window.speechSynthesis.getVoices();
     const v = voices.find((x) => (lang === "en" ? /en[-_]US/i : /zh[-_]CN/i).test(x.lang)) ?? voices.find((x) => x.lang.startsWith(lang));
     if (v) u.voice = v;
+    u.onerror = (e) => { console.error('[tts] error', e); };
     window.speechSynthesis.speak(u);
   }
 
