@@ -15,7 +15,7 @@ function synth() {
 
 function pickVoice() {
   const voices = synth()?.getVoices() ?? [];
-  return voices.find((v) => /^zh(-|_)?CN/i.test(v.lang)) ?? voices.find((v) => /^zh/i.test(v.lang)) ?? null;
+  return voices.find((v) => /^zh(-|_)?CN/i.test(v.lang)) ?? voices.find((v) => /^zh/i.test(v.lang)) ?? voices[0] ?? null;
 }
 
 /** 语音列表可能异步加载：最多等 1.5 秒 */
@@ -144,14 +144,25 @@ export function ExplainPlayer({
             setSpeechNote(e.error === "not-allowed" ? "浏览器拦截了自动朗读，点一下「再听一遍」" : `朗读失败（${e.error}）`);
             finish();
           };
+          let speechStarted = false;
+          u.onstart = () => { speechStarted = true; };
           utterRef.current = u;
           s.resume();
           s.speak(u);
+          // Chrome may silently swallow speak() after cancel(): detect and retry once
+          window.setTimeout(() => {
+            if (my !== token.current || speechStarted || k > 1) return;
+            try { s.cancel(); } catch {}
+            window.setTimeout(() => {
+              if (my !== token.current) return;
+              s.speak(u);
+            }, 150);
+          }, 800);
         };
         next();
         // 某些浏览器既不触发 onend 也不触发 onerror：兜底
         window.setTimeout(finish, minMs + 15000);
-      }, 120);
+      }, 300);
     });
      
   }, []);
