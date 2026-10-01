@@ -24,7 +24,7 @@ export default async function ExamPage({ searchParams }: { searchParams: Promise
   const T = THEME[subject];
   const [cur, pendingSets, recentSets, familyPapers] = await Promise.all([
     has.includes(subject) ? currentChapter(child.id, subject) : null,
-    db.practiceSet.findMany({ where: { childId: child.id, kind: "exam", status: "ready" }, orderBy: { createdAt: "desc" } }),
+    db.practiceSet.findMany({ where: { childId: child.id, kind: "exam", status: "ready" }, orderBy: { createdAt: "desc" }, include: { items: { select: { isCorrect: true } } } }),
     db.practiceSet.findMany({ where: { childId: child.id, kind: "exam", status: "done" }, orderBy: { completedAt: "desc" }, take: 20 }),
     db.paper.findMany({ where: { familyId: child.familyId, status: "ready" }, orderBy: { createdAt: "desc" } }),
   ]);
@@ -55,7 +55,7 @@ export default async function ExamPage({ searchParams }: { searchParams: Promise
       {pending && (
         <Link href={`/child/practice/${pending.id}`} className="tile py-3 border-bee bg-bee-soft/60">
           <span className="text-2xl">📌</span>
-          <span className="flex-1 font-extrabold">还有一套没做完：{pending.title}</span>
+          <span className="flex-1 font-extrabold">还有一套没做完：{pending.title}<span className="block text-xs text-muted">已答 {pending.items.filter((it) => it.isCorrect !== null).length} / {pending.total} 题</span></span>
           <span className={`${T.btn} text-sm py-2`}>继续 ➡️</span>
         </Link>
       )}
@@ -132,7 +132,7 @@ async function StageExamPage({ childId, familyId, grade, subject: sb }: { childI
   const n = cfg.parts.reduce((a, [, c]) => a + c, 0);
   const T = THEME[subject as ThemeKey];
   const [pendingSets, recentSets, familyPapers] = await Promise.all([
-    db.practiceSet.findMany({ where: { childId, kind: "exam", status: "ready" }, orderBy: { createdAt: "desc" } }),
+    db.practiceSet.findMany({ where: { childId, kind: "exam", status: "ready" }, orderBy: { createdAt: "desc" }, include: { items: { select: { isCorrect: true } } } }),
     db.practiceSet.findMany({ where: { childId, kind: "exam", status: "done" }, orderBy: { completedAt: "desc" }, take: 24 }),
     db.paper.findMany({ where: { familyId, status: "ready" }, orderBy: { createdAt: "desc" } }),
   ]);
@@ -159,7 +159,7 @@ async function StageExamPage({ childId, familyId, grade, subject: sb }: { childI
       {pending && (
         <Link href={`/child/practice/${pending.id}`} className="tile py-3 border-bee bg-bee-soft/60">
           <span className="text-2xl">📌</span>
-          <span className="flex-1 font-extrabold">还有一套没做完：{pending.title}</span>
+          <span className="flex-1 font-extrabold">还有一套没做完：{pending.title}<span className="block text-xs text-muted">已答 {pending.items.filter((it) => it.isCorrect !== null).length} / {pending.total} 题</span></span>
           <span className={`${T.btn} text-sm py-2`}>继续 ➡️</span>
         </Link>
       )}

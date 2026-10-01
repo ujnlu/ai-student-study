@@ -12,7 +12,7 @@ export default async function PracticePage() {
   const { child } = await requireChild();
   const hasChinese = child.textbooks.some((t) => t.subjectId === "chinese");
   const [readySets, recentSets, due, mathCh, cnCh, papers] = await Promise.all([
-    db.practiceSet.findMany({ where: { childId: child.id, status: "ready" }, orderBy: { createdAt: "desc" }, include: { knowledgePoint: true } }),
+    db.practiceSet.findMany({ where: { childId: child.id, status: "ready" }, orderBy: { createdAt: "desc" }, include: { knowledgePoint: true, items: { select: { isCorrect: true } } } }),
     db.practiceSet.findMany({ where: { childId: child.id, status: "done" }, orderBy: { completedAt: "desc" }, take: 24 }),
     dueReviews(child.id),
     currentChapter(child.id, "math"),
@@ -109,7 +109,7 @@ export default async function PracticePage() {
                 <Link href={`/child/practice/${s.id}`} className="tile py-3">
                   <span className="badge bg-sky-soft text-sky-dark">{KIND[s.kind] ?? s.kind}</span>
                   <span className="flex-1 font-extrabold truncate">{s.title}</span>
-                  <span className="text-sm font-bold text-muted">{s.total} 题</span>
+                  <span className="text-sm font-bold text-muted">已答 {s.items.filter((it) => it.isCorrect !== null).length}/{s.total} 题</span>
                 </Link>
               </li>
             ))}

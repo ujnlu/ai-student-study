@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { resumePractice } from "@/lib/practice-progress";
 import { ExplainButton } from "./explain-button";
 import { MathText } from "./math-text";
 import { Mascot } from "./mascot";
 import { useSfx } from "./fx";
 
-type Item = { index: number; stem: string; kind?: string | null; answer?: string | null; multi?: boolean };
+type Item = { index: number; stem: string; kind?: string | null; answer?: string | null; multi?: boolean; isCorrect: boolean | null };
 type Feedback = { isCorrect: boolean; correctAnswer: string; solution: string | null; problemId: string };
 
 /** 题干开头的 🔊{{English sentence}} → 听力题：朗读但不显示 */
@@ -59,10 +60,11 @@ export function parseChoices(stem: string): { body: string; options: { key: stri
 export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = "math", resultHref, childId }: { setId: string; items: Item[]; timeLimitSec: number | null; title: string; subjectId?: string; resultHref?: string; childId?: string }) {
   const router = useRouter();
   const play = useSfx();
-  const [i, setI] = useState(0);
+  const savedProgress = resumePractice(items);
+  const [i, setI] = useState(savedProgress.index);
   const [input, setInput] = useState("");
   const [feedback, setFeedback] = useState<Feedback | null>(null);
-  const [results, setResults] = useState<Record<number, boolean>>({});
+  const [results, setResults] = useState<Record<number, boolean>>(savedProgress.results);
   const [elapsed, setElapsed] = useState(0);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -71,21 +73,30 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
   const elapsedRef = useRef(0);
   const submitRef = useRef<() => Promise<void>>(async () => {});
   const advanceTimer = useRef<number | null>(null);
+  const timerKey = `practice:elapsed:${setId}`;
 
   useEffect(() => {
+    try {
+      const saved = Number(window.localStorage.getItem(timerKey));
+      if (Number.isFinite(saved) && saved > 0) {
+        elapsedRef.current = saved;
+      }
+    } catch { /* 浏览器禁用本地存储时仍可做题 */ }
     const t = window.setInterval(() => {
       elapsedRef.current += 1;
       setElapsed(elapsedRef.current);
+      try { window.localStorage.setItem(timerKey, String(elapsedRef.current)); } catch { /* 同上 */ }
       if (timeLimitSec && elapsedRef.current >= timeLimitSec) void submitRef.current();
     }, 1000);
     return () => window.clearInterval(t);
-  }, [timeLimitSec]);
+  }, [timeLimitSec, timerKey]);
   useEffect(() => {
     inputRef.current?.focus();
   }, [i, feedback]);
   useEffect(() => () => { if (advanceTimer.current) window.clearTimeout(advanceTimer.current); window.speechSynthesis?.cancel(); }, []);
   const audioRef = useRef<string | null>(null);
   useEffect(() => {
+    if (savedProgress.allAnswered) return;
     const cur = parseAudio(items[i]?.stem ?? "").audio;
     audioRef.current = cur;
     if (cur) {
@@ -93,7 +104,7 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
       const t = window.setTimeout(() => speakEn(cur), 300);
       return () => window.clearTimeout(t);
     }
-  }, [i, items]);
+  }, [i, items, savedProgress.allAnswered]);
 
   const left = timeLimitSec ? timeLimitSec - elapsed : null;
   const item = items[i];
@@ -116,6 +127,7 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
     try {
       const r = await fetch(`/api/practice/${setId}/submit`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ durationSec: elapsedRef.current }) });
       if (!r.ok) throw new Error(((await r.json()) as { error?: string }).error ?? "提交失败");
+      try { window.localStorage.removeItem(timerKey); } catch { /* 同上 */ }
       router.push(resultHref ?? `/child/practice/${setId}`);
       router.refresh();
     } catch (e) {
@@ -162,6 +174,17 @@ export function PracticePlayer({ setId, items, timeLimitSec, title, subjectId = 
     if (feedback) return;
     play("tap");
     setInput((v) => v + ch);
+  }
+
+  if (savedProgress.allAnswered && answeredCount === items.length && !feedback) {
+    return (
+      <div className="card text-center space-y-4">
+        <h2 className="h-display text-2xl">这套题已经答完啦</h2>
+        <p className="font-bold text-muted">已完成 {answeredCount} / {items.length} 题，交卷后可以查看成绩和讲解。</p>
+        <button type="button" className="btn-primary" disabled={busy} onClick={() => void submit()}>{busy ? "提交中…" : "交卷看成绩 🏁"}</button>
+        {err && <p className="text-berry text-sm font-bold">{err}</p>}
+      </div>
+    );
   }
 
   return (

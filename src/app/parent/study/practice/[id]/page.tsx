@@ -21,8 +21,8 @@ export default async function ParentPracticePage({ params }: { params: Promise<{
   if (set.status !== "done") {
     return (
       <div className="max-w-3xl">
-        <p className="text-sm text-gray-500 mb-3"><Link href={backHref} className="hover:underline">‹ 返回</Link></p>
-        <PracticePlayer setId={set.id} title={set.title} timeLimitSec={set.timeLimitSec} subjectId="adult" childId={learner.id} resultHref={`/parent/study/practice/${set.id}`} items={set.items.map((it) => ({ index: it.index, stem: it.problem.stem, kind: it.problem.kind, answer: it.problem.kind === "subjective" ? it.problem.answer : null, multi: /^[A-D]{2,4}$/.test((it.problem.answer ?? "").trim()) }))} />
+        <p className="text-sm text-gray-500 mb-3"><Link href={backHref} className="hover:underline">‹ 暂存返回</Link> · 已答的题会自动保存</p>
+        <PracticePlayer key={set.id} setId={set.id} title={set.title} timeLimitSec={set.timeLimitSec} subjectId="adult" childId={learner.id} resultHref={`/parent/study/practice/${set.id}`} items={set.items.map((it) => ({ index: it.index, stem: it.problem.stem, kind: it.problem.kind, answer: it.problem.kind === "subjective" ? it.problem.answer : null, multi: /^[A-D]{2,4}$/.test((it.problem.answer ?? "").trim()), isCorrect: it.isCorrect }))} />
       </div>
     );
   }

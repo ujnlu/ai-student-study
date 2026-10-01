@@ -30,7 +30,13 @@ export default async function PracticeSetPage({ params }: { params: Promise<{ id
   if (set.status === "pending_review") return <div className="card font-bold">这组题还在等爸爸妈妈审核。</div>;
 
   if (set.status !== "done") {
-    return <PracticePlayer setId={set.id} title={set.title} timeLimitSec={set.timeLimitSec} subjectId={set.items[0]?.problem.subjectId ?? "math"} items={set.items.map((it) => ({ index: it.index, stem: it.problem.stem, kind: it.problem.kind, answer: it.problem.kind === "subjective" ? it.problem.answer : null, multi: /^[A-D]{2,4}$/.test((it.problem.answer ?? "").trim()) }))} />;
+    return (
+      <div className="space-y-3">
+        <Link href={set.kind === "exam" ? "/child/exam" : "/child/practice"} className="btn-ghost text-sm">‹ 暂存返回</Link>
+        <p className="text-xs font-bold text-muted">已答的题会自动保存，下次从未答的题继续。</p>
+        <PracticePlayer key={set.id} setId={set.id} title={set.title} timeLimitSec={set.timeLimitSec} subjectId={set.items[0]?.problem.subjectId ?? "math"} items={set.items.map((it) => ({ index: it.index, stem: it.problem.stem, kind: it.problem.kind, answer: it.problem.kind === "subjective" ? it.problem.answer : null, multi: /^[A-D]{2,4}$/.test((it.problem.answer ?? "").trim()), isCorrect: it.isCorrect }))} />
+      </div>
+    );
   }
 
   const wrong = set.items.filter((it) => !it.isCorrect);
