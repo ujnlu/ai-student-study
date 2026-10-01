@@ -1,0 +1,445 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>杨杨飞飞国庆4天游</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"><style>
+ .photo_gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.photo_gallery figure{margin:0;min-width:0}.photo_gallery img{display:block;width:100%;height:210px;object-fit:cover;border-radius:10px;background:#e7ece4}.photo_gallery figcaption{padding-top:8px}.photo_gallery figcaption b{display:block}.photo_gallery figcaption small{display:block}.photo_gallery.single{grid-template-columns:minmax(0,1fr)}.photo_gallery.single img{height:280px}.photo_error{padding:30px 15px;background:#edf1eb;border-radius:10px;min-height:160px} @media(max-width:650px){.photo_gallery{grid-template-columns:1fr}.photo_gallery img,.photo_gallery.single img{height:220px}} :root{--bg:#f3f5ef;--ink:#203a31;--muted:#62766c;--green:#23785b;--line:#dbe3d9}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 system-ui,-apple-system,"Microsoft YaHei",sans-serif}header{background:#173d30;color:#fff;padding:38px max(5vw,20px)}header small{letter-spacing:3px;color:#b6d2bf}h1{font-size:clamp(28px,5vw,44px);line-height:1.2;margin:12px 0}header p{color:#d0e0d4;margin:0}main{max-width:1240px;margin:auto;padding:24px}.stats{display:none;grid-template-columns:repeat(4,1fr);gap:12px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}.stats strong{display:block;font-size:23px}.muted,small{color:var(--muted)}[hidden]{display:none!important}.full{display:none}.full#charging_section{display:block}.grid.full:has(#map_links){display:block}.grid.full:has(#map_links)>section:first-child{display:none}.grid.full:has(#map_links)>section:last-child>h3,.grid.full:has(#map_links)>section:last-child>h3+p{display:none}#optional_section{display:none!important}h2{font-size:22px;margin:0 0 12px}h3{margin:0 0 8px}nav{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 12px}button,.link{font:inherit;border:1px solid var(--line);background:white;color:var(--ink);border-radius:9px;padding:9px 14px;cursor:pointer;text-decoration:none;display:inline-block}button.active{background:var(--green);color:white;border-color:var(--green)}.layout{display:grid;grid-template-columns:1.65fr 1fr;gap:16px}#map,#map_b{height:530px;border-radius:14px;background:#e4ece1}.return-map-heading{display:flex;align-items:center;gap:9px;margin:14px 0 9px;font-size:1.05rem}.return-map-heading:before{content:"";width:11px;height:11px;border-radius:50%;background:#9268b2}.return-map-heading.plan-b:before{background:#b78522}#map_b_panel{margin-top:24px;padding-top:4px;border-top:1px solid var(--line)}.legend{display:flex;flex-wrap:wrap;gap:15px;font-size:13px;margin-top:10px}.dot{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:5px}.timeline{list-style:none;padding:0;margin:14px 0}.timeline li{border-left:2px solid #c6dacb;padding:0 0 17px 18px;position:relative}.timeline li:before{content:'';position:absolute;left:-5px;top:7px;width:8px;height:8px;border-radius:50%;background:var(--green)}.timeline time{font-weight:700;color:var(--green);display:inline-block;min-width:70px}.tag{display:inline-block;background:#edf4ed;padding:3px 9px;border-radius:6px;font-size:13px;margin:2px}.full{margin-top:18px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;text-align:left}td,th{padding:12px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:13px;color:var(--muted)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.form{display:flex;gap:14px;flex-wrap:wrap}label{display:block}input{display:block;width:130px;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px}#result{background:#edf4ed;padding:14px;margin-top:14px;border-radius:10px}.notice{font-size:13px;color:var(--muted);margin-top:12px}.links{display:flex;gap:8px;flex-wrap:wrap}.route-number-icon{background:transparent;border:0}.route-number-icon span{display:flex;width:26px;height:26px;align-items:center;justify-content:center;border:2px solid #fff;border-radius:50%;color:#fff;font-size:14px;font-weight:800;box-shadow:0 1px 5px #203a3155}.route-steps{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 4px}.route-step{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#f8fbf7;font-size:13px}.route-step b{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;color:#fff;font-size:12px}.pointlabel{background:#fff;border:1px solid #c9d7ca;border-radius:5px;font-size:12px;padding:2px 5px;color:#203a31;box-shadow:none}.routekm{display:flex;align-items:center;justify-content:center;background:#fff8df;border:1px solid #cba64d;border-radius:7px;color:#6b4b0f;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 1px 4px #203a3126}.leaflet-popup-content{min-width:190px}.fallback{padding:14px;background:#fff8e5}.battery{height:14px;background:#edf1eb;border-radius:20px;overflow:hidden;margin:6px 0}.battery span{height:100%;display:block;background:#3b916d}footer{text-align:center;padding:24px;font-size:12px;color:var(--muted)}a{color:#246c55}@media(max-width:800px){main{padding:15px}.layout,.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}#map,#map_b{height:420px}.card{padding:16px}td,th{min-width:110px}header{padding:28px 20px}}@media print{nav,button,.form,.links{display:none}header{background:white;color:#203a31}header p{color:#203a31}#map,#map_b{height:350px}.layout{grid-template-columns:1fr}body{background:white}.card{break-inside:avoid}main{max-width:none}}
+.memory_upload{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:16px 0}.memory_upload label{font-size:13px;color:var(--muted)}.memory_upload select,.memory_upload input{display:block;width:auto;max-width:100%;min-height:42px;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}.memory_upload input[type=file]{max-width:260px}.memory_upload input[type=text]{width:220px}.memory_upload button{background:var(--green);color:#fff;border-color:var(--green)}.memory_upload button:disabled{opacity:.55;cursor:wait}.memory_gallery{margin-top:14px;grid-template-columns:repeat(2,minmax(0,1fr))}.memory_gallery a{display:block}.memory_gallery img{height:auto;max-height:70vh;object-fit:contain}@media(max-width:650px){.memory_gallery{grid-template-columns:1fr}}.memory_gallery figcaption small{font-size:12px}.memory_status{min-height:24px}
+.memory_delete{margin-top:8px;padding:5px 10px;font-size:13px;color:#9d3939;border-color:#e2b8b8;background:#fff}.memory_delete:hover{background:#fff1f1}.memory_delete:disabled{opacity:.5;cursor:wait}
+.memory_gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}.memory_post{display:block;min-width:0;width:100%;overflow:hidden;background:#fff;border:1px solid #dce6de;border-radius:17px;box-shadow:0 7px 25px #203a310d}.memory_post_header{display:flex;align-items:center;gap:10px;padding:13px 15px}.memory_avatar{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:50%;background:#23785b;color:#fff;font-size:14px;font-weight:700}.memory_post_byline{min-width:0;flex:1;line-height:1.3}.memory_post_byline strong{display:block;font-size:13px}.memory_post_byline time{display:block;margin-top:3px;color:var(--muted);font-size:12px}.memory_day_tag{flex:none;padding:3px 8px;border-radius:99px;background:#edf4ed;color:#27654f;font-size:12px}.memory_gallery .memory_image{display:block}.memory_gallery .memory_image img{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain;border-radius:0;background:#e7ece4}.memory_gallery .memory_post figcaption{padding:13px 15px 15px}.memory_post_title{display:block;font-size:16px;line-height:1.45}.memory_post_actions{display:flex;align-items:center;gap:9px;margin-top:12px}.memory_comment_toggle{border:0;padding:5px 0;color:#27654f;background:transparent;font-size:13px;font-weight:600}.memory_comment_toggle:hover{text-decoration:underline}.memory_post_actions .memory_delete{margin:0 0 0 auto}.memory_comments{padding:14px 15px 15px;border-top:1px solid #e9efe9;background:#f8faf7}.memory_comments h4{margin:0 0 10px;font-size:14px}.memory_comment_item{padding:8px 0;border-top:1px solid #e3ebe3}.memory_comment_item:first-child{border-top:0}.memory_comment_item strong{font-size:13px}.memory_comment_item time{margin-left:8px;color:var(--muted);font-size:11px}.memory_comment_item p{margin:3px 0 0;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}.memory_comment_form{display:grid;gap:8px;margin-top:12px}.memory_comment_form input,.memory_comment_form textarea{width:100%;min-width:0;padding:9px 10px;border:1px solid #d7e1d8;border-radius:9px;background:#fff;color:var(--ink);font:inherit;font-size:13px}.memory_comment_form textarea{min-height:74px;resize:vertical}.memory_comment_form button{justify-self:end;background:#23785b;border-color:#23785b;color:#fff;font-size:13px}.memory_comment_feedback{min-height:18px;color:var(--muted);font-size:12px}@media(max-width:700px){.memory_gallery{grid-template-columns:minmax(0,1fr)}}@media(prefers-reduced-motion:no-preference){.memory_post{transition:box-shadow .18s ease,transform .18s ease}.memory_post:hover{box-shadow:0 10px 29px #203a3120;transform:translateY(-2px)}}
+.view_tabs{position:sticky;top:10px;z-index:600;display:flex;width:max-content;max-width:100%;gap:4px;margin:0 0 20px;padding:5px;border:1px solid #d5e1d7;border-radius:14px;background:#e9f0e8;box-shadow:0 8px 22px #203a3112}.view_tab{display:block;min-width:114px;padding:9px 19px;border-radius:10px;color:#426355;text-align:center;text-decoration:none;font-weight:700}.view_tab:hover{background:#f8fbf7;text-decoration:none}.view_tab.active{background:#23785b;color:#fff;box-shadow:0 2px 7px #1b5f4930}.view_tab:focus-visible{outline:3px solid #b8872e;outline-offset:2px}@media(max-width:650px){.view_tabs{width:100%;top:6px}.view_tab{flex:1;min-width:0;padding:9px 12px}}
+.memory_post{scroll-margin-top:80px}.memory_post_shared{border-color:#bf9852;box-shadow:0 0 0 3px #eacb824d,0 7px 25px #203a310d}.memory_share_toggle{border:0;padding:5px 0;color:#27654f;background:transparent;font-size:13px;font-weight:600}.memory_share_toggle:hover{text-decoration:underline}.memory_share_menu{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;padding:12px;border:1px solid #dce6de;border-radius:11px;background:#f8faf7}.memory_share_menu button,.memory_share_menu a{display:inline-block;margin:0;padding:6px 10px;border:1px solid #d2e0d4;border-radius:8px;background:#fff;color:#27654f;font-size:13px;line-height:1.4;text-decoration:none}.memory_share_menu button:hover,.memory_share_menu a:hover{background:#edf4ed}.memory_share_feedback{flex-basis:100%;min-height:18px;color:var(--muted);font-size:12px}.memory_share_menu .memory_share_note{flex-basis:100%;margin:0;color:var(--muted);font-size:12px}.memory_post_actions{flex-wrap:wrap}
+.map_toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}.map_filter{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-color:#d5e1d7;font-size:13px;font-weight:700}.map_filter[aria-pressed=false]{opacity:.52;background:#f1f3ef}.map_filter i{width:10px;height:10px;border-radius:50%;display:inline-block}.map_filter[data-place-kind=hotel] i{background:#3c7299}.map_filter[data-place-kind=charge] i{background:#c78727}.map_filter[data-place-kind=scenic] i{background:#398363}.map_focus{padding:6px 10px;font-size:13px}.place-icon{background:none;border:0}.place-icon span{display:grid;place-items:center;width:30px;height:30px;border:2px solid #fff;border-radius:9px;color:#fff;font-size:11px;font-weight:800;box-shadow:0 2px 6px #203a3155;white-space:nowrap}.place-icon.hotel span{background:#3c7299}.place-icon.charge span{background:#c78727;border-radius:50%}.place-icon.scenic span{background:#398363;transform:rotate(45deg);border-radius:6px}.place-icon.scenic span b{transform:rotate(-45deg)}.place-popup p{margin:7px 0}.place-popup small{display:block;color:#62766c}.place-popup a{display:inline-block;margin-top:8px;font-weight:700}.map_place_index{margin:10px 0 14px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:#fbfcf9;font-size:13px}.map_place_index summary{cursor:pointer;font-weight:700;color:#27654f}.map_place_index summary:focus-visible{outline:2px solid #b8872e}.map_place_index_groups{display:grid;gap:10px;margin-top:10px}.map_place_index_groups strong{display:block;margin-bottom:5px;color:var(--muted)}.map_place_index_groups div div{display:flex;flex-wrap:wrap;gap:6px}.map_place_index button{padding:4px 8px;font-size:12px;text-align:left}@media(max-width:650px){.map_toolbar{gap:6px}.map_filter{flex:1 1 calc((100% - 12px)/3);justify-content:center;white-space:nowrap;padding:6px 5px}.map_focus{flex:1 1 calc((100% - 6px)/2);justify-content:center}}
+
+#hotels{display:block}.hotel_intro{margin:0 0 18px;color:var(--muted)}.hotel_group{margin-top:22px}.hotel_group h3{margin:0 0 12px;font-size:1.12rem}.hotel_group h3 small{font-size:.82rem;font-weight:500;color:var(--muted);margin-left:8px}.hotel_list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.hotel_item{border:1px solid #dce6da;border-radius:15px;padding:16px;background:#fbfcf9;min-width:0}.hotel_item_head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.hotel_item h4{margin:0;font-size:1rem;line-height:1.4}.hotel_price{white-space:nowrap;color:var(--green);font-weight:750;font-size:1.05rem}.hotel_item p{margin:8px 0;color:var(--muted);font-size:.9rem;line-height:1.5}.hotel_item p.hotel_address,.hotel_item p.hotel_distance{color:var(--ink);overflow-wrap:anywhere}.hotel_address b,.hotel_distance b{display:inline-block;min-width:4.5em;color:var(--green)}.hotel_actions{display:flex;gap:14px;flex-wrap:wrap;font-size:.9rem}.hotel_actions a{color:var(--green);font-weight:650}.hotel_note{font-size:.84rem;color:var(--muted);margin:16px 0 0;line-height:1.6}.station_list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0}.station_item{min-width:0;padding:16px;border:1px solid var(--line);border-radius:14px;background:#fbfcf9}.station_head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap}.station_head h3{margin:0;font-size:1rem}.station_head .tag{white-space:nowrap;margin:0}.station_item p{margin:9px 0;overflow-wrap:anywhere}.station_item p>b{color:var(--green)}.station_distances{display:grid;gap:4px;padding:10px 12px;border-radius:9px;background:#eff4ed;font-size:.88rem}.station_distances strong{font-size:.86rem;color:var(--green)}.station_links{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:12px;font-size:.88rem}.station_links a{font-weight:650}.station_links small{margin-left:auto}@media(max-width:700px){.hotel_list,.station_list{grid-template-columns:1fr}.hotel_item,.station_item{padding:14px}.hotel_item_head{align-items:baseline}}
+</style></head><body><header><small>ROAD TRIP / OCTOBER 2026</small><h1>杨杨飞飞国庆4天游</h1><p>北京 → 崇礼1晚 → 东线穿越 → 张北1晚 → 大境门 / 宣化1晚 → 北京</p></header><main>
+<nav class="view_tabs" aria-label="页面切换"><a id="trip_tab" class="view_tab active" href="#trip" aria-current="page">行程安排</a><a id="album_tab" class="view_tab" href="#album">旅行相册</a></nav>
+<div id="trip_view">
+<section class="card" id="overview"><h2>整体规划 · 草原天路 + 长城古城</h2><p><b>2号到崇礼，3号09:00出发游东线，4号大境门和宣化古城，5号返京。崇礼、张北、宣化各住1晚。</b></p><div class="tablewrap"><table><thead><tr><th>日期</th><th>路线 / 里程</th><th>住宿</th><th>晚饭 / 充电</th></tr></thead><tbody><tr><td>10/2 · 北京 → 崇礼</td><td>北京 → 崇礼<br>约230km，以实际地址核算</td><td>崇礼 · 1晚</td><td>18:30晚饭<br>20:00英龙影剧院站</td></tr><tr><td>10/3 · 草原天路东线</td><td>崇礼 → 桦皮岭 → 东线 → 野狐岭 → 张北<br>预留约180—220km，待导航核算</td><td>张北 · 第1晚</td><td>19:00晚饭<br>饭前或20:00后张北广溢站</td></tr><tr><td>10/4 · 大境门 + 宣化古城</td><td>张北 → 大境门 → 宣化古城<br>预留约100—150km，以导航核算</td><td>宣化城区 · 1晚</td><td>18:30晚饭<br>20:00宣化宾馆站（先确认直流桩）</td></tr><tr><td>10/5 · 宣化 → 北京</td><td>宣化 → 北京；鸡鸣驿可选<br>直接返京预留约180—230km，家庭地址影响较大</td><td>回家</td><td>18:30晚饭<br>视车机到家电量决定</td></tr></tbody></table></div><p class="notice">实际续航基准400km。前三晚安排饭后补能，目标90—100%。里程为预留区间，并非导航测量；出发前核算实际酒店与家庭地址。10/2建议12:30—13:00出发，14:00出发无法保证18:30吃上晚饭。鸡鸣驿为可选，累了就直接返京。</p></section><nav aria-label="行程日期"><button class="active" data-day="0">10/2 北京 → 崇礼</button><button data-day="1">10/3 东线穿越</button><button data-day="2">10/4 大境门 / 宣化</button><button data-day="3">10/5 宣化 → 北京</button><button onclick="window.print()">打印 / 保存PDF</button></nav>
+<section class="card" style="margin-bottom:16px"><h2 id="photo_title">当天景点预览</h2><div id="photo_gallery" class="photo_gallery"></div><p class="notice">景点实景参考，照片并非本次出行实时拍摄；植被颜色、天气和照明以现场为准。图片由本站加载，若无法显示可点击图片来源查看。</p></section>
+<div class="layout"><section class="card"><h2 id="map_title">10/2 · 当天路线</h2><h3 id="map_a_heading" class="return-map-heading" hidden>方案 A · 宣化直接返京</h3><div class="map_toolbar" aria-label="地图地点筛选"><button type="button" class="map_filter" data-place-kind="hotel" aria-pressed="true"><i></i>酒店 <span id="hotel_map_count">0</span></button><button type="button" class="map_filter" data-place-kind="charge" aria-pressed="true"><i></i>充电站 <span id="charge_map_count">0</span></button><button type="button" class="map_filter" data-place-kind="scenic" aria-pressed="true"><i></i>景点 <span id="scenic_map_count">0</span></button><button type="button" class="map_focus" id="map_city_focus">放大住宿区</button><button type="button" class="map_focus" id="map_route_focus">查看整段路线</button></div><div id="map" aria-label="当天行程地图，10月5日为方案A直接返京"></div><div id="route_steps" class="route-steps" aria-label="当天途经顺序"></div><details class="map_place_index"><summary>查看地图地点清单（图钉重叠时点这里）</summary><div id="map_place_index"></div></details><div id="map_b_panel" hidden><h3 class="return-map-heading plan-b">方案 B · 经鸡鸣驿返京</h3><div id="map_b" aria-label="10月5日方案B经鸡鸣驿返京地图"></div><div id="route_steps_b" class="route-steps" aria-label="方案B途经顺序"></div><p class="notice">宣化 → 鸡鸣驿约45公里，鸡鸣驿 → 北京市区约140公里，均为行车参考。景区入口与实际家庭地址请用导航重新核算。</p></div><div id="map_status" class="notice">联网加载地图中；如地图未显示，可使用下方高德入口。</div><div class="legend"><span><i class="dot" style="background:#3577be"></i>10/2 去程</span><span><i class="dot" style="background:#b78522"></i>10/3 往返</span><span><i class="dot" style="background:#238563"></i>10/4 天路</span><span><i class="dot" style="background:#9268b2"></i>10/5 返京</span></div><p class="notice">10/5 显示方案A直返与方案B经鸡鸣驿的两张地图。地图圆圈数字是当天经过顺序；公里数是路段行车参考值，起终点按城区概略位置估算；10/3 桦皮岭到野狐岭按草原天路东线约100公里标注。彩线只表示行程顺序，并非道路轨迹；实际酒店、景区入口、绕行和道路管制会改变里程，出发时以导航为准。酒店和充电站的图钉根据公开地址放在附近区域，属于示意位置，不代表准确停车入口；点击图钉后用高德核对站点与酒店。景点入口也请以当天导航为准。底图使用 WGS84，未混用高德坐标。</p></section><aside class="card"><div id="day_detail" aria-live="polite"></div><div id="baidu_destinations"></div></aside></div>
+<section class="card full" id="hotels"><h2 id="hotel_title">当天住宿</h2><p class="hotel_intro">只显示所选日期的落脚城市，优先考虑停车和补能。下方价格是<strong>所在区域的每间每晚参考区间</strong>，并非对应酒店的实时房价或国庆锁定价；点「查当晚房价」核对房型、空房和最终总价。</p><div class="hotel_group" data-hotel-day="0"><h3>10/2 · 崇礼<small>崇礼城区 · 区域参考价 ¥200–400/间夜</small></h3><div class="hotel_list"><article class="hotel_item"><div class="hotel_item_head"><h4>崇礼英朗酒店（庆典广场店）</h4><span class="hotel_price">¥200–400</span></div><p class="hotel_address"><b>地址</b> 张家口市崇礼区长青路物资局综合楼</p><p class="hotel_distance"><b>翌日景点距离</b> 到桦皮岭东线入口约 30–35 公里（行车估算）</p><p>长青路 · 庆典广场附近；页面标有免费停车。</p><div class="hotel_actions"><a href="https://hotels.ctrip.com/hotels/3450766.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E5%B4%87%E7%A4%BC%E8%8B%B1%E6%9C%97%E9%85%92%E5%BA%97%EF%BC%88%E5%BA%86%E5%85%B8%E5%B9%BF%E5%9C%BA%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article><article class="hotel_item"><div class="hotel_item_head"><h4>如家华驿酒店（崇礼商贸新区店）</h4><span class="hotel_price">¥200–400</span></div><p class="hotel_address"><b>地址</b> 张家口市崇礼区西湾子镇商贸新区酒吧文化城1号商业楼9–10</p><p class="hotel_distance"><b>翌日景点距离</b> 到桦皮岭东线入口约 30–35 公里（行车估算）</p><p>西湾子镇商贸新区；吃饭方便，页面标有免费停车。</p><div class="hotel_actions"><a href="https://m.ctrip.com/html5/hotel/hoteldetail/1063933.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E5%A6%82%E5%AE%B6%E5%8D%8E%E9%A9%BF%E9%85%92%E5%BA%97%EF%BC%88%E5%B4%87%E7%A4%BC%E5%95%86%E8%B4%B8%E6%96%B0%E5%8C%BA%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article><article class="hotel_item"><div class="hotel_item_head"><h4>京印象假日酒店（崇礼店）</h4><span class="hotel_price">¥200–400</span></div><p class="hotel_address"><b>地址</b> 张家口市崇礼区北新街13号</p><p class="hotel_distance"><b>翌日景点距离</b> 到桦皮岭东线入口约 30–35 公里（行车估算）</p><p>北新街 · 西湾子天主教堂附近；页面标有充电车位，先确认功率。</p><div class="hotel_actions"><a href="https://tw.trip.com/hotels/zhangjiakou-hotel-detail-114578260/jing-impression-hotel/" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E4%BA%AC%E5%8D%B0%E8%B1%A1%E5%81%87%E6%97%A5%E9%85%92%E5%BA%97%EF%BC%88%E5%B4%87%E7%A4%BC%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article></div></div><div class="hotel_group" data-hotel-day="1"><h3>10/3 · 张北<small>张北县城 · 区域参考价 ¥150–300/间夜</small></h3><div class="hotel_list"><article class="hotel_item"><div class="hotel_item_head"><h4>汉庭酒店（张北县政府店）</h4><span class="hotel_price">¥150–300</span></div><p class="hotel_address"><b>地址</b> 张家口市张北县兴华东路与光华北大街交汇处北行100米</p><p class="hotel_distance"><b>当天景点距离</b> 到野狐岭东线出口约 10–20 公里（行车估算）</p><p>县城东侧；页面标有免费停车和充电桩，适合优先核价。</p><div class="hotel_actions"><a href="https://hotels.ctrip.com/hotels/77243023.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E6%B1%89%E5%BA%AD%E9%85%92%E5%BA%97%EF%BC%88%E5%BC%A0%E5%8C%97%E5%8E%BF%E6%94%BF%E5%BA%9C%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article><article class="hotel_item"><div class="hotel_item_head"><h4>锦江之星（张北草原天路兴和西路酒店）</h4><span class="hotel_price">¥150–300</span></div><p class="hotel_address"><b>地址</b> 张家口市张北县兴和路北侧建材城西侧</p><p class="hotel_distance"><b>当天景点距离</b> 到野狐岭东线出口约 10–20 公里（行车估算）</p><p>兴和西路；页面标有免费停车和充电车位。</p><div class="hotel_actions"><a href="https://hotels.ctrip.com/hotels/43673662.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E9%94%A6%E6%B1%9F%E4%B9%8B%E6%98%9F%EF%BC%88%E5%BC%A0%E5%8C%97%E8%8D%89%E5%8E%9F%E5%A4%A9%E8%B7%AF%E5%85%B4%E5%92%8C%E8%A5%BF%E8%B7%AF%E9%85%92%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article><article class="hotel_item"><div class="hotel_item_head"><h4>如家·华驿酒店（张北汽车总站店）</h4><span class="hotel_price">¥150–300</span></div><p class="hotel_address"><b>地址</b> 张家口市张北县207国道新汽车站北行500米路东</p><p class="hotel_distance"><b>当天景点距离</b> 到野狐岭东线出口约 10–20 公里（行车估算）</p><p>207国道汽车总站附近；后院可停车。</p><div class="hotel_actions"><a href="https://hotels.ctrip.com/hotels/8572910.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E5%A6%82%E5%AE%B6%C2%B7%E5%8D%8E%E9%A9%BF%E9%85%92%E5%BA%97%EF%BC%88%E5%BC%A0%E5%8C%97%E6%B1%BD%E8%BD%A6%E6%80%BB%E7%AB%99%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article></div></div><div class="hotel_group" data-hotel-day="2"><h3>10/4 · 宣化<small>宣化城区 · 区域参考价 ¥200–350/间夜</small></h3><div class="hotel_list"><article class="hotel_item"><div class="hotel_item_head"><h4>锦江之星（张家口宣化人民公园店）</h4><span class="hotel_price">¥200–350</span></div><p class="hotel_address"><b>地址</b> 张家口市宣化区南关桥北街3号</p><p class="hotel_distance"><b>当天景点距离</b> 到宣化古城清远楼约 2–5 公里（行车估算）</p><p>人民公园附近；页面标有停车场和充电桩。</p><div class="hotel_actions"><a href="https://hotels.ctrip.com/hotels/835959.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E9%94%A6%E6%B1%9F%E4%B9%8B%E6%98%9F%EF%BC%88%E5%BC%A0%E5%AE%B6%E5%8F%A3%E5%AE%A3%E5%8C%96%E4%BA%BA%E6%B0%91%E5%85%AC%E5%9B%AD%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article><article class="hotel_item"><div class="hotel_item_head"><h4>汉庭酒店（张家口宣化火车站店）</h4><span class="hotel_price">¥200–350</span></div><p class="hotel_address"><b>地址</b> 张家口市宣化区南关西马道10号1–5楼</p><p class="hotel_distance"><b>当天景点距离</b> 到宣化古城清远楼约 2–4 公里（行车估算）</p><p>南关西马道；靠近宣化站和古城，页面标有免费停车。</p><div class="hotel_actions"><a href="https://hotels.ctrip.com/hotels/55207392.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E6%B1%89%E5%BA%AD%E9%85%92%E5%BA%97%EF%BC%88%E5%BC%A0%E5%AE%B6%E5%8F%A3%E5%AE%A3%E5%8C%96%E7%81%AB%E8%BD%A6%E7%AB%99%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article><article class="hotel_item"><div class="hotel_item_head"><h4>汉庭优佳酒店（张家口宣化北站店）</h4><span class="hotel_price">¥200–350</span></div><p class="hotel_address"><b>地址</b> 张家口市宣化区胜利路68号</p><p class="hotel_distance"><b>当天景点距离</b> 到宣化古城清远楼约 3–7 公里（行车估算）</p><p>胜利路；页面标有免费停车和充电车位。</p><div class="hotel_actions"><a href="https://hotels.ctrip.com/hotels/46589424.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E6%B1%89%E5%BA%AD%E4%BC%98%E4%BD%B3%E9%85%92%E5%BA%97%EF%BC%88%E5%BC%A0%E5%AE%B6%E5%8F%A3%E5%AE%A3%E5%8C%96%E5%8C%97%E7%AB%99%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article><article class="hotel_item"><div class="hotel_item_head"><h4>盛家宾馆（宣化南关桥西街店）</h4><span class="hotel_price">¥200–350</span></div><p class="hotel_address"><b>地址</b> 张家口市宣化区南关桥西街2号</p><p class="hotel_distance"><b>当天景点距离</b> 到宣化古城清远楼约 3–4 公里（行车估算）</p><p>南关桥西街；页面标有私人停车位和充电车位。</p><div class="hotel_actions"><a href="https://tw.trip.com/hotels/xuanhua-district-hotel-detail-999894/shengjia-hotel/" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E7%9B%9B%E5%AE%B6%E5%AE%BE%E9%A6%86%EF%BC%88%E5%AE%A3%E5%8C%96%E5%8D%97%E5%85%B3%E6%A1%A5%E8%A5%BF%E8%A1%97%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article></div></div><p class="hotel_note">酒店地址以各酒店预订页为依据。距离按酒店所在城区到所列景点的公开位置粗估，非逐店导航实测；入口、道路与拥堵会改变实际行车里程，请点「看位置」用当日导航核对。价格口径：区域参考价为经济型住宿的常见预算，非逐店报价；国庆期间可能明显上涨。预订前选准 2026 年 10 月 2、3、4 日各住一晚，并核对人数、床型、取消规则、停车与充电桩是否对住客开放。充电车位不等于直流快充，实际补能仍按当天充电安排确认。</p></section>
+<section class="card full" id="charging_section"><h2>当天去哪里充电</h2><div id="station_detail"></div><div class="tablewrap"><table><thead><tr><th>日期 / 地点</th><th>估算到站电量</th><th>补能时间</th></tr></thead><tbody><tr><td>10/2 · 崇礼</td><td>约42%</td><td>20:00起，45—90分钟</td></tr><tr><td>10/3 · 张北</td><td>约45—55%</td><td>饭前或20:00后，预留45—90分钟</td></tr><tr><td>10/4 · 宣化</td><td>约63—75%</td><td>20:00起，30—75分钟</td></tr><tr><td>10/5 · 返京途中</td><td>按车机预测</td><td>预计到家不足20%时补电</td></tr></tbody></table></div><p class="notice">到站电量按100%出发、400km等效续航计算，属于估算。窗口包括找桩与操作的余量，排队可能更久；90%以后充电速度通常下降。充电时长取决于电池容量、温度、车型及平均功率，不能保证“15分钟充好”。</p></section>
+<div class="grid full"><section class="card"><h2>电量与补能计算</h2><div class="form"><label>本段实际续航 km<input id="range" type="number" min="50" max="1000" value="400"></label><label>本段里程 km<input id="distance" type="number" min="0" max="1000" value="220"></label><label>出发电量 %<input id="soc" type="number" min="0" max="100" value="100"></label><label>电池容量 kWh<input id="capacity" type="number" min="10" max="200" value="60"></label><label>平均充电功率 kW<input id="power" type="number" min="1" max="350" value="60"></label><label>目标电量 %<input id="target" type="number" min="0" max="100" value="90"></label></div><div id="result" aria-live="polite"></div><p class="notice">60kWh / 60kW仅为可编辑示例，不是你的车辆参数。计算不含排队及充电曲线变化；400km若是日常实测，高速、暖风和逆风时请下调续航值。</p></section><section class="card"><h2>打开高德 · 搜索与导航</h2><p class="muted">点击检索准确入口、酒店与快充站。选好实际地点后，在地图App内发起导航。</p><div id="map_links" class="links"></div><h3 style="margin-top:20px">住宿选择</h3><p>10/2崇礼、10/3张北、10/4宣化，各1晚。已整理 <a href="#hotels">10 家经济型酒店备选</a>，可逐家查询当晚房价与停车条件。</p><p class="notice">酒店未预订；具体充电站已列在当天充电安排，营业、空闲及功率需在运营商App确认。出发前在高德或车企App各收藏一个主站和备用站，确认车辆接口兼容。</p></section></div>
+
+
+<section class="card full"><h2>规划依据与使用说明</h2><p>资料对长度口径不同：北京旅游网2024年攻略将张北段分为东线约100km、西线约32km；旧资料也有132.7km全线口径。本站以明确入口与折返点规划，不把全线长度混作东线长度。其余日里程与时刻沿用你的原行程，为规划区间；北京具体出发位置、酒店和绕行会影响结果。</p><a href="https://www.visitbeijing.com.cn/article/4IZCrsLNwit" target="_blank" rel="noopener">北京旅游网 · 草原天路介绍</a> · <a href="https://www.visitbeijing.com.cn/article/4GNqka0WUuj" target="_blank" rel="noopener">大境门介绍</a> · <a href="https://s.visitbeijing.com.cn/attraction/118926" target="_blank" rel="noopener">宣化古城介绍</a><p class="notice">本文件可直接在浏览器打开。地图依赖联网加载Leaflet与OpenStreetMap瓦片，国内网络可能加载较慢；行程、计算器和地图搜索链接不依赖地图加载成功。</p></section>
+</div>
+<div id="album_view" hidden><section class="card" id="trip_memories" style="margin-bottom:16px"><h2>我们的旅行相册</h2><p class="muted">去玩之后，把当天的照片存到这里。照片会保存在服务器上，选日期就能回看；相册内容对打开此页面的人可见。</p><form id="memory_form" class="memory_upload"><label>行程日期<select id="memory_day"><option value="0">10/2 · 崇礼</option><option value="1">10/3 · 草原天路</option><option value="2">10/4 · 大境门 / 宣化</option><option value="3">10/5 · 返京</option></select></label><label>选择照片<input id="memory_files" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple required></label><label>照片说明（可选）<input id="memory_caption" type="text" maxlength="80" placeholder="例如：清远楼前合影"></label><button id="memory_submit" type="submit">上传到相册</button></form><p class="notice">任何打开此页面的人都可以上传和查看。支持多选，每张不超过 25MB；每个网络地址每小时最多上传 20 张，相册最多留存 500 张。手机照片会自动缩小以节省空间。</p><div id="memory_status" class="memory_status" aria-live="polite"></div><div id="memory_gallery" class="photo_gallery memory_gallery"></div></section></div>
+</main><footer>2026年10月2—5日 · 自驾规划版 · 以实时导航与车辆能耗预测为准</footer>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script><script>
+const days=[{"title": "10/2 · 北京 → 崇礼", "km": "约230km，以实际地址核算", "color": "#3577be", "route": [0, 1], "stay": "崇礼 · 1晚", "events": [["12:30—13:00", "建议出发，争取18:00前到崇礼；如仍14:00出发，晚饭可能延后"], ["17:30—18:00", "目标抵达、入住"], ["18:30—19:30", "崇礼晚饭"], ["20:00—21:30", "英龙影剧院充电站；备用人民医院站，目标90—100%"]]}, {"title": "10/3 · 草原天路东线", "km": "预留约180—220km，待导航核算", "color": "#b78522", "route": [1, 2, 3, 4], "stay": "张北 · 第1晚", "events": [["08:00—09:00", "起床、早餐、退房并装车"], ["09:00—10:00", "崇礼酒店 → 桦皮岭入口，按实际导航调整"], ["10:00—10:30", "桦皮岭附近拍照、上厕所，不另安排登山"], ["10:30—12:30", "东线前半段：选1—2处正规停车区观景"], ["12:30—13:30", "沿线午饭，备食品以防排队"], ["13:30—15:30", "东线后半段：再选1—2处观景，每处20分钟左右"], ["15:30—17:00", "以驶出野狐岭为主，争取天黑前离开山路"], ["17:00—18:00", "野狐岭 → 张北酒店，按导航调整"], ["18:00—19:00", "入住、休息；充电若赶不及完成，统一安排饭后"], ["19:00—20:00", "张北县城晚饭；堵车时顺延，不赶路"], ["20:00后", "若饭前尚未充电，饭后补至90—100%；预留45—90分钟"]]}, {"title": "10/4 · 大境门 + 宣化古城", "km": "预留约100—150km，以导航核算", "color": "#238563", "route": [4, 6, 7], "stay": "宣化城区 · 1晚", "events": [["09:00", "张北退房出发，带走行李"], ["10:00—12:00", "计划游大境门，看门楼与周边长城；是否登城按开放和体力决定"], ["12:00—13:00", "张家口午饭"], ["13:00—14:00", "前往宣化，具体车程按实时导航"], ["14:00—16:30", "清远楼 → 镇朔楼 → 拱极楼；以外观、古城街区步行为主"], ["17:00—17:30", "宣化入住、休息"], ["18:30—19:30", "宣化城区晚饭"], ["20:00", "检索特来电宣化宾馆站，确认有可用直流桩后补能至90—100%"]]}, {"title": "10/5 · 宣化 → 北京", "km": "直接返京预留约180—230km，家庭地址影响较大", "color": "#9268b2", "route": [7, 0], "stay": "回家", "events": [["09:00—09:30", "早餐、退房"], ["方案A", "09:30宣化直接返京，服务区休息，下午到家"], ["方案B", "09:30出发去鸡鸣驿；10:30—12:30游览，午饭后13:30前返京"], ["补能", "车机预计到家不足20%则在当前导航路线顺路补能"], ["18:30", "北京晚饭；不保证国庆返京到达时间"]]}];
+const day_photos=[
+  [
+    {
+      "title": "明日预告 · 桦皮岭 · 山林与天路",
+      "url": "/grassland-trip/huapiling.png",
+      "source": "https://news.bjd.com.cn/2023/07/27/10509162.shtml",
+      "credit": "京报网 · 夏季景观参考（2023年7月）"
+    },
+    {
+      "title": "明日预告 · 草原天路 · 山脊弯道",
+      "url": "/grassland-trip/tianlu-curve.jpg",
+      "source": "https://www.sohu.com/a/778127450_121124404",
+      "credit": "搜狐文章配图 · 天路与风车"
+    },
+    {
+      "title": "明日预告 · 草原天路 · 风车群",
+      "url": "/grassland-trip/tianlu-wind.jpg",
+      "source": "https://k.sina.com.cn/article_6461392541_18121069d00100651r.html",
+      "credit": "新浪新闻配图 · 山脊与风车"
+    }
+  ],
+  [
+    {
+      "title": "桦皮岭 · 山林与天路",
+      "url": "/grassland-trip/huapiling.png",
+      "source": "https://news.bjd.com.cn/2023/07/27/10509162.shtml",
+      "credit": "京报网 · 夏季景观参考（2023年7月）"
+    },
+    {
+      "title": "草原天路 · 山脊弯道",
+      "url": "/grassland-trip/tianlu-curve.jpg",
+      "source": "https://www.sohu.com/a/778127450_121124404",
+      "credit": "搜狐文章配图 · 天路与风车"
+    },
+    {
+      "title": "草原天路 · 风车群",
+      "url": "/grassland-trip/tianlu-wind.jpg",
+      "source": "https://k.sina.com.cn/article_6461392541_18121069d00100651r.html",
+      "credit": "新浪新闻配图 · 山脊与风车"
+    }
+  ],
+  [
+    {
+      "title": "大境门 · 大好河山夜景",
+      "url": "/grassland-trip/dajingmen.jpg",
+      "source": "https://s.visitbeijing.com.cn/attraction/118903",
+      "credit": "北京旅游网 · 夜景参考；本行程安排白天游览"
+    },
+    {
+      "title": "大境门 · 城墙与山势",
+      "url": "/grassland-trip/dajingmen-pass.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Dajingmen_03_July_2%2C2010.jpg",
+      "credit": "Wikimedia Commons · Wangyunfeng · <a href=\"https://creativecommons.org/licenses/by-sa/3.0/\" target=\"_blank\" rel=\"noopener\">CC BY-SA 3.0</a> · 缩略图"
+    },
+    {
+      "title": "大境门 · 城墙与古道",
+      "url": "/grassland-trip/dajingmen-wall.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Dajingmen_02_July_2%2C2010.jpg",
+      "credit": "Wikimedia Commons · Wangyunfeng · <a href=\"https://creativecommons.org/licenses/by-sa/3.0/\" target=\"_blank\" rel=\"noopener\">CC BY-SA 3.0</a> · 缩略图"
+    },
+    {
+      "title": "宣化 · 清远楼秋景",
+      "url": "/grassland-trip/qingyuanlou.jpg",
+      "source": "https://k.sina.cn/article_7517400647_1c0126e4705902alkd.html",
+      "credit": "新浪新闻转载图 · 古建筑与秋色参考"
+    },
+    {
+      "title": "宣化 · 清远楼正面",
+      "url": "/grassland-trip/xuanhua-bell.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Bell_Tower_of_Xuanhua_2.jpg",
+      "credit": "Wikimedia Commons · Vikarna · <a href=\"https://creativecommons.org/licenses/by-sa/4.0/\" target=\"_blank\" rel=\"noopener\">CC BY-SA 4.0</a> · 缩略图"
+    },
+    {
+      "title": "宣化 · 镇朔楼夜景",
+      "url": "/grassland-trip/xuanhua-gulou.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Gulou_of_Xuanhua.jpg",
+      "credit": "Wikimedia Commons · Vikarna · <a href=\"https://creativecommons.org/licenses/by-sa/4.0/\" target=\"_blank\" rel=\"noopener\">CC BY-SA 4.0</a> · 缩略图；夜景参考"
+    }
+  ],
+  [
+    {
+      "title": "鸡鸣驿古城 · 城墙与村落",
+      "url": "/grassland-trip/jimingyi.jpg",
+      "source": "https://www.sohu.com/a/729552158_121792335",
+      "credit": "搜狐文章配图 · 古驿城墙与城内景观参考"
+    },
+    {
+      "title": "鸡鸣驿古城 · 城门",
+      "url": "/grassland-trip/jimingyi-gate.jpg",
+      "source": "https://k.sina.com.cn/article_2708695365_a173694500100uzzb.html",
+      "credit": "新浪新闻配图 · 古驿城门"
+    },
+    {
+      "title": "鸡鸣驿古城 · 城内俯瞰",
+      "url": "/grassland-trip/jimingyi-overview.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Jimingyi_1.jpg",
+      "credit": "Wikimedia Commons · Zeus1234 · <a href=\"https://creativecommons.org/licenses/by-sa/3.0/\" target=\"_blank\" rel=\"noopener\">CC BY-SA 3.0</a> · 缩略图"
+    }
+  ]
+];
+let marker_list=[];
+let tripMemories=[];
+let canDeleteTripMemories=false;
+const memoryDayNames=['崇礼','草原天路','大境门 / 宣化','返京'];
+const memoryDate=value=>new Date(value).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
+function memoryElement(tag,className,text){const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node}
+function tripPhotoShareUrl(photo){const url=new URL('/grassland-trip',window.location.origin);url.searchParams.set('photo',photo.id);url.hash='album';return url.href}
+async function copyTripPhotoUrl(url){
+  if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(url);return true}catch{}}
+  const input=document.createElement('textarea');input.value=url;input.setAttribute('readonly','');input.style.position='fixed';input.style.opacity='0';document.body.append(input);input.select();
+  const copied=document.execCommand('copy');input.remove();return copied;
+}
+let hasFocusedSharedPhoto=false;
+function showTripComments(list,comments){
+  list.replaceChildren();
+  if(!comments.length){list.append(memoryElement('p','muted','还没有评论，来留下第一句吧。'));return}
+  for(const comment of comments){
+    const item=memoryElement('div','memory_comment_item');
+    const author=memoryElement('strong','',comment.author);
+    const time=memoryElement('time','',memoryDate(comment.createdAt));time.dateTime=comment.createdAt;
+    const message=memoryElement('p','',comment.text);
+    item.append(author,time,message);list.append(item);
+  }
+}
+async function loadTripComments(photo,list,toggle){
+  const response=await fetch('/api/grassland-trip/photos/'+encodeURIComponent(photo.id)+'/comments',{cache:'no-store'});
+  const result=await response.json();
+  if(!response.ok)throw new Error(result.error||'评论暂时无法读取');
+  photo.commentCount=result.comments.length;toggle.textContent='评论 '+photo.commentCount;
+  showTripComments(list,result.comments);
+}
+function renderTripMemories(){
+  const day=Number(document.getElementById('memory_day').value);
+  const gallery=document.getElementById('memory_gallery');
+  gallery.replaceChildren();
+  const photos=tripMemories.filter(photo=>photo.day===day);
+  if(!photos.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='这一天还没有旅行照片，回来后上传第一张吧。';gallery.append(empty);return}
+  for(const photo of photos){
+    const figure=memoryElement('figure','memory_post');
+    figure.id='memory-photo-'+photo.id;
+    if(new URLSearchParams(window.location.search).get('photo')===photo.id)figure.classList.add('memory_post_shared');
+    const header=memoryElement('div','memory_post_header');
+    const avatar=memoryElement('span','memory_avatar','旅');
+    const byline=memoryElement('div','memory_post_byline');
+    const account=memoryElement('strong','','我们的旅行');
+    const uploadTime=memoryElement('time','','上传于 '+memoryDate(photo.createdAt));uploadTime.dateTime=photo.createdAt;
+    byline.append(account,uploadTime);
+    header.append(avatar,byline,memoryElement('span','memory_day_tag',memoryDayNames[photo.day]||'旅行'));
+    const link=memoryElement('a','memory_image');link.href=photo.url;link.target='_blank';link.rel='noopener';
+    const img=document.createElement('img');img.src=photo.url;img.alt=photo.caption||'旅行留影';img.loading='lazy';link.append(img);
+    const caption=document.createElement('figcaption');
+    caption.append(memoryElement('strong','memory_post_title',photo.caption||'旅行留影'));
+    const actions=memoryElement('div','memory_post_actions');
+    const commentToggle=memoryElement('button','memory_comment_toggle','评论 '+(photo.commentCount||0));
+    commentToggle.type='button';commentToggle.setAttribute('aria-expanded','false');
+    const comments=memoryElement('section','memory_comments');comments.hidden=true;comments.id='comments-'+photo.id;
+    commentToggle.setAttribute('aria-controls',comments.id);
+    const commentList=memoryElement('div','memory_comment_list');
+    const commentForm=memoryElement('form','memory_comment_form');
+    const author=memoryElement('input');author.type='text';author.maxLength=24;author.placeholder='昵称（可选，默认旅途访客）';author.setAttribute('aria-label','评论昵称');
+    const message=memoryElement('textarea');message.maxLength=280;message.required=true;message.placeholder='聊聊这张照片…';message.setAttribute('aria-label','评论内容');
+    const submit=memoryElement('button','','发布评论');submit.type='submit';
+    const feedback=memoryElement('div','memory_comment_feedback');feedback.setAttribute('aria-live','polite');
+    commentForm.append(author,message,submit,feedback);
+    comments.append(memoryElement('h4','','评论'),commentList,commentForm);
+    commentToggle.onclick=async()=>{comments.hidden=!comments.hidden;commentToggle.setAttribute('aria-expanded',String(!comments.hidden));if(!comments.hidden){try{await loadTripComments(photo,commentList,commentToggle)}catch(error){feedback.textContent=error.message}}};
+    commentForm.onsubmit=async event=>{event.preventDefault();submit.disabled=true;feedback.textContent='正在发布…';try{
+      const response=await fetch('/api/grassland-trip/photos/'+encodeURIComponent(photo.id)+'/comments',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({author:author.value,text:message.value}),credentials:'same-origin'});
+      const result=await response.json();if(!response.ok)throw new Error(result.error||'评论发布失败');
+      message.value='';await loadTripComments(photo,commentList,commentToggle);feedback.textContent='评论已发布。';
+    }catch(error){feedback.textContent=error.message}finally{submit.disabled=false}};
+    const shareToggle=memoryElement('button','memory_share_toggle','分享');shareToggle.type='button';shareToggle.setAttribute('aria-expanded','false');
+    const shareMenu=memoryElement('div','memory_share_menu');shareMenu.hidden=true;shareMenu.id='share-'+photo.id;shareToggle.setAttribute('aria-controls',shareMenu.id);
+    const shareUrl=tripPhotoShareUrl(photo);const shareFeedback=memoryElement('div','memory_share_feedback');shareFeedback.setAttribute('aria-live','polite');
+    const addCopyChoice=(label,successText)=>{const button=memoryElement('button','',label);button.type='button';button.onclick=async()=>{shareFeedback.textContent=await copyTripPhotoUrl(shareUrl)?successText:'复制失败，请手动复制：'+shareUrl};shareMenu.append(button)};
+    const nativeShare=memoryElement('button','','分享到手机应用');nativeShare.type='button';nativeShare.hidden=typeof navigator.share!=='function';
+    nativeShare.onclick=async()=>{try{await navigator.share({title:photo.caption||'旅行留影',text:'杨杨飞飞国庆4天游',url:shareUrl});shareFeedback.textContent='已打开系统分享。'}catch(error){if(error.name!=='AbortError')shareFeedback.textContent='系统分享不可用，请复制链接。'}};
+    shareMenu.append(nativeShare);
+    addCopyChoice('微信 · 复制链接','链接已复制，打开微信粘贴发送。');
+    const weiboUrl=new URL('https://service.weibo.com/share/share.php');weiboUrl.searchParams.set('url',shareUrl);weiboUrl.searchParams.set('title',(photo.caption||'旅行留影')+'｜杨杨飞飞国庆4天游');weiboUrl.searchParams.set('pic',new URL(photo.url,window.location.origin).href);
+    const weibo=memoryElement('a','','分享到微博');weibo.href=weiboUrl.href;weibo.target='_blank';weibo.rel='noopener noreferrer';shareMenu.append(weibo);
+    addCopyChoice('小红书 · 复制链接','链接已复制；发小红书笔记可先保存原图。');
+    addCopyChoice('复制照片链接','照片链接已复制。');
+    const download=memoryElement('a','','保存原图');download.href=photo.url;download.download='旅行照片-'+photo.id+'.jpg';shareMenu.append(download);
+    shareMenu.append(memoryElement('p','memory_share_note','微信、小红书请在应用中粘贴链接；小红书发图可先保存原图，或长按照片保存。'),shareFeedback);
+    shareToggle.onclick=()=>{shareMenu.hidden=!shareMenu.hidden;shareToggle.setAttribute('aria-expanded',String(!shareMenu.hidden))};
+    actions.append(commentToggle,shareToggle);
+    if(canDeleteTripMemories){
+      const remove=memoryElement('button','memory_delete','删除照片');remove.type='button';remove.setAttribute('aria-label','删除 '+(photo.caption||'旅行留影'));remove.onclick=()=>deleteTripMemory(photo.id,remove);actions.append(remove);
+    }
+    caption.append(actions,shareMenu);figure.append(header,link,caption,comments);gallery.append(figure);
+  }
+}
+async function loadTripMemories(){
+  const status=document.getElementById('memory_status');
+  try{
+    const response=await fetch('/api/grassland-trip/photos',{cache:'no-store'});
+    if(!response.ok)throw new Error('相册暂时无法读取，请稍后刷新页面');
+    const data=await response.json();tripMemories=data.photos;canDeleteTripMemories=Boolean(data.canDelete);
+    const sharedPhoto=tripMemories.find(photo=>photo.id===new URLSearchParams(window.location.search).get('photo'));
+    const shouldFocus=Boolean(sharedPhoto&&!hasFocusedSharedPhoto);
+    if(shouldFocus){document.getElementById('memory_day').value=String(sharedPhoto.day);hasFocusedSharedPhoto=true}
+    renderTripMemories();
+    if(shouldFocus)requestAnimationFrame(()=>document.getElementById('memory-photo-'+sharedPhoto.id)?.scrollIntoView({block:'center'}));
+  }catch(error){status.textContent=error.message}
+}
+async function deleteTripMemory(id,button){
+  if(!window.confirm('确定删除这张照片吗？删除后会从公开相册移除。'))return;
+  const status=document.getElementById('memory_status');button.disabled=true;
+  try{
+    const response=await fetch('/api/grassland-trip/photos/'+encodeURIComponent(id),{method:'DELETE',credentials:'same-origin'});
+    const result=await response.json();
+    if(!response.ok)throw new Error(result.error||'删除失败');
+    tripMemories=tripMemories.filter(photo=>photo.id!==id);renderTripMemories();status.textContent='照片已从公开相册移除。';
+  }catch(error){button.disabled=false;status.textContent=error.message}
+}
+window.addEventListener('focus',loadTripMemories);
+document.getElementById('memory_day').onchange=renderTripMemories;
+document.getElementById('memory_form').onsubmit=async event=>{event.preventDefault();const files=[...document.getElementById('memory_files').files];if(!files.length)return;const status=document.getElementById('memory_status');const button=document.getElementById('memory_submit');const day=document.getElementById('memory_day').value;const caption=document.getElementById('memory_caption').value;button.disabled=true;let uploaded=0;try{for(const file of files){status.textContent=`正在上传 ${uploaded+1}/${files.length} 张…`;const form=new FormData();form.append('file',file);form.append('day',day);form.append('caption',caption);const response=await fetch('/api/grassland-trip/photos',{method:'POST',body:form,credentials:'same-origin'});const result=await response.json();if(!response.ok){throw new Error(result.error||'上传失败')}uploaded++}document.getElementById('memory_files').value='';document.getElementById('memory_caption').value='';await loadTripMemories();status.textContent=`已保存 ${uploaded} 张照片，刷新页面后仍可查看。`}catch(error){status.textContent=`已保存 ${uploaded} 张；${error.message}`}finally{button.disabled=false}};
+const points=[{name:'北京 · 起终点',lat:39.9042,lng:116.4074,q:'北京',desc:'以北京市区为概略标注，请替换为你的实际出发地址。'},{name:'⚡崇礼充电：英龙影剧院 / 人民医院',lat:40.974,lng:115.282,q:'崇礼西湾子',desc:'10/2晚饭后20:00：先检索英龙影剧院充电站；备选崇礼区人民医院充电站。此点为城区区域标注，不是充电站精确位置。'},{name:'桦皮岭 · 东线入口',lat:41.13,lng:115.47,q:'草原天路桦皮岭入口',desc:'标注为桦皮岭区域，实际入口请点击高德检索。'},{name:'野狐岭 · 东线出口',lat:41.05,lng:114.70,q:'草原天路野狐岭入口',desc:'标注为野狐岭区域，天路东线由此离开。'},{name:'⚡张北充电：广溢 / 骏怡酒店',lat:41.158,lng:114.715,q:'张北县城',desc:'10/3 饭前或20:00后：先检索张北广溢充电站；备选永义南街骏怡酒店充电站。此点为城区区域标注，不是充电站精确位置。'},{name:'张家口 · 返京方向',lat:40.811,lng:114.885,q:'张家口',desc:'返京方向参考节点，不要求穿过市区。'},{name:'大境门 · 10/4',lat:40.84,lng:114.885,q:'张家口大境门景区',desc:'区域概略标注，实际停车场请用导航检索。'},{name:'⚡宣化 · 住宿 / 宣化宾馆站',lat:40.61,lng:115.065,q:'特来电宣化宾馆充电站',desc:'宣化城区概略标注，充电站地址：宣府大街59号院内停车场；功率、空闲及对外开放待确认。'},{name:'鸡鸣驿古城 · 方案B',lat:40.45233,lng:115.30998,q:'怀来鸡鸣驿古城',desc:'方案B可选停留点，坐标为古城概略位置；进出景区请导航到实际停车入口。'}];
+const segment_km={'0-1':213,'1-2':30,'2-3':100,'3-4':14,'4-6':49,'6-7':35,'7-0':168,'7-8':45,'8-0':140};
+const search_url=q=>'https://uri.amap.com/search?keyword='+encodeURIComponent(q)+'&callnative=1';
+const route_step_names={0:'北京出发',1:'崇礼住宿 / 充电',2:'桦皮岭入口',3:'野狐岭出口',4:'张北住宿 / 充电',6:'大境门',7:'宣化住宿 / 充电',8:'鸡鸣驿古城'};
+const route_marker_icon=(number,color)=>L.divIcon({className:'route-number-icon',html:'<span style="background:'+color+'">'+number+'</span>',iconSize:[26,26],iconAnchor:[13,13]});
+function day_html(d){return '<h3>'+d.title+'</h3><span class="tag">'+d.km+'</span><span class="tag">'+d.stay+'</span><ol class="timeline">'+d.events.map(e=>'<li><time>'+e[0]+'</time> '+e[1]+'</li>').join('')+'</ol>'}
+
+document.getElementById('map_links').innerHTML=['草原天路桦皮岭入口','草原天路野狐岭入口','崇礼西湾子酒店','张北县城酒店','崇礼直流快充充电站','张北直流快充充电站'].map(q=>'<a class="link" target="_blank" rel="noopener" href="'+search_url(q)+'">'+q+'</a>').join('');
+let map,route_layer;try{if(typeof L==='undefined')throw new Error('地图组件未加载');map=L.map('map',{scrollWheelZoom:false}).setView([40.6,115.3],8);const tiles=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);tiles.on('tileerror',()=>document.getElementById('map_status').textContent='部分底图加载失败；标注与行程仍可查看，导航请使用高德入口。');tiles.on('load',()=>document.getElementById('map_status').textContent='可拖动、缩放地图；点击标注查看详情。彩线为节点连线，非道路导航。');points.forEach((p,i)=>marker_list.push(L.marker([p.lat,p.lng],{icon:route_marker_icon(1,'#3577be')}).addTo(map).bindTooltip(p.name,{permanent:true,direction:'top',className:'pointlabel',offset:[0,-3]}).bindPopup('<b>'+p.name+'</b><p>'+p.desc+'</p><a target="_blank" rel="noopener" href="'+search_url(p.q)+'">高德检索准确位置 ↗</a>')));route_layer=L.layerGroup().addTo(map)}catch(e){document.getElementById('map').innerHTML='<div class="fallback">在线地图暂时无法加载。请使用下方高德链接检索准确地点；完整行程和电量计算仍可使用。</div>';document.getElementById('map_status').textContent='地图需要联网；不影响其他功能。'}
+let returnMap;
+// 酒店和充电站仅有公开街道地址；以下坐标是城区示意点，精确入口一律用导航确认。
+const place_coordinates={
+  hotel:[
+    [[40.9758,115.2795],[40.9715,115.2940],[40.9727,115.2735]],
+    [[41.1590,114.7240],[41.1560,114.7045],[41.1655,114.7160]],
+    [[40.6075,115.0595],[40.6027,115.0630],[40.6240,115.0660],[40.6058,115.0570]]
+  ],
+  charge:[
+    [[40.9769,115.2840],[40.9785,115.2860],[40.9797,115.2880],[40.9720,115.2800],[40.9687,115.2890],[40.9751,115.2765],[40.9710,115.2820]],
+    [[41.1490,114.7240],[41.1590,114.7090],[41.1582,114.7100],[41.1620,114.7180],[41.1700,114.7150],[41.1560,114.7290],[41.0520,114.7000]],
+    [[40.6080,115.0580],[40.6235,115.0320],[40.7400,114.9800]]
+  ]
+};
+const scenic_places={
+  0:[{name:'桦皮岭 · 明日东线入口',lat:41.13,lng:115.47,q:'草原天路桦皮岭入口',address:'10/3 游览，入口以导航为准'}],
+  1:[{name:'桦皮岭 · 东线入口',lat:41.13,lng:115.47,q:'草原天路桦皮岭入口',address:'草原天路东线起点区域'},{name:'野狐岭 · 东线出口',lat:41.05,lng:114.70,q:'草原天路野狐岭入口',address:'草原天路东线终点区域'}],
+  2:[{name:'大境门景区',lat:40.84,lng:114.885,q:'张家口大境门景区',address:'桥西区正沟街2号附近'},{name:'清远楼',lat:40.613,lng:115.060,q:'宣化清远楼',address:'清远路与钟楼大街交叉口附近'},{name:'镇朔楼',lat:40.610,lng:115.060,q:'宣化镇朔楼',address:'宣化古城钟楼大街附近'},{name:'拱极楼',lat:40.602,lng:115.060,q:'宣化拱极楼',address:'宣化古城南门附近'}],
+  3:[{name:'鸡鸣驿古城 · 方案B可选',lat:40.45233,lng:115.30998,q:'怀来鸡鸣驿古城',address:'只在方案B经鸡鸣驿时停留'}]
+};
+const map_place_visible={hotel:true,charge:true,scenic:true};
+const map_place_layers={main:null,return:null};
+let selected_map_day='0',selected_map_stations=[];
+const safe_place_text=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+function add_place_marker(target,kind,index,name,address,q,position){
+  const label={hotel:'住',charge:'电',scenic:'景'}[kind]+(index+1);
+  const icon=L.divIcon({className:'place-icon '+kind,html:'<span><b>'+label+'</b></span>',iconSize:[30,30],iconAnchor:kind==='scenic'?[-14,15]:[15,15]});
+  const marker=L.marker(position,{icon,zIndexOffset:kind==='scenic'?500:kind==='charge'?300:100});
+  const note=kind==='scenic'?'景点位置为区域参考，入口请用导航确认。':'图钉为地址附近示意位置，不能直接用于导航。';
+  marker.bindTooltip(name,{direction:'top',offset:[0,-9]});
+  marker.bindPopup('<div class="place-popup"><b>'+safe_place_text(name)+'</b><p>'+safe_place_text(address)+'</p><small>'+note+'</small><a href="'+search_url(q)+'" target="_blank" rel="noopener noreferrer">在高德核对位置 ↗</a></div>');
+  marker._tripKind=kind;marker._tripIndex=index;
+  marker.addTo(target);
+}
+function render_map_places(day,stations){
+  selected_map_day=day;selected_map_stations=stations;
+  const lodgingDay=day==='3'?2:Number(day);
+  const hotels=[...document.querySelectorAll('.hotel_group[data-hotel-day="'+lodgingDay+'"] .hotel_item')];
+  const scenic=scenic_places[Number(day)]||[];
+  for(const [kind,count] of [['hotel',hotels.length],['charge',stations.length],['scenic',scenic.length]])
+    document.getElementById(kind+'_map_count').textContent=String(count);
+  const placeNames={
+    hotel:hotels.map(card=>card.querySelector('h4').textContent),
+    charge:stations.map(station=>station.name),
+    scenic:scenic.map(place=>place.name)
+  };
+  document.getElementById('map_place_index').innerHTML='<div class="map_place_index_groups">'+
+    [['hotel','酒店'],['charge','充电站'],['scenic','景点']].map(([kind,title])=>
+      '<div><strong>'+title+' · '+placeNames[kind].length+'</strong><div>'+
+      placeNames[kind].map((name,i)=>'<button type="button" data-map-kind="'+kind+'" data-map-index="'+i+'">'+
+        ({hotel:'住',charge:'电',scenic:'景'}[kind])+(i+1)+' · '+safe_place_text(name)+'</button>').join('')+
+      '</div></div>').join('')+'</div>';
+  document.querySelectorAll('#map_place_index button').forEach(button=>button.onclick=()=>{
+    const kind=button.dataset.mapKind,index=Number(button.dataset.mapIndex);
+    if(!map_place_visible[kind]){
+      map_place_visible[kind]=true;
+      document.querySelector('.map_filter[data-place-kind="'+kind+'"]').setAttribute('aria-pressed','true');
+      render_map_places(day,stations);
+    }
+    const layerName=day==='3'&&kind==='scenic'?'return':'main';
+    const target=layerName==='return'?returnMap:map;
+    const marker=map_place_layers[layerName]?.getLayers().find(item=>item._tripKind===kind&&item._tripIndex===index);
+    if(target&&marker){
+      target.setView(marker.getLatLng(),Math.max(target.getZoom(),13));
+      marker.openPopup();
+      document.getElementById(layerName==='return'?'map_b':'map').scrollIntoView({block:'center',behavior:'smooth'});
+    }
+  });
+  const draw=(target,layerName,forReturn)=>{
+    if(!target)return;
+    if(map_place_layers[layerName])map_place_layers[layerName].remove();
+    const layer=L.layerGroup().addTo(target);map_place_layers[layerName]=layer;
+    if(map_place_visible.hotel)hotels.forEach((card,i)=>{
+      const name=card.querySelector('h4').textContent;
+      const address=card.querySelector('.hotel_address').textContent.replace(/^地址\s*/,'').trim();
+      add_place_marker(layer,'hotel',i,name,address,name,place_coordinates.hotel[lodgingDay][i]);
+    });
+    if(map_place_visible.charge)stations.forEach((station,i)=>
+      add_place_marker(layer,'charge',i,station.name,station.address,station.q,place_coordinates.charge[lodgingDay][i]));
+    if(map_place_visible.scenic)(forReturn?scenic:day==='3'?[]:scenic).forEach((place,i)=>
+      add_place_marker(layer,'scenic',i,place.name,place.address,place.q,[place.lat,place.lng]));
+  };
+  draw(map,'main',false);
+  draw(day==='3'?returnMap:null,'return',true);
+}
+document.querySelectorAll('.map_filter').forEach(button=>button.onclick=()=>{
+  const kind=button.dataset.placeKind;map_place_visible[kind]=!map_place_visible[kind];
+  button.setAttribute('aria-pressed',String(map_place_visible[kind]));
+  render_map_places(selected_map_day,selected_map_stations);
+});
+document.getElementById('map_city_focus').onclick=()=>{
+  const center=[points[selected_map_day==='0'?1:selected_map_day==='1'?4:7].lat,points[selected_map_day==='0'?1:selected_map_day==='1'?4:7].lng];
+  if(map)map.setView(center,13);
+};
+document.getElementById('map_route_focus').onclick=()=>{
+  if(map)map.fitBounds(days[Number(selected_map_day)].route.map(i=>[points[i].lat,points[i].lng]),{padding:[50,50],maxZoom:11});
+};
+function showReturnMap(){
+  const panel=document.getElementById('map_b_panel');
+  panel.hidden=false;
+  const route=[7,8,0],color='#b78522';
+  document.getElementById('route_steps_b').innerHTML=route.map((pointIndex,order)=>'<span class="route-step"><b style="background:'+color+'">'+(order+1)+'</b>'+(pointIndex===0?'北京到家':route_step_names[pointIndex])+'</span>').join('');
+  if(typeof L==='undefined'){
+    document.getElementById('map_b').innerHTML='<div class="fallback">在线地图暂时无法加载，请使用高德检索鸡鸣驿古城。</div>';
+    return;
+  }
+  if(!returnMap){
+    returnMap=L.map('map_b',{scrollWheelZoom:false});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(returnMap);
+    const coords=route.map(i=>[points[i].lat,points[i].lng]);
+    L.polyline(coords,{color,weight:5,opacity:.9,dashArray:'10 7'}).addTo(returnMap).bindPopup('方案B · 经鸡鸣驿返京<br>节点连线，非道路导航');
+    route.forEach((pointIndex,order)=>L.marker(coords[order],{icon:route_marker_icon(order+1,color)}).addTo(returnMap).bindTooltip((order+1)+' · '+points[pointIndex].name,{permanent:true,direction:'top',className:'pointlabel',offset:[0,-3]}).bindPopup('<b>'+points[pointIndex].name+'</b><p>'+points[pointIndex].desc+'</p><a target="_blank" rel="noopener" href="'+search_url(points[pointIndex].q)+'">高德检索准确位置 ↗</a>'));
+    route.slice(0,-1).forEach((from,i)=>{const to=route[i+1],at=[(points[from].lat+points[to].lat)/2,(points[from].lng+points[to].lng)/2];L.marker(at,{interactive:false,keyboard:false,icon:L.divIcon({className:'routekm',html:'约'+segment_km[from+'-'+to]+' km',iconSize:[88,28],iconAnchor:[44,14]})}).addTo(returnMap)});
+  }
+  returnMap.invalidateSize();
+  returnMap.fitBounds(route.map(i=>[points[i].lat,points[i].lng]),{padding:[50,50],maxZoom:11});
+}
+function select_day(key){
+const current=days[Number(key)];
+const photo_items=day_photos[Number(key)];const gallery=document.getElementById('photo_gallery');gallery.classList.toggle('single',photo_items.length===1);document.getElementById('photo_title').textContent=key==='0'?'10/2抵达崇礼 · 明日风景预告':current.title+' · 景点实景';gallery.innerHTML=photo_items.map(item=>'<figure><a href="'+item.source+'" target="_blank" rel="noopener"><img src="'+item.url+'" alt="'+item.title+'" loading="lazy" referrerpolicy="no-referrer" onerror="this.hidden=true;this.parentElement.nextElementSibling.hidden=false"></a><div class="photo_error" hidden>图片暂时无法加载，请点击下方来源查看。</div><figcaption><b>'+item.title+'</b><small>'+item.credit+'</small><a href="'+item.source+'" target="_blank" rel="noopener">查看图片来源 ↗</a></figcaption></figure>').join('');
+document.getElementById('memory_day').value=key;renderTripMemories();
+
+const baidu_search=q=>'https://api.map.baidu.com/geocoder?address='+encodeURIComponent(q)+'&output=html&src=webapp.grassland.trip';
+const extra_destinations=key==='2'?[{name:'宣化清远楼',q:'宣化清远楼'},{name:'宣化镇朔楼',q:'宣化镇朔楼'},{name:'宣化拱极楼',q:'宣化拱极楼'}]:key==='3'?[{name:'鸡鸣驿古城（可选）',q:'怀来鸡鸣驿古城'}]:[];
+document.getElementById('baidu_destinations').innerHTML='<h3>当天百度地图目的地</h3><div class="links" style="flex-direction:column">'+current.route.map((pointIndex,order)=>'<a class="link" target="_blank" rel="noopener" href="'+baidu_search(points[pointIndex].q)+'">'+(order+1)+' · '+route_step_names[pointIndex]+' ↗</a>').join('')+'</div>'+(extra_destinations.length?'<p class="notice">可继续查看：</p><div class="links" style="flex-direction:column">'+extra_destinations.map(d=>'<a class="link" target="_blank" rel="noopener" href="'+baidu_search(d.q)+'">'+d.name+' ↗</a>').join('')+'</div>':'')+'<p class="notice">编号与地图圆圈一致。逐段导航时，先在地图App确认匹配的实际入口、酒店与停车场；返京终点请改为家庭地址。10/3 桦皮岭到野狐岭须沿草原天路东线走，避免导航自动选择高速捷径。</p>';
+
+const hotelSection=document.getElementById('hotels');hotelSection.hidden=key==='3';document.getElementById('hotel_title').textContent=['10/2 · 崇礼住宿 · 3 家备选','10/3 · 张北住宿 · 3 家备选','10/4 · 宣化住宿 · 4 家备选','当天返京 · 无需住宿'][Number(key)];document.querySelectorAll('.hotel_group').forEach(group=>group.hidden=group.dataset.hotelDay!==key);
+document.getElementById('map_title').textContent=key==='3'?'10/5 · 返京方案 A / B · 路线地图':current.title+' · 路线地图';document.getElementById('map_a_heading').hidden=key!=='3';if(key==='3')showReturnMap();else document.getElementById('map_b_panel').hidden=true;
+document.querySelectorAll('#charging_section tbody tr').forEach((row,i)=>row.hidden=i!==Number(key));
+document.querySelectorAll('.legend span').forEach((el,i)=>el.hidden=i!==Number(key));
+
+document.getElementById('distance').value=[230,200,125,210][Number(key)];calculate();
+const station_groups=[[
+{name:'英龙影剧院充电站',q:'崇礼英龙影剧院充电站',address:'崇礼区西湾子镇东沟门万龙路口英龙影剧院',app:'e充电',fast:8,dist:['约1–3公里','约2–4公里','约1–3公里']},
+{name:'汉庭酒店充电站',q:'崇礼区汉庭酒店充电站',address:'崇礼区万龙路口',app:'e充电',fast:8,dist:['约1–3公里','约2–4公里','约1–3公里']},
+{name:'梦特芳丹酒店充电站',q:'崇礼梦特芳丹酒店充电站',address:'崇礼区万龙路口梦特芳丹酒店',app:'e充电',fast:8,dist:['约1–3公里','约2–4公里','约1–3公里']},
+{name:'香雪酒店充电站',q:'崇礼香雪酒店充电站',address:'崇礼区西湾子镇平安大街',app:'e充电',fast:8,dist:['约1–3公里','约1–3公里','约1–3公里']},
+{name:'崇礼区人民医院充电站',q:'崇礼区人民医院充电站',address:'崇礼区西湾子镇迎宾路',app:'特来电',fast:3,dist:['约1–3公里','约1–3公里','约1–3公里']},
+{name:'长青路同舟酒店停车场充电站',q:'崇礼长青路同舟酒店停车场充电站',address:'崇礼区长青路38号',app:'特来电',fast:1,dist:['约0.5–2公里','约2–4公里','约1–3公里']},
+{name:'土老帽商务酒店充电站',q:'崇礼土老帽商务酒店充电站',address:'崇礼区西湾子镇风情商业街10–11号',app:'特来电',fast:1,dist:['约1–3公里','约1–3公里','约1–3公里']}
+],[
+{name:'张北广溢充电站',q:'张北广溢充电站',address:'张北县张北镇张化线1公里处张北广溢汽车检测有限公司',app:'特来电',fast:3,dist:['约3–7公里','约3–7公里','约3–7公里']},
+{name:'张北中博充电站',q:'张北中博充电站',address:'张北县中博嘉苑住宅小区综合楼',app:'特来电',fast:2,dist:['约2–6公里','约2–6公里','约2–6公里']},
+{name:'永义南街骏怡酒店充电站',q:'张北永义南街骏怡酒店充电站',address:'张北县永义南街中博嘉苑12号楼',app:'特来电',fast:1,dist:['约2–6公里','约2–6公里','约2–6公里']},
+{name:'鑫龙酒店充电站',q:'张北鑫龙酒店充电站',address:'张北县北辰路二中斜对面',app:'特来电',fast:1,dist:['约2–6公里','约2–6公里','约2–6公里']},
+{name:'海龙酒店充电站',q:'张北海龙酒店充电站',address:'张北县龙王庙村207线北侧',app:'特来电',fast:1,dist:['约3–8公里','约3–8公里','约2–7公里']},
+{name:'鑫鹏汽车销售充电站',q:'张北鑫鹏汽车销售充电站',address:'张北县汽配城4号楼底商',app:'特来电',fast:1,dist:['约2–7公里','约2–7公里','约2–7公里']},
+{name:'原生态农庄充电站（野狐岭）',q:'张北原生态农庄充电站',address:'张北县永胜昌村南野狐岭军事旅游区山后（静园原生态山庄）',app:'特来电',fast:2,dist:['约10–20公里','约10–20公里','约10–20公里']}
+],[
+{name:'宣化宾馆充电站',q:'特来电宣化宾馆充电站',address:'宣化区宣府大街59号院内停车场',app:'特来电',fast:4,dist:['约2–5公里','约2–5公里','约3–7公里','约2–5公里']},
+{name:'万柳公园充电站',q:'宣化区万柳公园充电站',address:'宣化区万柳公园（公开目录未给出具体停车场入口）',app:'e充电',fast:8,dist:['约4–9公里','约4–9公里','约3–8公里','约4–9公里']},
+{name:'屈家庄大酒店充电站',q:'张家口屈家庄大酒店充电站',address:'宣化区沙岭子镇屈家庄村京藏高速辅路',app:'特来电',fast:5,dist:['约15–25公里','约15–25公里','约15–25公里','约15–25公里']}
+]];
+const station_hotels=[
+['英朗酒店（庆典广场店）','如家华驿（商贸新区店）','京印象假日酒店'],
+['汉庭（张北县政府店）','锦江之星（兴和西路）','如家华驿（汽车总站店）'],
+['锦江之星（人民公园店）','汉庭（宣化火车站店）','汉庭优佳（宣化北站店）','盛家宾馆']
+];
+const station_day=key==='3'?2:Number(key),stations=station_groups[station_day];
+const station_source=['https://www.icauto.com.cn/cdz/11043.html','https://www.icauto.com.cn/cdz/11013.html','https://www.modiauto.com.cn/cdz/c72.html'][station_day];
+document.getElementById('station_detail').innerHTML=
+(key==='3'?'<p><b>10/5 从宣化返京：</b>下列为昨晚酒店附近的补能备选。途中按当日导航选顺路、正确行车方向的服务区。</p>':'<p><b>'+['10/2 20:00','10/3 饭前或20:00后','10/4 20:00'][station_day]+' · 目标90—100%</b></p>')+
+'<p class="notice">共列出'+stations.length+'处有公开地址的候选站。距离是从'+(key==='3'?'昨晚':'当天')+'推荐酒店到站点的城区道路<b>粗估区间</b>，并非逐条导航实测；点击「高德查站」核对准确路线、入口和实时空位。</p>'+
+'<div class="station_list">'+stations.map((st,i)=>'<article class="station_item"><div class="station_head"><h3>'+(i+1)+'. '+st.name+'</h3><span class="tag">目录记录快充 '+st.fast+' 个</span></div><p><b>地址</b> '+st.address+'</p><div class="station_distances"><strong>到推荐酒店的距离（估算）</strong>'+st.dist.map((distance,j)=>'<span>'+station_hotels[station_day][j]+'：<b>'+distance+'</b></span>').join('')+'</div><div class="station_links"><a href="'+search_url(st.q)+'" target="_blank" rel="noopener noreferrer">高德查站 ↗</a><a href="'+station_source+'" target="_blank" rel="noopener noreferrer">站点资料 ↗</a><small>'+st.app+'</small></div></article>').join('')+'</div>'+
+'<p class="notice">桩数和地址来自公开目录，可能已变更。请在 '+(station_day===0?'e充电 / 特来电':station_day===1?'特来电':'e充电 / 特来电')+' 查看站点是否仍营业、直流桩可用状态、停车与收费；酒店自带车位如只支持交流慢充，不宜当作短时补能点。</p>';
+const queries=stations.map(st=>st.q);if(key==='1')queries.unshift('草原天路桦皮岭入口','草原天路野狐岭入口');if(key==='2')queries.unshift('张家口大境门景区','宣化清远楼','宣化镇朔楼','宣化拱极楼');if(key==='3')queries.unshift('宣化城区','怀来鸡鸣驿古城','北京');
+document.getElementById('map_links').innerHTML=queries.map(q=>'<a class="link" target="_blank" rel="noopener" href="'+search_url(q)+'">'+q+'</a>').join('');
+document.getElementById('route_steps').innerHTML=current.route.map((pointIndex,order)=>'<span class="route-step"><b style="background:'+current.color+'">'+(order+1)+'</b>'+(key==='3'&&pointIndex===0?'北京到家':route_step_names[pointIndex])+'</span>').join('');
+marker_list.forEach((marker,i)=>{const order=current.route.indexOf(i);if(order>=0){if(map){marker.setIcon(route_marker_icon(order+1,current.color));marker.setTooltipContent((order+1)+' · '+points[i].name);if(!map.hasLayer(marker))marker.addTo(map)}}else if(map&&map.hasLayer(marker))map.removeLayer(marker)});
+document.querySelectorAll('[data-day]').forEach(b=>{b.classList.toggle('active',b.dataset.day===key);b.setAttribute('aria-pressed',String(b.dataset.day===key))});const selected=key==='all'?days:[days[Number(key)]];document.getElementById('day_detail').innerHTML=key==='all'?'<h2>四天总览</h2><p>2号赶路 · 3号东线 · 4号长城古城 · 5号返京</p>'+days.map(d=>'<p><b style="color:'+d.color+'">'+d.title+'</b><br>'+d.km+' · '+d.stay+'</p>').join('')+'<p class="notice">切换日期查看路线及详细时间。充电标注显示具体候选站名称，精确站址请打开高德。</p>':day_html(selected[0])+(key==='1'?'<p class="notice"><b>当天只有一段核心游览：</b>桦皮岭是东线入口，野狐岭是出口，张北是住宿点，不是四个独立景区。全程选择3—4处停车观景，09:00从崇礼出发，不追求每个点打卡。</p><p class="notice"><b>拥堵调整：</b>11:00以后才到桦皮岭，减少停车点；15:30车机预计驶出野狐岭晚于17:00，停止新增观景停留，优先出天路。晚饭安排19:00，但不能因此拖到天黑仍在山路上观景。上述时刻为规划窗口，不是实时导航耗时，国庆不保证准点。</p>':'');if(map){route_layer.clearLayers();let bounds=[];selected.forEach(d=>{const coords=d.route.map(i=>[points[i].lat,points[i].lng]);bounds.push(...coords);L.polyline(coords,{color:d.color,weight:4,opacity:.8,dashArray:'9 7'}).addTo(route_layer).bindPopup(d.title+'<br>节点连线 · 非道路轨迹');d.route.slice(0,-1).forEach((from,i)=>{const to=d.route[i+1],km=segment_km[from+'-'+to];if(!km)return;const at=[(points[from].lat+points[to].lat)/2,(points[from].lng+points[to].lng)/2];L.marker(at,{interactive:false,keyboard:false,icon:L.divIcon({className:'routekm',html:'约'+km+' km',iconSize:[88,28],iconAnchor:[44,14]})}).addTo(route_layer)})});map.fitBounds(bounds,{padding:[50,50],maxZoom:11})}render_map_places(key,stations);}
+function calculate(){const ids=['range','distance','soc','capacity','power','target'];const vals=ids.map(id=>Number(document.getElementById(id).value));const [r,d,s,c,p,t]=vals;const out=document.getElementById('result');if(ids.some(id=>!document.getElementById(id).checkValidity()||document.getElementById(id).value==='')||vals.some(v=>!Number.isFinite(v))){out.textContent='请填写有效的车辆及里程参数。';return}const end=s-d/r*100;const need=Math.max(0,t-Math.max(0,end))*c/100;const minutes=need/p*60;out.innerHTML='<b>预计到站 '+end.toFixed(1)+'%</b><div class="battery"><span style="width:'+Math.max(0,Math.min(100,end))+'%"></span></div>'+(end<0?'本段超出估算可用续航，必须提前补能。':end<20?'预计低于20%余量，建议提前安排补能。':'按当前参数，抵达余量高于20%。')+'<br>到站后充至'+t+'%需补约 '+need.toFixed(1)+'kWh；按输入平均功率，纯充电约 '+Math.ceil(minutes)+'分钟。'}
+function syncPageTab(){
+  const albumOpen=window.location.hash==='#album'||(window.location.hash!=='#trip'&&Boolean(new URLSearchParams(window.location.search).get('photo')));
+  document.getElementById('trip_view').hidden=albumOpen;
+  document.getElementById('album_view').hidden=!albumOpen;
+  for(const [id,active] of [['trip_tab',!albumOpen],['album_tab',albumOpen]]){
+    const tab=document.getElementById(id);tab.classList.toggle('active',active);
+    if(active)tab.setAttribute('aria-current','page');else tab.removeAttribute('aria-current');
+  }
+  if(!albumOpen&&map)requestAnimationFrame(()=>map.invalidateSize());
+}
+document.querySelectorAll('.view_tab').forEach(tab=>tab.addEventListener('click',event=>{
+  event.preventDefault();
+  if(window.location.hash!==tab.getAttribute('href'))history.pushState(null,'',tab.getAttribute('href'));
+  syncPageTab();window.scrollTo(0,0);
+}));
+window.addEventListener('popstate',syncPageTab);
+window.addEventListener('hashchange',syncPageTab);
+document.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>select_day(b.dataset.day));document.querySelectorAll('input').forEach(i=>i.oninput=calculate);select_day('0');calculate();loadTripMemories();syncPageTab();
+</script></body></html>
