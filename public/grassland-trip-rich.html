@@ -1,0 +1,416 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>杨杨飞飞国庆4天游 · 草原湖泊丰富版</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"><style>
+ .photo_gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.photo_gallery figure{margin:0;min-width:0}.photo_gallery img{display:block;width:100%;height:210px;object-fit:cover;border-radius:10px;background:#e7ece4}.photo_gallery figcaption{padding-top:8px}.photo_gallery figcaption b{display:block}.photo_gallery figcaption small{display:block}.photo_gallery.single{grid-template-columns:minmax(0,1fr)}.photo_gallery.single img{height:280px}.photo_error{padding:30px 15px;background:#edf1eb;border-radius:10px;min-height:160px} @media(max-width:650px){.photo_gallery{grid-template-columns:1fr}.photo_gallery img,.photo_gallery.single img{height:220px}} :root{--bg:#f3f5ef;--ink:#203a31;--muted:#62766c;--green:#23785b;--line:#dbe3d9}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 system-ui,-apple-system,"Microsoft YaHei",sans-serif}header{background:#173d30;color:#fff;padding:38px max(5vw,20px)}header small{letter-spacing:3px;color:#b6d2bf}h1{font-size:clamp(28px,5vw,44px);line-height:1.2;margin:12px 0}header p{color:#d0e0d4;margin:0}main{max-width:1240px;margin:auto;padding:24px}.stats{display:none;grid-template-columns:repeat(4,1fr);gap:12px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}.stats strong{display:block;font-size:23px}.muted,small{color:var(--muted)}[hidden]{display:none!important}.full{display:none}.full#charging_section{display:block}.grid.full:has(#map_links){display:block}.grid.full:has(#map_links)>section:first-child{display:none}.grid.full:has(#map_links)>section:last-child>h3,.grid.full:has(#map_links)>section:last-child>h3+p{display:none}#optional_section{display:none!important}h2{font-size:22px;margin:0 0 12px}h3{margin:0 0 8px}nav{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 12px}button,.link{font:inherit;border:1px solid var(--line);background:white;color:var(--ink);border-radius:9px;padding:9px 14px;cursor:pointer;text-decoration:none;display:inline-block}button.active{background:var(--green);color:white;border-color:var(--green)}.layout{display:grid;grid-template-columns:1.65fr 1fr;gap:16px}#map,#map_b{height:530px;border-radius:14px;background:#e4ece1}.return-map-heading{display:flex;align-items:center;gap:9px;margin:14px 0 9px;font-size:1.05rem}.return-map-heading:before{content:"";width:11px;height:11px;border-radius:50%;background:#9268b2}.return-map-heading.plan-b:before{background:#b78522}#map_b_panel{margin-top:24px;padding-top:4px;border-top:1px solid var(--line)}.legend{display:flex;flex-wrap:wrap;gap:15px;font-size:13px;margin-top:10px}.dot{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:5px}.timeline{list-style:none;padding:0;margin:14px 0}.timeline li{border-left:2px solid #c6dacb;padding:0 0 17px 18px;position:relative}.timeline li:before{content:'';position:absolute;left:-5px;top:7px;width:8px;height:8px;border-radius:50%;background:var(--green)}.timeline time{font-weight:700;color:var(--green);display:inline-block;min-width:70px}.tag{display:inline-block;background:#edf4ed;padding:3px 9px;border-radius:6px;font-size:13px;margin:2px}.full{margin-top:18px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;text-align:left}td,th{padding:12px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:13px;color:var(--muted)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.form{display:flex;gap:14px;flex-wrap:wrap}label{display:block}input{display:block;width:130px;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px}#result{background:#edf4ed;padding:14px;margin-top:14px;border-radius:10px}.notice{font-size:13px;color:var(--muted);margin-top:12px}.links{display:flex;gap:8px;flex-wrap:wrap}.route-number-icon{background:transparent;border:0}.route-number-icon span{display:flex;width:26px;height:26px;align-items:center;justify-content:center;border:2px solid #fff;border-radius:50%;color:#fff;font-size:14px;font-weight:800;box-shadow:0 1px 5px #203a3155}.route-steps{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 4px}.route-step{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#f8fbf7;font-size:13px}.route-step b{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;color:#fff;font-size:12px}.pointlabel{background:#fff;border:1px solid #c9d7ca;border-radius:5px;font-size:12px;padding:2px 5px;color:#203a31;box-shadow:none}.routekm{display:flex;align-items:center;justify-content:center;background:#fff8df;border:1px solid #cba64d;border-radius:7px;color:#6b4b0f;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 1px 4px #203a3126}.leaflet-popup-content{min-width:190px}.fallback{padding:14px;background:#fff8e5}.battery{height:14px;background:#edf1eb;border-radius:20px;overflow:hidden;margin:6px 0}.battery span{height:100%;display:block;background:#3b916d}footer{text-align:center;padding:24px;font-size:12px;color:var(--muted)}a{color:#246c55}@media(max-width:800px){main{padding:15px}.layout,.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}#map,#map_b{height:420px}.card{padding:16px}td,th{min-width:110px}header{padding:28px 20px}}@media print{nav,button,.form,.links{display:none}header{background:white;color:#203a31}header p{color:#203a31}#map,#map_b{height:350px}.layout{grid-template-columns:1fr}body{background:white}.card{break-inside:avoid}main{max-width:none}}
+.memory_upload{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:16px 0}.memory_upload label{font-size:13px;color:var(--muted)}.memory_upload select,.memory_upload input{display:block;width:auto;max-width:100%;min-height:42px;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}.memory_upload input[type=file]{max-width:260px}.memory_upload input[type=text]{width:220px}.memory_upload button{background:var(--green);color:#fff;border-color:var(--green)}.memory_upload button:disabled{opacity:.55;cursor:wait}.memory_gallery{margin-top:14px;grid-template-columns:repeat(2,minmax(0,1fr))}.memory_gallery a{display:block}.memory_gallery img{height:auto;max-height:70vh;object-fit:contain}@media(max-width:650px){.memory_gallery{grid-template-columns:1fr}}.memory_gallery figcaption small{font-size:12px}.memory_status{min-height:24px}
+.memory_delete{margin-top:8px;padding:5px 10px;font-size:13px;color:#9d3939;border-color:#e2b8b8;background:#fff}.memory_delete:hover{background:#fff1f1}.memory_delete:disabled{opacity:.5;cursor:wait}
+.memory_gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}.memory_post{display:block;min-width:0;width:100%;overflow:hidden;background:#fff;border:1px solid #dce6de;border-radius:17px;box-shadow:0 7px 25px #203a310d}.memory_post_header{display:flex;align-items:center;gap:10px;padding:13px 15px}.memory_avatar{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:50%;background:#23785b;color:#fff;font-size:14px;font-weight:700}.memory_post_byline{min-width:0;flex:1;line-height:1.3}.memory_post_byline strong{display:block;font-size:13px}.memory_post_byline time{display:block;margin-top:3px;color:var(--muted);font-size:12px}.memory_day_tag{flex:none;padding:3px 8px;border-radius:99px;background:#edf4ed;color:#27654f;font-size:12px}.memory_gallery .memory_image{display:block}.memory_gallery .memory_image img{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain;border-radius:0;background:#e7ece4}.memory_gallery .memory_post figcaption{padding:13px 15px 15px}.memory_post_title{display:block;font-size:16px;line-height:1.45}.memory_post_actions{display:flex;align-items:center;gap:9px;margin-top:12px}.memory_comment_toggle{border:0;padding:5px 0;color:#27654f;background:transparent;font-size:13px;font-weight:600}.memory_comment_toggle:hover{text-decoration:underline}.memory_post_actions .memory_delete{margin:0 0 0 auto}.memory_comments{padding:14px 15px 15px;border-top:1px solid #e9efe9;background:#f8faf7}.memory_comments h4{margin:0 0 10px;font-size:14px}.memory_comment_item{padding:8px 0;border-top:1px solid #e3ebe3}.memory_comment_item:first-child{border-top:0}.memory_comment_item strong{font-size:13px}.memory_comment_item time{margin-left:8px;color:var(--muted);font-size:11px}.memory_comment_item p{margin:3px 0 0;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}.memory_comment_form{display:grid;gap:8px;margin-top:12px}.memory_comment_form input,.memory_comment_form textarea{width:100%;min-width:0;padding:9px 10px;border:1px solid #d7e1d8;border-radius:9px;background:#fff;color:var(--ink);font:inherit;font-size:13px}.memory_comment_form textarea{min-height:74px;resize:vertical}.memory_comment_form button{justify-self:end;background:#23785b;border-color:#23785b;color:#fff;font-size:13px}.memory_comment_feedback{min-height:18px;color:var(--muted);font-size:12px}@media(max-width:700px){.memory_gallery{grid-template-columns:minmax(0,1fr)}}@media(prefers-reduced-motion:no-preference){.memory_post{transition:box-shadow .18s ease,transform .18s ease}.memory_post:hover{box-shadow:0 10px 29px #203a3120;transform:translateY(-2px)}}
+.view_tabs{position:sticky;top:10px;z-index:600;display:flex;width:max-content;max-width:100%;gap:4px;margin:0 0 20px;padding:5px;border:1px solid #d5e1d7;border-radius:14px;background:#e9f0e8;box-shadow:0 8px 22px #203a3112}.view_tab{display:block;min-width:114px;padding:9px 19px;border-radius:10px;color:#426355;text-align:center;text-decoration:none;font-weight:700}.view_tab:hover{background:#f8fbf7;text-decoration:none}.view_tab.active{background:#23785b;color:#fff;box-shadow:0 2px 7px #1b5f4930}.view_tab:focus-visible{outline:3px solid #b8872e;outline-offset:2px}@media(max-width:650px){.view_tabs{width:100%;top:6px}.view_tab{flex:1;min-width:0;padding:9px 12px}}
+.memory_post{scroll-margin-top:80px}.memory_post_shared{border-color:#bf9852;box-shadow:0 0 0 3px #eacb824d,0 7px 25px #203a310d}.memory_share_toggle{border:0;padding:5px 0;color:#27654f;background:transparent;font-size:13px;font-weight:600}.memory_share_toggle:hover{text-decoration:underline}.memory_share_menu{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;padding:12px;border:1px solid #dce6de;border-radius:11px;background:#f8faf7}.memory_share_menu button,.memory_share_menu a{display:inline-block;margin:0;padding:6px 10px;border:1px solid #d2e0d4;border-radius:8px;background:#fff;color:#27654f;font-size:13px;line-height:1.4;text-decoration:none}.memory_share_menu button:hover,.memory_share_menu a:hover{background:#edf4ed}.memory_share_feedback{flex-basis:100%;min-height:18px;color:var(--muted);font-size:12px}.memory_share_menu .memory_share_note{flex-basis:100%;margin:0;color:var(--muted);font-size:12px}.memory_post_actions{flex-wrap:wrap}
+.map_toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}.map_filter{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-color:#d5e1d7;font-size:13px;font-weight:700}.map_filter[aria-pressed=false]{opacity:.52;background:#f1f3ef}.map_filter i{width:10px;height:10px;border-radius:50%;display:inline-block}.map_filter[data-place-kind=hotel] i{background:#3c7299}.map_filter[data-place-kind=charge] i{background:#c78727}.map_filter[data-place-kind=scenic] i{background:#398363}.map_focus{padding:6px 10px;font-size:13px}.place-icon{background:none;border:0}.place-icon span{display:grid;place-items:center;width:30px;height:30px;border:2px solid #fff;border-radius:9px;color:#fff;font-size:11px;font-weight:800;box-shadow:0 2px 6px #203a3155;white-space:nowrap}.place-icon.hotel span{background:#3c7299}.place-icon.charge span{background:#c78727;border-radius:50%}.place-icon.scenic span{background:#398363;transform:rotate(45deg);border-radius:6px}.place-icon.scenic span b{transform:rotate(-45deg)}.place-popup p{margin:7px 0}.place-popup small{display:block;color:#62766c}.place-popup a{display:inline-block;margin-top:8px;font-weight:700}.map_place_index{margin:10px 0 14px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:#fbfcf9;font-size:13px}.map_place_index summary{cursor:pointer;font-weight:700;color:#27654f}.map_place_index summary:focus-visible{outline:2px solid #b8872e}.map_place_index_groups{display:grid;gap:10px;margin-top:10px}.map_place_index_groups strong{display:block;margin-bottom:5px;color:var(--muted)}.map_place_index_groups div div{display:flex;flex-wrap:wrap;gap:6px}.map_place_index button{padding:4px 8px;font-size:12px;text-align:left}@media(max-width:650px){.map_toolbar{gap:6px}.map_filter{flex:1 1 calc((100% - 12px)/3);justify-content:center;white-space:nowrap;padding:6px 5px}.map_focus{flex:1 1 calc((100% - 6px)/2);justify-content:center}}
+
+#hotels{display:block}.hotel_intro{margin:0 0 18px;color:var(--muted)}.hotel_group{margin-top:22px}.hotel_group h3{margin:0 0 12px;font-size:1.12rem}.hotel_group h3 small{font-size:.82rem;font-weight:500;color:var(--muted);margin-left:8px}.hotel_list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.hotel_item{border:1px solid #dce6da;border-radius:15px;padding:16px;background:#fbfcf9;min-width:0}.hotel_item_head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.hotel_item h4{margin:0;font-size:1rem;line-height:1.4}.hotel_price{white-space:nowrap;color:var(--green);font-weight:750;font-size:1.05rem}.hotel_item p{margin:8px 0;color:var(--muted);font-size:.9rem;line-height:1.5}.hotel_item p.hotel_address,.hotel_item p.hotel_distance{color:var(--ink);overflow-wrap:anywhere}.hotel_address b,.hotel_distance b{display:inline-block;min-width:4.5em;color:var(--green)}.hotel_actions{display:flex;gap:14px;flex-wrap:wrap;font-size:.9rem}.hotel_actions a{color:var(--green);font-weight:650}.hotel_note{font-size:.84rem;color:var(--muted);margin:16px 0 0;line-height:1.6}.station_list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0}.station_item{min-width:0;padding:16px;border:1px solid var(--line);border-radius:14px;background:#fbfcf9}.station_head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap}.station_head h3{margin:0;font-size:1rem}.station_head .tag{white-space:nowrap;margin:0}.station_item p{margin:9px 0;overflow-wrap:anywhere}.station_item p>b{color:var(--green)}.station_distances{display:grid;gap:4px;padding:10px 12px;border-radius:9px;background:#eff4ed;font-size:.88rem}.station_distances strong{font-size:.86rem;color:var(--green)}.station_links{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:12px;font-size:.88rem}.station_links a{font-weight:650}.station_links small{margin-left:auto}@media(max-width:700px){.hotel_list,.station_list{grid-template-columns:1fr}.hotel_item,.station_item{padding:14px}.hotel_item_head{align-items:baseline}}
+</style></head><body><header><small>ROAD TRIP / OCTOBER 2026</small><h1>杨杨飞飞国庆4天游 · 草原湖泊丰富版</h1><p>北京 → 崇礼 → 东线 → 张北 → 西线 / 中都草原 → 沽源 / 闪电湖 → 北京</p><p><a href="/grassland-trip" style="color:#fff">查看原版行程 ↗</a></p></header><main>
+<nav class="view_tabs" aria-label="页面切换"><a id="trip_tab" class="view_tab active" href="#trip" aria-current="page">行程安排</a><a id="album_tab" class="view_tab" href="#album">旅行相册</a></nav>
+<div id="trip_view">
+<section class="card" id="overview"><h2>整体规划 · 东线 + 西线 + 草原湖泊</h2><p><b>2号抵达崇礼，3号走草原天路东线到张北，4号走西线并游中都草原后到沽源，5号游闪电湖再返京。</b></p><div class="tablewrap"><table><thead><tr><th>日期</th><th>路线 / 里程</th><th>住宿</th><th>晚饭 / 充电</th></tr></thead><tbody><tr><td>10/2 · 北京 → 崇礼</td><td>北京 → 崇礼；约230公里，按出发地核算</td><td>崇礼 · 1晚</td><td>崇礼晚饭并充电</td></tr><tr><td>10/3 · 东线穿越</td><td>崇礼 → 桦皮岭 → 阎片山 / 梯田 → 野狐岭 → 张北；预留约180—220公里</td><td>张北 · 1晚</td><td>张北晚饭并充电</td></tr><tr><td>10/4 · 西线 + 中都</td><td>张北 → 野狐岭 → 西线折返 → 中都草原 → 沽源；多段山路，逐段导航</td><td>沽源 · 1晚</td><td>沽源或湖区晚饭；充电需提前确认</td></tr><tr><td>10/5 · 闪电湖 → 北京</td><td>闪电湖 → 丰宁 / 怀柔 → 北京；可改走张家口方向</td><td>回家</td><td>出发前按车机预测补足电量</td></tr></tbody></table></div><p class="notice">丰富版保留四天，避免把两段天路和湖区压进三天。东线景点按实际道路顺序择点停靠；西线为往返路线，10/4若堵车优先保留中都草原与沽源，缩短西线。各段公里数为参考，不是实时导航；国庆需检查道路开放、天气、酒店房态与充电桩。</p></section><nav aria-label="行程日期"><button class="active" data-day="0">10/2 北京 → 崇礼</button><button data-day="1">10/3 东线穿越</button><button data-day="2">10/4 西线 / 中都 / 沽源</button><button data-day="3">10/5 闪电湖 → 北京</button><button onclick="window.print()">打印 / 保存PDF</button></nav>
+<section class="card" style="margin-bottom:16px"><h2 id="photo_title">当天景点预览</h2><div id="photo_gallery" class="photo_gallery"></div><p class="notice">景点实景参考，照片并非本次出行实时拍摄；植被颜色、天气和照明以现场为准。图片由本站加载，若无法显示可点击图片来源查看。</p></section>
+<div class="layout"><section class="card"><h2 id="map_title">10/2 · 当天路线</h2><h3 id="map_a_heading" class="return-map-heading" hidden>方案 A · 经丰宁、怀柔返京</h3><div class="map_toolbar" aria-label="地图地点筛选"><button type="button" class="map_filter" data-place-kind="hotel" aria-pressed="true"><i></i>酒店 <span id="hotel_map_count">0</span></button><button type="button" class="map_filter" data-place-kind="charge" aria-pressed="true"><i></i>充电站 <span id="charge_map_count">0</span></button><button type="button" class="map_filter" data-place-kind="scenic" aria-pressed="true"><i></i>景点 <span id="scenic_map_count">0</span></button><button type="button" class="map_focus" id="map_city_focus">放大住宿区</button><button type="button" class="map_focus" id="map_route_focus">查看整段路线</button></div><div id="map" aria-label="当天行程地图，10月5日为方案A经丰宁返京"></div><div id="route_steps" class="route-steps" aria-label="当天途经顺序"></div><details class="map_place_index"><summary>查看地图地点清单（图钉重叠时点这里）</summary><div id="map_place_index"></div></details><div id="map_b_panel" hidden><h3 class="return-map-heading plan-b">方案 B · 经张家口返京</h3><div id="map_b" aria-label="10月5日方案B经张家口返京地图"></div><div id="route_steps_b" class="route-steps" aria-label="方案B途经顺序"></div><p class="notice">方案 B 经张家口返京；两条路线的实际里程、耗时和充电站请以当日导航核算。</p></div><div id="map_status" class="notice">联网加载地图中；如地图未显示，可使用下方高德入口。</div><div class="legend"><span><i class="dot" style="background:#3577be"></i>10/2 去程</span><span><i class="dot" style="background:#b78522"></i>10/3 东线</span><span><i class="dot" style="background:#238563"></i>10/4 西线 / 沽源</span><span><i class="dot" style="background:#9268b2"></i>10/5 返京</span></div><p class="notice">10/5 显示经丰宁和经张家口的返京备选。地图圆圈数字是当天经过顺序；公里数仅在有公开区间的路段标注，其他段请逐段导航核算；10/3 桦皮岭到野狐岭按草原天路张北段约100公里标注。彩线只表示行程顺序，并非道路轨迹；实际酒店、景区入口、绕行和道路管制会改变里程，出发时以导航为准。酒店和充电站的图钉根据公开地址放在附近区域，属于示意位置，不代表准确停车入口；点击图钉后用高德核对站点与酒店。景点入口也请以当天导航为准。底图使用 WGS84，未混用高德坐标。</p></section><aside class="card"><div id="day_detail" aria-live="polite"></div><div id="baidu_destinations"></div></aside></div>
+<section class="card full" id="hotels"><h2 id="hotel_title">当天住宿</h2><p class="hotel_intro">只显示所选日期的落脚城市，优先考虑停车和补能。崇礼、张北显示区域参考价；沽源需点击查询10/4当晚实时价。参考价不是国庆锁定价；点「查当晚房价」核对房型、空房和最终总价。</p><div class="hotel_group" data-hotel-day="0"><h3>10/2 · 崇礼<small>崇礼城区 · 区域参考价 ¥200–400/间夜</small></h3><div class="hotel_list"><article class="hotel_item"><div class="hotel_item_head"><h4>崇礼英朗酒店（庆典广场店）</h4><span class="hotel_price">¥200–400</span></div><p class="hotel_address"><b>地址</b> 张家口市崇礼区长青路物资局综合楼</p><p class="hotel_distance"><b>翌日景点距离</b> 到桦皮岭东线入口约 30–35 公里（行车估算）</p><p>长青路 · 庆典广场附近；页面标有免费停车。</p><div class="hotel_actions"><a href="https://hotels.ctrip.com/hotels/3450766.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E5%B4%87%E7%A4%BC%E8%8B%B1%E6%9C%97%E9%85%92%E5%BA%97%EF%BC%88%E5%BA%86%E5%85%B8%E5%B9%BF%E5%9C%BA%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article><article class="hotel_item"><div class="hotel_item_head"><h4>如家华驿酒店（崇礼商贸新区店）</h4><span class="hotel_price">¥200–400</span></div><p class="hotel_address"><b>地址</b> 张家口市崇礼区西湾子镇商贸新区酒吧文化城1号商业楼9–10</p><p class="hotel_distance"><b>翌日景点距离</b> 到桦皮岭东线入口约 30–35 公里（行车估算）</p><p>西湾子镇商贸新区；吃饭方便，页面标有免费停车。</p><div class="hotel_actions"><a href="https://m.ctrip.com/html5/hotel/hoteldetail/1063933.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E5%A6%82%E5%AE%B6%E5%8D%8E%E9%A9%BF%E9%85%92%E5%BA%97%EF%BC%88%E5%B4%87%E7%A4%BC%E5%95%86%E8%B4%B8%E6%96%B0%E5%8C%BA%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article><article class="hotel_item"><div class="hotel_item_head"><h4>京印象假日酒店（崇礼店）</h4><span class="hotel_price">¥200–400</span></div><p class="hotel_address"><b>地址</b> 张家口市崇礼区北新街13号</p><p class="hotel_distance"><b>翌日景点距离</b> 到桦皮岭东线入口约 30–35 公里（行车估算）</p><p>北新街 · 西湾子天主教堂附近；页面标有充电车位，先确认功率。</p><div class="hotel_actions"><a href="https://tw.trip.com/hotels/zhangjiakou-hotel-detail-114578260/jing-impression-hotel/" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E4%BA%AC%E5%8D%B0%E8%B1%A1%E5%81%87%E6%97%A5%E9%85%92%E5%BA%97%EF%BC%88%E5%B4%87%E7%A4%BC%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article></div></div><div class="hotel_group" data-hotel-day="1"><h3>10/3 · 张北<small>张北县城 · 区域参考价 ¥150–300/间夜</small></h3><div class="hotel_list"><article class="hotel_item"><div class="hotel_item_head"><h4>汉庭酒店（张北县政府店）</h4><span class="hotel_price">¥150–300</span></div><p class="hotel_address"><b>地址</b> 张家口市张北县兴华东路与光华北大街交汇处北行100米</p><p class="hotel_distance"><b>当天景点距离</b> 到野狐岭东线出口约 10–20 公里（行车估算）</p><p>县城东侧；页面标有免费停车和充电桩，适合优先核价。</p><div class="hotel_actions"><a href="https://hotels.ctrip.com/hotels/77243023.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E6%B1%89%E5%BA%AD%E9%85%92%E5%BA%97%EF%BC%88%E5%BC%A0%E5%8C%97%E5%8E%BF%E6%94%BF%E5%BA%9C%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article><article class="hotel_item"><div class="hotel_item_head"><h4>锦江之星（张北草原天路兴和西路酒店）</h4><span class="hotel_price">¥150–300</span></div><p class="hotel_address"><b>地址</b> 张家口市张北县兴和路北侧建材城西侧</p><p class="hotel_distance"><b>当天景点距离</b> 到野狐岭东线出口约 10–20 公里（行车估算）</p><p>兴和西路；页面标有免费停车和充电车位。</p><div class="hotel_actions"><a href="https://hotels.ctrip.com/hotels/43673662.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E9%94%A6%E6%B1%9F%E4%B9%8B%E6%98%9F%EF%BC%88%E5%BC%A0%E5%8C%97%E8%8D%89%E5%8E%9F%E5%A4%A9%E8%B7%AF%E5%85%B4%E5%92%8C%E8%A5%BF%E8%B7%AF%E9%85%92%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article><article class="hotel_item"><div class="hotel_item_head"><h4>如家·华驿酒店（张北汽车总站店）</h4><span class="hotel_price">¥150–300</span></div><p class="hotel_address"><b>地址</b> 张家口市张北县207国道新汽车站北行500米路东</p><p class="hotel_distance"><b>当天景点距离</b> 到野狐岭东线出口约 10–20 公里（行车估算）</p><p>207国道汽车总站附近；后院可停车。</p><div class="hotel_actions"><a href="https://hotels.ctrip.com/hotels/8572910.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E5%A6%82%E5%AE%B6%C2%B7%E5%8D%8E%E9%A9%BF%E9%85%92%E5%BA%97%EF%BC%88%E5%BC%A0%E5%8C%97%E6%B1%BD%E8%BD%A6%E6%80%BB%E7%AB%99%E5%BA%97%EF%BC%89&amp;city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article></div></div><div class="hotel_group" data-hotel-day="2"><h3>10/4 · 沽源<small>县城或闪电湖附近 · 10/4房价与房态请实时查询</small></h3><div class="hotel_list"><article class="hotel_item"><div class="hotel_item_head"><h4>沽源鑫季酒店（闪电湖景区店）</h4><span class="hotel_price">查当晚价</span></div><p class="hotel_address"><b>地址</b> 沽源县闪电河乡黑山嘴村18号</p><p class="hotel_distance"><b>翌日景点距离</b> 到闪电湖景区约0—2公里（湖区店，入口以导航为准）</p><p>景区旁；平台标有停车场和充电桩，先确认功率与车位。</p><div class="hotel_actions"><a href="https://m.ctrip.com/html5/hotel/hoteldetail/134767384.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E6%B2%BD%E6%BA%90%E9%91%AB%E5%AD%A3%E9%85%92%E5%BA%97%EF%BC%88%E9%97%AA%E7%94%B5%E6%B9%96%E6%99%AF%E5%8C%BA%E5%BA%97%EF%BC%89&city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article><article class="hotel_item"><div class="hotel_item_head"><h4>沽源隆苑度假村</h4><span class="hotel_price">查当晚价</span></div><p class="hotel_address"><b>地址</b> 沽源县闪电河乡闪电湖景区入口附近</p><p class="hotel_distance"><b>翌日景点距离</b> 到闪电湖景区约0—2公里（入口附近，路线以导航为准）</p><p>有停车场；住客评价提到充电桩，预订前确认能否使用。</p><div class="hotel_actions"><a href="https://hotels.ctrip.com/hotels/1026043.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E6%B2%BD%E6%BA%90%E9%9A%86%E8%8B%91%E5%BA%A6%E5%81%87%E6%9D%91&city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article><article class="hotel_item"><div class="hotel_item_head"><h4>品睿酒店（张家口沽源人民公园店）</h4><span class="hotel_price">查当晚价</span></div><p class="hotel_address"><b>地址</b> 沽源县和平北街芳菲苑小区东门东南50米</p><p class="hotel_distance"><b>翌日景点距离</b> 到闪电湖约15—25公里（县城至湖区估算）</p><p>县城餐饮方便；平台标有停车与充电车位，住客评价提到慢充。</p><div class="hotel_actions"><a href="https://hotels.ctrip.com/hotels/125859887.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E5%93%81%E7%9D%BF%E9%85%92%E5%BA%97%EF%BC%88%E5%BC%A0%E5%AE%B6%E5%8F%A3%E6%B2%BD%E6%BA%90%E4%BA%BA%E6%B0%91%E5%85%AC%E5%9B%AD%E5%BA%97%EF%BC%89&city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article><article class="hotel_item"><div class="hotel_item_head"><h4>如家睿柏·云酒店（沽源店）</h4><span class="hotel_price">查当晚价</span></div><p class="hotel_address"><b>地址</b> 沽源县新城南街亿源城小区东南角</p><p class="hotel_distance"><b>翌日景点距离</b> 到闪电湖约15—25公里（县城至湖区估算）</p><p>县城餐饮方便；有免费停车，充电需到附近公共站核对。</p><div class="hotel_actions"><a href="https://hotels.ctrip.com/hotels/84852169.html" target="_blank" rel="noopener noreferrer">查当晚房价 ↗</a><a href="https://uri.amap.com/search?keyword=%E5%A6%82%E5%AE%B6%E7%9D%BF%E6%9F%8F%C2%B7%E4%BA%91%E9%85%92%E5%BA%97%EF%BC%88%E6%B2%BD%E6%BA%90%E5%BA%97%EF%BC%89&city=%E5%BC%A0%E5%AE%B6%E5%8F%A3" target="_blank" rel="noopener noreferrer">看位置 ↗</a></div></article></div></div></section>
+<section class="card full" id="charging_section"><h2>当天去哪里充电</h2><div id="station_detail"></div><div class="tablewrap"><table><thead><tr><th>日期 / 地点</th><th>估算到站电量</th><th>补能时间</th></tr></thead><tbody><tr><td>10/2 · 崇礼</td><td>满电出发、按400km续航约剩43%</td><td>若车机预计抵达不足20%，途中先补；否则晚饭后补</td></tr><tr><td>10/3 · 张北</td><td>满电出发、当天200km约剩50%</td><td>饭前或20:00后，按实时桩况安排</td></tr><tr><td>10/4 · 沽源</td><td>按车机预测</td><td>按酒店桩或实时公共站安排</td></tr><tr><td>10/5 · 返京途中</td><td>按车机预测</td><td>预计到家不足20%时补电</td></tr></tbody></table></div><p class="notice">表中百分比按100%出发、400km实际续航、线性扣减估算，仅供提前规划；当天以车机预计到站电量为准。窗口包括找桩与操作的余量，排队可能更久；90%以后充电速度通常下降。充电时长取决于电池容量、温度、车型及平均功率，不能保证“15分钟充好”。</p></section>
+<div class="grid full"><section class="card"><h2>电量与补能计算</h2><div class="form"><label>本段实际续航 km<input id="range" type="number" min="50" max="1000" value="400"></label><label>本段里程 km<input id="distance" type="number" min="0" max="1000" value="220"></label><label>出发电量 %<input id="soc" type="number" min="0" max="100" value="100"></label><label>电池容量 kWh<input id="capacity" type="number" min="10" max="200" value="60"></label><label>平均充电功率 kW<input id="power" type="number" min="1" max="350" value="60"></label><label>目标电量 %<input id="target" type="number" min="0" max="100" value="90"></label></div><div id="result" aria-live="polite"></div><p class="notice">以你实际可跑400km为默认值。10/5 的350km只作计算示例，返京距离请先在导航中填写实际起终点并改写输入框。计算不含排队及充电曲线变化；若当天车机预测因低温、高速或风况下降，再按实测修正。</p></section><section class="card"><h2>打开高德 · 搜索与导航</h2><p class="muted">点击检索准确入口、酒店与快充站。选好实际地点后，在地图App内发起导航。</p><div id="map_links" class="links"></div><h3 style="margin-top:20px">住宿选择</h3><p>10/2崇礼、10/3张北、10/4沽源，各1晚。已整理 <a href="#hotels">10 家酒店备选</a>，可逐家查询当晚房价与停车条件。</p><p class="notice">酒店未预订；10/2若车机预测到崇礼不足20%可在张家口市区补电，10/5若预测到家不足20%可在丰宁或顺路服务区补电。沽源酒店桩未核实快慢充，请优先查看县城公共站。营业、空闲及功率需在运营商App确认。出发前在高德或车企App各收藏一个主站和备用站，确认车辆接口兼容。</p></section></div>
+
+
+<section class="card full"><h2>规划依据与使用说明</h2><p>路线资料口径不同：北京旅游网2024年攻略将张北段分为东线约100km、西线约32km；张家口文旅资料将野狐岭至桦皮岭中线记为132.7km。本站按实际入口与折返点规划；西线需原路折返。景点是否开放、住宿和道路通行请出发当天核查。</p><a href="https://www.visitbeijing.com.cn/article/4IZCrsLNwit" target="_blank" rel="noopener">北京旅游网 · 草原天路介绍</a> · <a href="https://www.visitbeijing.com.cn/article/4NmuTNOkmfu" target="_blank" rel="noopener">张家口文旅 · 草原天路</a> · <a href="https://www.sport.gov.cn/n20001280/n20001265/n20067664/c23626633/content.html" target="_blank" rel="noopener">国家体育总局 · 闪电湖</a><p class="notice">本文件可直接在浏览器打开。地图依赖联网加载Leaflet与OpenStreetMap瓦片，国内网络可能加载较慢；行程、计算器和地图搜索链接不依赖地图加载成功。</p></section>
+</div>
+<div id="album_view" hidden><section class="card" id="trip_memories" style="margin-bottom:16px"><h2>我们的旅行相册</h2><p class="muted">去玩之后，把当天的照片存到这里。照片会保存在服务器上，选日期就能回看；两份行程共用同一旅行相册，相册内容对打开页面的人可见。</p><form id="memory_form" class="memory_upload"><label>行程日期<select id="memory_day"><option value="0">10/2</option><option value="1">10/3</option><option value="2">10/4</option><option value="3">10/5</option></select></label><label>选择照片<input id="memory_files" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple required></label><label>照片说明（可选）<input id="memory_caption" type="text" maxlength="80" placeholder="例如：闪电湖边合影"></label><button id="memory_submit" type="submit">上传到相册</button></form><p class="notice">任何打开此页面的人都可以上传和查看。支持多选，每张不超过 25MB；每个网络地址每小时最多上传 20 张，相册最多留存 500 张。手机照片会自动缩小以节省空间。</p><div id="memory_status" class="memory_status" aria-live="polite"></div><div id="memory_gallery" class="photo_gallery memory_gallery"></div></section></div>
+</main><footer>2026年10月2—5日 · 自驾规划版 · 以实时导航与车辆能耗预测为准</footer>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script><script>
+const days=[{"title":"10/2 · 北京 → 崇礼","km":"约230公里，按实际出发地导航","color":"#3577be","route":[0,1],"stay":"崇礼 · 1晚","events":[["12:30—13:00","建议从北京出发；国庆拥堵时不再加景点"],["17:30—18:30","崇礼入住、晚饭"],["20:00后","英龙影剧院站补电；备用人民医院站，次日出发前检查电量"]]},{"title":"10/3 · 草原天路东线","km":"全日观景，预留约180—220公里并实时导航","color":"#b78522","route":[1,2,3,4],"stay":"张北 · 1晚","events":[["08:00—09:00","早餐、退房，带水和简餐"],["09:00—10:00","崇礼 → 桦皮岭入口，按导航选择实际停车入口"],["10:00—12:30","桦皮岭林地与沿线观景台，择安全停车点看山林与风车"],["12:30—13:30","沿线午饭；排队较长时使用自带简餐"],["13:30—16:30","阎片山、塞北梯田等东线景观，按路上先后与停车条件择2—3处"],["16:30—17:30","争取天黑前从野狐岭驶出；不赶时间追所有打卡点"],["18:00—20:30","张北入住，晚饭可尝莜面、羊肉；到广溢站或备用站充电"]]},{"title":"10/4 · 西线 + 中都草原 → 沽源","km":"西线约32公里单程，需折返；其余段按导航核算","color":"#238563","route":[4,3,6,9,10,7],"stay":"沽源 · 1晚","events":[["08:00—09:00","张北早餐退房，满电或接近满电出发"],["09:00—12:00","野狐岭进入西线，选风车、石柱群与观景台停车；到折返点原路返回"],["12:00—13:00","张北或沿线午饭"],["13:00—15:00","中都草原步行观景；骑马只在现场确认营业、价格与安全条件后决定"],["15:00—18:00","往沽源住宿点行驶；时间不足时缩短中都停留，不摸黑走山路"],["18:00后","沽源或闪电湖附近入住，晚饭；酒店桩或县城公共站须实时确认"]]},{"title":"10/5 · 闪电湖 → 北京","km":"返京距离随路线与家庭地址变化，出发前导航核算","color":"#9268b2","route":[7,11,8,0],"stay":"回家","events":[["07:00—09:00","天气好且住湖边可看日出；不为日出疲劳驾驶"],["09:00—11:00","闪电湖湖边步行、拍照；若开放且愿意，可选择湖区骑马等项目"],["11:00—12:00","沽源午饭，吃过饭后返京"],["方案A","经丰宁、怀柔方向返京；以当日导航与补能条件为准"],["方案B","若北侧道路拥堵或补能不便，可经张家口方向返京"],["补能","出发前按车机预测补足，途中优先选顺路且可用的直流快充"]]}];
+const day_photos=[
+  [
+    {
+      "title": "明日预告 · 桦皮岭 · 山林与天路",
+      "url": "/grassland-trip/huapiling.png",
+      "source": "https://news.bjd.com.cn/2023/07/27/10509162.shtml",
+      "credit": "京报网 · 夏季景观参考（2023年7月）"
+    },
+    {
+      "title": "明日预告 · 草原天路 · 山脊弯道",
+      "url": "/grassland-trip/tianlu-curve.jpg",
+      "source": "https://www.sohu.com/a/778127450_121124404",
+      "credit": "搜狐文章配图 · 天路与风车"
+    },
+    {
+      "title": "明日预告 · 草原天路 · 风车群",
+      "url": "/grassland-trip/tianlu-wind.jpg",
+      "source": "https://k.sina.com.cn/article_6461392541_18121069d00100651r.html",
+      "credit": "新浪新闻配图 · 山脊与风车"
+    }
+  ],
+  [
+    {
+      "title": "桦皮岭 · 山林与天路",
+      "url": "/grassland-trip/huapiling.png",
+      "source": "https://news.bjd.com.cn/2023/07/27/10509162.shtml",
+      "credit": "京报网 · 夏季景观参考（2023年7月）"
+    },
+    {
+      "title": "草原天路 · 山脊弯道",
+      "url": "/grassland-trip/tianlu-curve.jpg",
+      "source": "https://www.sohu.com/a/778127450_121124404",
+      "credit": "搜狐文章配图 · 天路与风车"
+    },
+    {
+      "title": "草原天路 · 风车群",
+      "url": "/grassland-trip/tianlu-wind.jpg",
+      "source": "https://k.sina.com.cn/article_6461392541_18121069d00100651r.html",
+      "credit": "新浪新闻配图 · 山脊与风车"
+    }
+  ],
+  [
+    {
+      "title": "草原天路西线 · 风车与山脊参考",
+      "url": "/grassland-trip/tianlu-wind.jpg",
+      "source": "https://k.sina.com.cn/article_6461392541_18121069d00100651r.html",
+      "credit": "新浪新闻配图 · 草原天路风车景观参考"
+    },
+    {
+      "title": "草原天路 · 山脊公路参考",
+      "url": "/grassland-trip/tianlu-curve.jpg",
+      "source": "https://www.sohu.com/a/778127450_121124404",
+      "credit": "搜狐文章配图 · 天路弯道景观参考"
+    },
+    {
+      "title": "中都草原 · 夏季历史照片",
+      "url": "/grassland-trip-rich/zhongdu.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:%E5%BC%A0%E5%8C%97%E5%8E%BF%E4%B8%AD%E9%83%BD%E8%8D%89%E5%8E%9F%E5%BA%A6%E5%81%87%E6%9D%91_-_panoramio.jpg",
+      "credit": "Wikimedia Commons · 黑夜有灯 · <a href=\"https://creativecommons.org/licenses/by/3.0/\" target=\"_blank\" rel=\"noopener\">CC BY 3.0</a> · 摄于2009年7月"
+    }
+  ],
+  [
+    {
+      "title": "沽源闪电湖 · 历史照片",
+      "url": "/grassland-trip-rich/shandianhu.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:%E6%B2%BD%E6%BA%90%E9%97%AA%E7%94%B5%E6%B9%96%E5%BA%A6%E5%81%87%E4%BC%91%E9%97%B2_-_panoramio.jpg",
+      "credit": "Wikimedia Commons · 黑夜有灯 · <a href=\"https://creativecommons.org/licenses/by/3.0/\" target=\"_blank\" rel=\"noopener\">CC BY 3.0</a> · 摄于2007年9月"
+    }
+  ]
+];
+let marker_list=[];
+let tripMemories=[];
+let canDeleteTripMemories=false;
+const memoryDayNames=['10月2日','10月3日','10月4日','10月5日'];
+const memoryDate=value=>new Date(value).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
+function memoryElement(tag,className,text){const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node}
+function tripPhotoShareUrl(photo){const url=new URL('/grassland-trip-rich',window.location.origin);url.searchParams.set('photo',photo.id);url.hash='album';return url.href}
+async function copyTripPhotoUrl(url){
+  if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(url);return true}catch{}}
+  const input=document.createElement('textarea');input.value=url;input.setAttribute('readonly','');input.style.position='fixed';input.style.opacity='0';document.body.append(input);input.select();
+  const copied=document.execCommand('copy');input.remove();return copied;
+}
+let hasFocusedSharedPhoto=false;
+function showTripComments(list,comments){
+  list.replaceChildren();
+  if(!comments.length){list.append(memoryElement('p','muted','还没有评论，来留下第一句吧。'));return}
+  for(const comment of comments){
+    const item=memoryElement('div','memory_comment_item');
+    const author=memoryElement('strong','',comment.author);
+    const time=memoryElement('time','',memoryDate(comment.createdAt));time.dateTime=comment.createdAt;
+    const message=memoryElement('p','',comment.text);
+    item.append(author,time,message);list.append(item);
+  }
+}
+async function loadTripComments(photo,list,toggle){
+  const response=await fetch('/api/grassland-trip/photos/'+encodeURIComponent(photo.id)+'/comments',{cache:'no-store'});
+  const result=await response.json();
+  if(!response.ok)throw new Error(result.error||'评论暂时无法读取');
+  photo.commentCount=result.comments.length;toggle.textContent='评论 '+photo.commentCount;
+  showTripComments(list,result.comments);
+}
+function renderTripMemories(){
+  const day=Number(document.getElementById('memory_day').value);
+  const gallery=document.getElementById('memory_gallery');
+  gallery.replaceChildren();
+  const photos=tripMemories.filter(photo=>photo.day===day);
+  if(!photos.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='这一天还没有旅行照片，回来后上传第一张吧。';gallery.append(empty);return}
+  for(const photo of photos){
+    const figure=memoryElement('figure','memory_post');
+    figure.id='memory-photo-'+photo.id;
+    if(new URLSearchParams(window.location.search).get('photo')===photo.id)figure.classList.add('memory_post_shared');
+    const header=memoryElement('div','memory_post_header');
+    const avatar=memoryElement('span','memory_avatar','旅');
+    const byline=memoryElement('div','memory_post_byline');
+    const account=memoryElement('strong','','我们的旅行');
+    const uploadTime=memoryElement('time','','上传于 '+memoryDate(photo.createdAt));uploadTime.dateTime=photo.createdAt;
+    byline.append(account,uploadTime);
+    header.append(avatar,byline,memoryElement('span','memory_day_tag',memoryDayNames[photo.day]||'旅行'));
+    const link=memoryElement('a','memory_image');link.href=photo.url;link.target='_blank';link.rel='noopener';
+    const img=document.createElement('img');img.src=photo.url;img.alt=photo.caption||'旅行留影';img.loading='lazy';link.append(img);
+    const caption=document.createElement('figcaption');
+    caption.append(memoryElement('strong','memory_post_title',photo.caption||'旅行留影'));
+    const actions=memoryElement('div','memory_post_actions');
+    const commentToggle=memoryElement('button','memory_comment_toggle','评论 '+(photo.commentCount||0));
+    commentToggle.type='button';commentToggle.setAttribute('aria-expanded','false');
+    const comments=memoryElement('section','memory_comments');comments.hidden=true;comments.id='comments-'+photo.id;
+    commentToggle.setAttribute('aria-controls',comments.id);
+    const commentList=memoryElement('div','memory_comment_list');
+    const commentForm=memoryElement('form','memory_comment_form');
+    const author=memoryElement('input');author.type='text';author.maxLength=24;author.placeholder='昵称（可选，默认旅途访客）';author.setAttribute('aria-label','评论昵称');
+    const message=memoryElement('textarea');message.maxLength=280;message.required=true;message.placeholder='聊聊这张照片…';message.setAttribute('aria-label','评论内容');
+    const submit=memoryElement('button','','发布评论');submit.type='submit';
+    const feedback=memoryElement('div','memory_comment_feedback');feedback.setAttribute('aria-live','polite');
+    commentForm.append(author,message,submit,feedback);
+    comments.append(memoryElement('h4','','评论'),commentList,commentForm);
+    commentToggle.onclick=async()=>{comments.hidden=!comments.hidden;commentToggle.setAttribute('aria-expanded',String(!comments.hidden));if(!comments.hidden){try{await loadTripComments(photo,commentList,commentToggle)}catch(error){feedback.textContent=error.message}}};
+    commentForm.onsubmit=async event=>{event.preventDefault();submit.disabled=true;feedback.textContent='正在发布…';try{
+      const response=await fetch('/api/grassland-trip/photos/'+encodeURIComponent(photo.id)+'/comments',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({author:author.value,text:message.value}),credentials:'same-origin'});
+      const result=await response.json();if(!response.ok)throw new Error(result.error||'评论发布失败');
+      message.value='';await loadTripComments(photo,commentList,commentToggle);feedback.textContent='评论已发布。';
+    }catch(error){feedback.textContent=error.message}finally{submit.disabled=false}};
+    const shareToggle=memoryElement('button','memory_share_toggle','分享');shareToggle.type='button';shareToggle.setAttribute('aria-expanded','false');
+    const shareMenu=memoryElement('div','memory_share_menu');shareMenu.hidden=true;shareMenu.id='share-'+photo.id;shareToggle.setAttribute('aria-controls',shareMenu.id);
+    const shareUrl=tripPhotoShareUrl(photo);const shareFeedback=memoryElement('div','memory_share_feedback');shareFeedback.setAttribute('aria-live','polite');
+    const addCopyChoice=(label,successText)=>{const button=memoryElement('button','',label);button.type='button';button.onclick=async()=>{shareFeedback.textContent=await copyTripPhotoUrl(shareUrl)?successText:'复制失败，请手动复制：'+shareUrl};shareMenu.append(button)};
+    const nativeShare=memoryElement('button','','分享到手机应用');nativeShare.type='button';nativeShare.hidden=typeof navigator.share!=='function';
+    nativeShare.onclick=async()=>{try{await navigator.share({title:photo.caption||'旅行留影',text:'杨杨飞飞国庆4天游',url:shareUrl});shareFeedback.textContent='已打开系统分享。'}catch(error){if(error.name!=='AbortError')shareFeedback.textContent='系统分享不可用，请复制链接。'}};
+    shareMenu.append(nativeShare);
+    addCopyChoice('微信 · 复制链接','链接已复制，打开微信粘贴发送。');
+    const weiboUrl=new URL('https://service.weibo.com/share/share.php');weiboUrl.searchParams.set('url',shareUrl);weiboUrl.searchParams.set('title',(photo.caption||'旅行留影')+'｜杨杨飞飞国庆4天游');weiboUrl.searchParams.set('pic',new URL(photo.url,window.location.origin).href);
+    const weibo=memoryElement('a','','分享到微博');weibo.href=weiboUrl.href;weibo.target='_blank';weibo.rel='noopener noreferrer';shareMenu.append(weibo);
+    addCopyChoice('小红书 · 复制链接','链接已复制；发小红书笔记可先保存原图。');
+    addCopyChoice('复制照片链接','照片链接已复制。');
+    const download=memoryElement('a','','保存原图');download.href=photo.url;download.download='旅行照片-'+photo.id+'.jpg';shareMenu.append(download);
+    shareMenu.append(memoryElement('p','memory_share_note','微信、小红书请在应用中粘贴链接；小红书发图可先保存原图，或长按照片保存。'),shareFeedback);
+    shareToggle.onclick=()=>{shareMenu.hidden=!shareMenu.hidden;shareToggle.setAttribute('aria-expanded',String(!shareMenu.hidden))};
+    actions.append(commentToggle,shareToggle);
+    if(canDeleteTripMemories){
+      const remove=memoryElement('button','memory_delete','删除照片');remove.type='button';remove.setAttribute('aria-label','删除 '+(photo.caption||'旅行留影'));remove.onclick=()=>deleteTripMemory(photo.id,remove);actions.append(remove);
+    }
+    caption.append(actions,shareMenu);figure.append(header,link,caption,comments);gallery.append(figure);
+  }
+}
+async function loadTripMemories(){
+  const status=document.getElementById('memory_status');
+  try{
+    const response=await fetch('/api/grassland-trip/photos',{cache:'no-store'});
+    if(!response.ok)throw new Error('相册暂时无法读取，请稍后刷新页面');
+    const data=await response.json();tripMemories=data.photos;canDeleteTripMemories=Boolean(data.canDelete);
+    const sharedPhoto=tripMemories.find(photo=>photo.id===new URLSearchParams(window.location.search).get('photo'));
+    const shouldFocus=Boolean(sharedPhoto&&!hasFocusedSharedPhoto);
+    if(shouldFocus){document.getElementById('memory_day').value=String(sharedPhoto.day);hasFocusedSharedPhoto=true}
+    renderTripMemories();
+    if(shouldFocus)requestAnimationFrame(()=>document.getElementById('memory-photo-'+sharedPhoto.id)?.scrollIntoView({block:'center'}));
+  }catch(error){status.textContent=error.message}
+}
+async function deleteTripMemory(id,button){
+  if(!window.confirm('确定删除这张照片吗？删除后会从公开相册移除。'))return;
+  const status=document.getElementById('memory_status');button.disabled=true;
+  try{
+    const response=await fetch('/api/grassland-trip/photos/'+encodeURIComponent(id),{method:'DELETE',credentials:'same-origin'});
+    const result=await response.json();
+    if(!response.ok)throw new Error(result.error||'删除失败');
+    tripMemories=tripMemories.filter(photo=>photo.id!==id);renderTripMemories();status.textContent='照片已从公开相册移除。';
+  }catch(error){button.disabled=false;status.textContent=error.message}
+}
+window.addEventListener('focus',loadTripMemories);
+document.getElementById('memory_day').onchange=renderTripMemories;
+document.getElementById('memory_form').onsubmit=async event=>{event.preventDefault();const files=[...document.getElementById('memory_files').files];if(!files.length)return;const status=document.getElementById('memory_status');const button=document.getElementById('memory_submit');const day=document.getElementById('memory_day').value;const caption=document.getElementById('memory_caption').value;button.disabled=true;let uploaded=0;try{for(const file of files){status.textContent=`正在上传 ${uploaded+1}/${files.length} 张…`;const form=new FormData();form.append('file',file);form.append('day',day);form.append('caption',caption);const response=await fetch('/api/grassland-trip/photos',{method:'POST',body:form,credentials:'same-origin'});const result=await response.json();if(!response.ok){throw new Error(result.error||'上传失败')}uploaded++}document.getElementById('memory_files').value='';document.getElementById('memory_caption').value='';await loadTripMemories();status.textContent=`已保存 ${uploaded} 张照片，刷新页面后仍可查看。`}catch(error){status.textContent=`已保存 ${uploaded} 张；${error.message}`}finally{button.disabled=false}};
+const points=[{"name":"北京 · 起终点","lat":39.9042,"lng":116.4074,"q":"北京","desc":"以北京市区为概略标注，实际起点与终点请换成家庭地址。"},{"name":"⚡崇礼住宿 / 充电","lat":40.974,"lng":115.282,"q":"崇礼西湾子","desc":"10/2住宿与补能区域，站点准确入口请导航检索。"},{"name":"桦皮岭 · 东线入口","lat":41.13,"lng":115.47,"q":"草原天路桦皮岭入口","desc":"东线入口区域；按实际道路指引进入。"},{"name":"野狐岭 · 东线出口 / 西线入口","lat":41.05,"lng":114.7,"q":"草原天路野狐岭入口","desc":"10/3东线出口、10/4西线入口区域。"},{"name":"⚡张北住宿 / 充电","lat":41.158,"lng":114.715,"q":"张北县城","desc":"10/3住宿与补能区域。"},{"name":"张家口 · 方案B方向","lat":40.811,"lng":114.885,"q":"张家口市","desc":"10/5方案B返京方向参考节点，不要求进入市中心。"},{"name":"草原天路西线 · 折返点","lat":41.046,"lng":114.37,"q":"草原天路白龙洞","desc":"西线白龙洞方向概略示意；具体折返点按现场道路、时间与导航选择。"},{"name":"⚡沽源住宿 / 充电","lat":41.67,"lng":115.68,"q":"沽源县城充电站","desc":"10/4县城住宿与补能区域；湖区酒店另列。沽源第一充电站位于县城桥西路，先查实时空位。"},{"name":"丰宁 · 方案A方向","lat":41.2,"lng":116.64,"q":"丰宁县城","desc":"10/5方案A返京方向参考节点，实际路线由导航决定。"},{"name":"野狐岭 · 西线折返","lat":41.0502,"lng":114.7002,"q":"草原天路野狐岭入口","desc":"西线折返后回到野狐岭。"},{"name":"中都草原","lat":41.3048,"lng":114.7332,"q":"张北中都原始草原度假村","desc":"中都草原区域参考位置；开放项目与停车入口以现场为准。"},{"name":"闪电湖","lat":41.640231,"lng":115.831473,"q":"沽源闪电湖景区","desc":"湖区概略位置；实际景区入口请导航确认。"}];
+const segment_km={'0-1':230,'1-2':30,'2-3':100,'3-4':14,'4-3':14,'3-6':32,'6-9':32};
+const search_url=q=>'https://uri.amap.com/search?keyword='+encodeURIComponent(q)+'&callnative=1';
+const route_step_names={0:'北京出发',1:'崇礼住宿 / 充电',2:'桦皮岭入口',3:'野狐岭',4:'张北住宿 / 充电',5:'张家口方向',6:'西线折返点',7:'沽源住宿 / 充电',8:'丰宁方向',9:'野狐岭折返',10:'中都草原',11:'闪电湖'};
+const route_marker_icon=(number,color)=>L.divIcon({className:'route-number-icon',html:'<span style="background:'+color+'">'+number+'</span>',iconSize:[26,26],iconAnchor:[13,13]});
+function day_html(d){return '<h3>'+d.title+'</h3><span class="tag">'+d.km+'</span><span class="tag">'+d.stay+'</span><ol class="timeline">'+d.events.map(e=>'<li><time>'+e[0]+'</time> '+e[1]+'</li>').join('')+'</ol>'}
+
+document.getElementById('map_links').innerHTML=['草原天路桦皮岭入口','草原天路野狐岭入口','草原天路白龙洞','张北中都原始草原','沽源闪电湖','沽源县城充电站'].map(q=>'<a class="link" target="_blank" rel="noopener" href="'+search_url(q)+'">'+q+'</a>').join('');
+let map,route_layer;try{if(typeof L==='undefined')throw new Error('地图组件未加载');map=L.map('map',{scrollWheelZoom:false}).setView([40.6,115.3],8);const tiles=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);tiles.on('tileerror',()=>document.getElementById('map_status').textContent='部分底图加载失败；标注与行程仍可查看，导航请使用高德入口。');tiles.on('load',()=>document.getElementById('map_status').textContent='可拖动、缩放地图；点击标注查看详情。彩线为节点连线，非道路导航。');points.forEach((p,i)=>marker_list.push(L.marker([p.lat,p.lng],{icon:route_marker_icon(1,'#3577be')}).addTo(map).bindTooltip(p.name,{permanent:true,direction:'top',className:'pointlabel',offset:[0,-3]}).bindPopup('<b>'+p.name+'</b><p>'+p.desc+'</p><a target="_blank" rel="noopener" href="'+search_url(p.q)+'">高德检索准确位置 ↗</a>')));route_layer=L.layerGroup().addTo(map)}catch(e){document.getElementById('map').innerHTML='<div class="fallback">在线地图暂时无法加载。请使用下方高德链接检索准确地点；完整行程和电量计算仍可使用。</div>';document.getElementById('map_status').textContent='地图需要联网；不影响其他功能。'}
+let returnMap;
+// 酒店和充电站仅有公开街道地址；以下坐标是城区示意点，精确入口一律用导航确认。
+const place_coordinates={
+  hotel:[
+    [[40.9758,115.2795],[40.9715,115.2940],[40.9727,115.2735]],
+    [[41.1590,114.7240],[41.1560,114.7045],[41.1655,114.7160]],
+    [[41.640,115.833],[41.638,115.830],[41.675,115.685],[41.663,115.691]]
+  ],
+  charge:[
+    [[40.9769,115.2840],[40.9785,115.2860],[40.9797,115.2880],[40.9720,115.2800],[40.9687,115.2890],[40.9751,115.2765],[40.9710,115.2820]],
+    [[41.1490,114.7240],[41.1590,114.7090],[41.1582,114.7100],[41.1620,114.7180],[41.1700,114.7150],[41.1560,114.7290],[41.0520,114.7000]],
+    [[41.66973,115.6854],[41.640,115.833],[41.638,115.830],[41.675,115.685]]
+  ]
+};
+const scenic_places={
+  0:[{name:'桦皮岭 · 明日东线入口',lat:41.13,lng:115.47,q:'草原天路桦皮岭入口',address:'10/3 游览，入口以导航为准'}],
+  1:[{name:'桦皮岭',lat:41.13,lng:115.47,q:'草原天路桦皮岭入口',address:'东线东端区域'},{name:'阎片山',lat:41.10,lng:115.33,q:'草原天路阎片山',address:'仅为区域示意；按当日导航与停车指引'},{name:'塞北梯田',lat:41.08,lng:115.02,q:'草原天路塞北梯田',address:'仅为区域示意；按当日导航与停车指引'},{name:'野狐岭',lat:41.05,lng:114.70,q:'草原天路野狐岭入口',address:'东线西端区域'}],
+  2:[{name:'野狐岭 · 西线入口',lat:41.05,lng:114.70,q:'草原天路野狐岭入口',address:'西线入口区域'},{name:'西线风车与石柱群',lat:41.046,lng:114.37,q:'草原天路大圪垯石柱群',address:'西线景观区域示意；停车点以导航和现场为准'},{name:'中都草原',lat:41.3048,lng:114.7332,q:'张北中都原始草原度假村',address:'张北县郝家营乡区域'},{name:'沽源 · 当晚住宿',lat:41.67,lng:115.68,q:'沽源县城',address:'县城住宿区域示意；湖区酒店位置另见图钉'}],
+  3:[{name:'闪电湖',lat:41.640231,lng:115.831473,q:'沽源闪电湖景区',address:'湖区参考位置，景区入口以导航为准'}]
+};
+const map_place_visible={hotel:true,charge:true,scenic:true};
+const map_place_layers={main:null,return:null};
+let selected_map_day='0',selected_map_stations=[];
+const safe_place_text=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+function add_place_marker(target,kind,index,name,address,q,position){
+  const label={hotel:'住',charge:'电',scenic:'景'}[kind]+(index+1);
+  const icon=L.divIcon({className:'place-icon '+kind,html:'<span><b>'+label+'</b></span>',iconSize:[30,30],iconAnchor:kind==='scenic'?[-14,15]:[15,15]});
+  const marker=L.marker(position,{icon,zIndexOffset:kind==='scenic'?500:kind==='charge'?300:100});
+  const note=kind==='scenic'?'景点位置为区域参考，入口请用导航确认。':'图钉为地址附近示意位置，不能直接用于导航。';
+  marker.bindTooltip(name,{direction:'top',offset:[0,-9]});
+  marker.bindPopup('<div class="place-popup"><b>'+safe_place_text(name)+'</b><p>'+safe_place_text(address)+'</p><small>'+note+'</small><a href="'+search_url(q)+'" target="_blank" rel="noopener noreferrer">在高德核对位置 ↗</a></div>');
+  marker._tripKind=kind;marker._tripIndex=index;
+  marker.addTo(target);
+}
+function render_map_places(day,stations){
+  selected_map_day=day;selected_map_stations=stations;
+  const lodgingDay=day==='3'?2:Number(day);
+  const hotels=[...document.querySelectorAll('.hotel_group[data-hotel-day="'+lodgingDay+'"] .hotel_item')];
+  const scenic=scenic_places[Number(day)]||[];
+  for(const [kind,count] of [['hotel',hotels.length],['charge',stations.length],['scenic',scenic.length]])
+    document.getElementById(kind+'_map_count').textContent=String(count);
+  const placeNames={
+    hotel:hotels.map(card=>card.querySelector('h4').textContent),
+    charge:stations.map(station=>station.name),
+    scenic:scenic.map(place=>place.name)
+  };
+  document.getElementById('map_place_index').innerHTML='<div class="map_place_index_groups">'+
+    [['hotel','酒店'],['charge','充电站'],['scenic','景点']].map(([kind,title])=>
+      '<div><strong>'+title+' · '+placeNames[kind].length+'</strong><div>'+
+      placeNames[kind].map((name,i)=>'<button type="button" data-map-kind="'+kind+'" data-map-index="'+i+'">'+
+        ({hotel:'住',charge:'电',scenic:'景'}[kind])+(i+1)+' · '+safe_place_text(name)+'</button>').join('')+
+      '</div></div>').join('')+'</div>';
+  document.querySelectorAll('#map_place_index button').forEach(button=>button.onclick=()=>{
+    const kind=button.dataset.mapKind,index=Number(button.dataset.mapIndex);
+    if(!map_place_visible[kind]){
+      map_place_visible[kind]=true;
+      document.querySelector('.map_filter[data-place-kind="'+kind+'"]').setAttribute('aria-pressed','true');
+      render_map_places(day,stations);
+    }
+    const layerName=day==='3'&&kind==='scenic'?'return':'main';
+    const target=layerName==='return'?returnMap:map;
+    const marker=map_place_layers[layerName]?.getLayers().find(item=>item._tripKind===kind&&item._tripIndex===index);
+    if(target&&marker){
+      target.setView(marker.getLatLng(),Math.max(target.getZoom(),13));
+      marker.openPopup();
+      document.getElementById(layerName==='return'?'map_b':'map').scrollIntoView({block:'center',behavior:'smooth'});
+    }
+  });
+  const draw=(target,layerName,forReturn)=>{
+    if(!target)return;
+    if(map_place_layers[layerName])map_place_layers[layerName].remove();
+    const layer=L.layerGroup().addTo(target);map_place_layers[layerName]=layer;
+    if(map_place_visible.hotel)hotels.forEach((card,i)=>{
+      const name=card.querySelector('h4').textContent;
+      const address=card.querySelector('.hotel_address').textContent.replace(/^地址\s*/,'').trim();
+      add_place_marker(layer,'hotel',i,name,address,name,place_coordinates.hotel[lodgingDay][i]);
+    });
+    if(map_place_visible.charge)stations.forEach((station,i)=>
+      add_place_marker(layer,'charge',i,station.name,station.address,station.q,place_coordinates.charge[lodgingDay][i]));
+    if(map_place_visible.scenic)(forReturn?scenic:day==='3'?[]:scenic).forEach((place,i)=>
+      add_place_marker(layer,'scenic',i,place.name,place.address,place.q,[place.lat,place.lng]));
+  };
+  draw(map,'main',false);
+  draw(day==='3'?returnMap:null,'return',true);
+}
+document.querySelectorAll('.map_filter').forEach(button=>button.onclick=()=>{
+  const kind=button.dataset.placeKind;map_place_visible[kind]=!map_place_visible[kind];
+  button.setAttribute('aria-pressed',String(map_place_visible[kind]));
+  render_map_places(selected_map_day,selected_map_stations);
+});
+document.getElementById('map_city_focus').onclick=()=>{
+  const center=[points[selected_map_day==='0'?1:selected_map_day==='1'?4:7].lat,points[selected_map_day==='0'?1:selected_map_day==='1'?4:7].lng];
+  if(map)map.setView(center,13);
+};
+document.getElementById('map_route_focus').onclick=()=>{
+  if(map)map.fitBounds(days[Number(selected_map_day)].route.map(i=>[points[i].lat,points[i].lng]),{padding:[50,50],maxZoom:11});
+};
+function showReturnMap(){
+  const panel=document.getElementById('map_b_panel');
+  panel.hidden=false;
+  const route=[7,11,5,0],color='#b78522';
+  document.getElementById('route_steps_b').innerHTML=route.map((pointIndex,order)=>'<span class="route-step"><b style="background:'+color+'">'+(order+1)+'</b>'+(pointIndex===0?'北京到家':route_step_names[pointIndex])+'</span>').join('');
+  if(typeof L==='undefined'){
+    document.getElementById('map_b').innerHTML='<div class="fallback">在线地图暂时无法加载，请使用高德检索闪电湖和张家口。</div>';
+    return;
+  }
+  if(!returnMap){
+    returnMap=L.map('map_b',{scrollWheelZoom:false});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(returnMap);
+    const coords=route.map(i=>[points[i].lat,points[i].lng]);
+    L.polyline(coords,{color,weight:5,opacity:.9,dashArray:'10 7'}).addTo(returnMap).bindPopup('方案B · 经张家口返京<br>节点连线，非道路导航');
+    route.forEach((pointIndex,order)=>L.marker(coords[order],{icon:route_marker_icon(order+1,color)}).addTo(returnMap).bindTooltip((order+1)+' · '+points[pointIndex].name,{permanent:true,direction:'top',className:'pointlabel',offset:[0,-3]}).bindPopup('<b>'+points[pointIndex].name+'</b><p>'+points[pointIndex].desc+'</p><a target="_blank" rel="noopener" href="'+search_url(points[pointIndex].q)+'">高德检索准确位置 ↗</a>'));
+    route.slice(0,-1).forEach((from,i)=>{const to=route[i+1],km=segment_km[from+'-'+to];if(!km)return;const at=[(points[from].lat+points[to].lat)/2,(points[from].lng+points[to].lng)/2];L.marker(at,{interactive:false,keyboard:false,icon:L.divIcon({className:'routekm',html:'约'+km+' km',iconSize:[88,28],iconAnchor:[44,14]})}).addTo(returnMap)});
+  }
+  returnMap.invalidateSize();
+  returnMap.fitBounds(route.map(i=>[points[i].lat,points[i].lng]),{padding:[50,50],maxZoom:11});
+}
+function select_day(key){
+const current=days[Number(key)];
+const photo_items=day_photos[Number(key)];const gallery=document.getElementById('photo_gallery');gallery.classList.toggle('single',photo_items.length===1);document.getElementById('photo_title').textContent=key==='0'?'10/2抵达崇礼 · 明日风景预告':current.title+' · 景点实景';gallery.innerHTML=photo_items.map(item=>'<figure><a href="'+item.source+'" target="_blank" rel="noopener"><img src="'+item.url+'" alt="'+item.title+'" loading="lazy" referrerpolicy="no-referrer" onerror="this.hidden=true;this.parentElement.nextElementSibling.hidden=false"></a><div class="photo_error" hidden>图片暂时无法加载，请点击下方来源查看。</div><figcaption><b>'+item.title+'</b><small>'+item.credit+'</small><a href="'+item.source+'" target="_blank" rel="noopener">查看图片来源 ↗</a></figcaption></figure>').join('');
+document.getElementById('memory_day').value=key;renderTripMemories();
+
+const baidu_search=q=>'https://api.map.baidu.com/geocoder?address='+encodeURIComponent(q)+'&output=html&src=webapp.grassland.trip';
+const extra_destinations=key==='2'?[{name:'西线大圪垯石柱群',q:'草原天路大圪垯石柱群'},{name:'中都草原',q:'张北中都原始草原度假村'},{name:'沽源住宿',q:'沽源县城酒店'}]:key==='3'?[{name:'闪电湖景区入口',q:'沽源闪电湖景区'},{name:'丰宁方向',q:'丰宁满族自治县'}]:[];
+document.getElementById('baidu_destinations').innerHTML='<h3>当天百度地图目的地</h3><div class="links" style="flex-direction:column">'+current.route.map((pointIndex,order)=>'<a class="link" target="_blank" rel="noopener" href="'+baidu_search(points[pointIndex].q)+'">'+(order+1)+' · '+route_step_names[pointIndex]+' ↗</a>').join('')+'</div>'+(extra_destinations.length?'<p class="notice">可继续查看：</p><div class="links" style="flex-direction:column">'+extra_destinations.map(d=>'<a class="link" target="_blank" rel="noopener" href="'+baidu_search(d.q)+'">'+d.name+' ↗</a>').join('')+'</div>':'')+'<p class="notice">编号与地图圆圈一致。逐段导航时，先在地图App确认匹配的实际入口、酒店与停车场；返京终点请改为家庭地址。10/3 桦皮岭到野狐岭须沿草原天路走；10/4 西线在白龙洞方向按实际路况折返，避免导航导入不打算游览的延长线。</p>';
+
+const hotelSection=document.getElementById('hotels');hotelSection.hidden=key==='3';document.getElementById('hotel_title').textContent=['10/2 · 崇礼住宿 · 3 家备选','10/3 · 张北住宿 · 3 家备选','10/4 · 沽源住宿 · 4 家备选','当天返京 · 无需住宿'][Number(key)];document.querySelectorAll('.hotel_group').forEach(group=>group.hidden=group.dataset.hotelDay!==key);
+document.getElementById('map_title').textContent=key==='3'?'10/5 · 闪电湖及返京方案 A / B · 路线地图':current.title+' · 路线地图';document.getElementById('map_a_heading').hidden=key!=='3';if(key==='3')showReturnMap();else document.getElementById('map_b_panel').hidden=true;
+document.querySelectorAll('#charging_section tbody tr').forEach((row,i)=>row.hidden=i!==Number(key));
+document.querySelectorAll('.legend span').forEach((el,i)=>el.hidden=i!==Number(key));
+
+document.getElementById('distance').value=[230,200,220,350][Number(key)];calculate();
+const station_groups=[[
+{name:'英龙影剧院充电站',q:'崇礼英龙影剧院充电站',address:'崇礼区西湾子镇东沟门万龙路口英龙影剧院',app:'e充电',fast:8,dist:['约1–3公里','约2–4公里','约1–3公里']},
+{name:'汉庭酒店充电站',q:'崇礼区汉庭酒店充电站',address:'崇礼区万龙路口',app:'e充电',fast:8,dist:['约1–3公里','约2–4公里','约1–3公里']},
+{name:'梦特芳丹酒店充电站',q:'崇礼梦特芳丹酒店充电站',address:'崇礼区万龙路口梦特芳丹酒店',app:'e充电',fast:8,dist:['约1–3公里','约2–4公里','约1–3公里']},
+{name:'香雪酒店充电站',q:'崇礼香雪酒店充电站',address:'崇礼区西湾子镇平安大街',app:'e充电',fast:8,dist:['约1–3公里','约1–3公里','约1–3公里']},
+{name:'崇礼区人民医院充电站',q:'崇礼区人民医院充电站',address:'崇礼区西湾子镇迎宾路',app:'特来电',fast:3,dist:['约1–3公里','约1–3公里','约1–3公里']},
+{name:'长青路同舟酒店停车场充电站',q:'崇礼长青路同舟酒店停车场充电站',address:'崇礼区长青路38号',app:'特来电',fast:1,dist:['约0.5–2公里','约2–4公里','约1–3公里']},
+{name:'土老帽商务酒店充电站',q:'崇礼土老帽商务酒店充电站',address:'崇礼区西湾子镇风情商业街10–11号',app:'特来电',fast:1,dist:['约1–3公里','约1–3公里','约1–3公里']}
+],[
+{name:'张北广溢充电站',q:'张北广溢充电站',address:'张北县张北镇张化线1公里处张北广溢汽车检测有限公司',app:'特来电',fast:3,dist:['约3–7公里','约3–7公里','约3–7公里']},
+{name:'张北中博充电站',q:'张北中博充电站',address:'张北县中博嘉苑住宅小区综合楼',app:'特来电',fast:2,dist:['约2–6公里','约2–6公里','约2–6公里']},
+{name:'永义南街骏怡酒店充电站',q:'张北永义南街骏怡酒店充电站',address:'张北县永义南街中博嘉苑12号楼',app:'特来电',fast:1,dist:['约2–6公里','约2–6公里','约2–6公里']},
+{name:'鑫龙酒店充电站',q:'张北鑫龙酒店充电站',address:'张北县北辰路二中斜对面',app:'特来电',fast:1,dist:['约2–6公里','约2–6公里','约2–6公里']},
+{name:'海龙酒店充电站',q:'张北海龙酒店充电站',address:'张北县龙王庙村207线北侧',app:'特来电',fast:1,dist:['约3–8公里','约3–8公里','约2–7公里']},
+{name:'鑫鹏汽车销售充电站',q:'张北鑫鹏汽车销售充电站',address:'张北县汽配城4号楼底商',app:'特来电',fast:1,dist:['约2–7公里','约2–7公里','约2–7公里']},
+{name:'原生态农庄充电站（野狐岭）',q:'张北原生态农庄充电站',address:'张北县永胜昌村南野狐岭军事旅游区山后（静园原生态山庄）',app:'特来电',fast:2,dist:['约10–20公里','约10–20公里','约10–20公里']}
+],[
+{name:'中国石化沽源第一充电站',q:'中国石化汽车充电站沽源第一充电站',address:'沽源县平定堡镇桥西路266号',app:'石化易电 · 功率与空位实时确认',fast:null,source:'https://map.gaode.com/place/B0L1UB1UEN',dist:['约15—25公里','约15—25公里','约2—6公里','约2—6公里']},
+{name:'鑫季酒店充电车位',q:'沽源鑫季酒店闪电湖景区店充电桩',address:'沽源县闪电河乡黑山嘴村18号（酒店停车场）',app:'酒店停车场 · 桩型待确认',fast:null,source:'https://m.ctrip.com/html5/hotel/hoteldetail/134767384.html',dist:['同酒店','约1—3公里','约15—25公里','约15—25公里']},
+{name:'隆苑度假村充电车位',q:'沽源隆苑度假村充电桩',address:'沽源县闪电河乡闪电湖景区入口附近（酒店停车场）',app:'酒店停车场 · 桩型待确认',fast:null,source:'https://hotels.ctrip.com/hotels/1026043.html',dist:['约1—3公里','同酒店','约15—25公里','约15—25公里']},
+{name:'品睿酒店慢充车位',q:'沽源品睿酒店人民公园店充电桩',address:'沽源县和平北街芳菲苑小区东门东南50米（酒店停车场）',app:'酒店停车场 · 慢充，先确认',fast:null,source:'https://hotels.ctrip.com/hotels/125859887.html',dist:['约15—25公里','约15—25公里','同酒店','约2—5公里']}
+]];
+const station_hotels=[
+['英朗酒店（庆典广场店）','如家华驿（商贸新区店）','京印象假日酒店'],
+['汉庭（张北县政府店）','锦江之星（兴和西路）','如家华驿（汽车总站店）'],
+['鑫季酒店','隆苑度假村','品睿酒店','如家睿柏·云酒店']
+];
+const station_day=key==='3'?2:Number(key),stations=station_groups[station_day];
+const station_source=['https://www.icauto.com.cn/cdz/11043.html','https://www.icauto.com.cn/cdz/11013.html','https://www.teld.cn/StationNetwork/ChargeNetwork'][station_day];
+document.getElementById('station_detail').innerHTML=
+(key==='3'?'<p><b>10/5 从沽源返京：</b>下列含昨晚酒店车位和县城公共站；出发前须确认是否有电、桩型和充电速度，途中按实时导航选公共快充。</p>':'<p><b>'+['10/2 20:00','10/3 饭前或20:00后','10/4 入住后'][station_day]+' · 先查桩型和空位</b></p>')+
+'<p class="notice">共列出'+stations.length+'处候选站或酒店车位。距离是从'+(key==='3'?'昨晚':'当天')+'推荐酒店到站点的道路<b>粗估区间</b>，并非逐条导航实测；点击「高德查站」核对准确路线、入口和实时空位。</p>'+
+'<div class="station_list">'+stations.map((st,i)=>'<article class="station_item"><div class="station_head"><h3>'+(i+1)+'. '+st.name+'</h3><span class="tag">'+(st.fast===null?'充电车位 · 功率需确认':'目录记录快充 '+st.fast+' 个')+'</span></div><p><b>地址</b> '+st.address+'</p><div class="station_distances"><strong>到推荐酒店的距离（估算）</strong>'+st.dist.map((distance,j)=>'<span>'+station_hotels[station_day][j]+'：<b>'+distance+'</b></span>').join('')+'</div><div class="station_links"><a href="'+search_url(st.q)+'" target="_blank" rel="noopener noreferrer">高德查站 ↗</a><a href="'+(st.source||station_source)+'" target="_blank" rel="noopener noreferrer">站点资料 ↗</a><small>'+st.app+'</small></div></article>').join('')+'</div>'+
+'<p class="notice">桩数和地址来自公开目录，可能已变更。请在 '+(station_day===0?'e充电 / 特来电':station_day===1?'特来电':'酒店 / 车企App / 公共充电App')+' 查看站点是否仍营业、直流桩可用状态、停车与收费；酒店自带车位如只支持交流慢充，不宜当作短时补能点。</p>';
+const queries=stations.map(st=>st.q);if(key==='1')queries.unshift('草原天路桦皮岭入口','草原天路野狐岭入口');if(key==='2')queries.unshift('草原天路西线白龙洞','张北中都原始草原','沽源县城');if(key==='3')queries.unshift('沽源闪电湖','丰宁满族自治县','北京');
+document.getElementById('map_links').innerHTML=queries.map(q=>'<a class="link" target="_blank" rel="noopener" href="'+search_url(q)+'">'+q+'</a>').join('');
+document.getElementById('route_steps').innerHTML=current.route.map((pointIndex,order)=>'<span class="route-step"><b style="background:'+current.color+'">'+(order+1)+'</b>'+(key==='3'&&pointIndex===0?'北京到家':route_step_names[pointIndex])+'</span>').join('');
+marker_list.forEach((marker,i)=>{const order=current.route.indexOf(i);if(order>=0){if(map){marker.setIcon(route_marker_icon(order+1,current.color));marker.setTooltipContent((order+1)+' · '+points[i].name);if(!map.hasLayer(marker))marker.addTo(map)}}else if(map&&map.hasLayer(marker))map.removeLayer(marker)});
+document.querySelectorAll('[data-day]').forEach(b=>{b.classList.toggle('active',b.dataset.day===key);b.setAttribute('aria-pressed',String(b.dataset.day===key))});const selected=key==='all'?days:[days[Number(key)]];document.getElementById('day_detail').innerHTML=key==='all'?'<h2>四天总览</h2><p>2号到崇礼 · 3号东线 · 4号西线与中都 · 5号闪电湖返京</p>'+days.map(d=>'<p><b style="color:'+d.color+'">'+d.title+'</b><br>'+d.km+' · '+d.stay+'</p>').join('')+'<p class="notice">切换日期查看路线及详细时间。充电标注显示具体候选站名称，精确站址请打开高德。</p>':day_html(selected[0])+(key==='1'?'<p class="notice"><b>东线安排：</b>桦皮岭、阎片山、塞北梯田、野狐岭沿途择点停靠。11:00后才到入口就减少停留，争取天黑前驶出山路。</p>':key==='2'?'<p class="notice"><b>西线折返：</b>约32公里为单程参考，到折返点后需原路返回；若交通拥堵，西线只走部分路段，保留中都草原与沽源住宿。</p>':'');if(map){route_layer.clearLayers();let bounds=[];selected.forEach(d=>{const coords=d.route.map(i=>[points[i].lat,points[i].lng]);bounds.push(...coords);L.polyline(coords,{color:d.color,weight:4,opacity:.8,dashArray:'9 7'}).addTo(route_layer).bindPopup(d.title+'<br>节点连线 · 非道路轨迹');d.route.slice(0,-1).forEach((from,i)=>{const to=d.route[i+1],km=segment_km[from+'-'+to];if(!km)return;const at=[(points[from].lat+points[to].lat)/2,(points[from].lng+points[to].lng)/2];L.marker(at,{interactive:false,keyboard:false,icon:L.divIcon({className:'routekm',html:'约'+km+' km',iconSize:[88,28],iconAnchor:[44,14]})}).addTo(route_layer)})});map.fitBounds(bounds,{padding:[50,50],maxZoom:11})}render_map_places(key,stations);}
+function calculate(){const ids=['range','distance','soc','capacity','power','target'];const vals=ids.map(id=>Number(document.getElementById(id).value));const [r,d,s,c,p,t]=vals;const out=document.getElementById('result');if(ids.some(id=>!document.getElementById(id).checkValidity()||document.getElementById(id).value==='')||vals.some(v=>!Number.isFinite(v))){out.textContent='请填写有效的车辆及里程参数。';return}const end=s-d/r*100;const need=Math.max(0,t-Math.max(0,end))*c/100;const minutes=need/p*60;out.innerHTML='<b>预计到站 '+end.toFixed(1)+'%</b><div class="battery"><span style="width:'+Math.max(0,Math.min(100,end))+'%"></span></div>'+(end<0?'本段超出估算可用续航，必须提前补能。':end<20?'预计低于20%余量，建议提前安排补能。':'按当前参数，抵达余量高于20%。')+'<br>到站后充至'+t+'%需补约 '+need.toFixed(1)+'kWh；按输入平均功率，纯充电约 '+Math.ceil(minutes)+'分钟。'}
+function syncPageTab(){
+  const albumOpen=window.location.hash==='#album'||(window.location.hash!=='#trip'&&Boolean(new URLSearchParams(window.location.search).get('photo')));
+  document.getElementById('trip_view').hidden=albumOpen;
+  document.getElementById('album_view').hidden=!albumOpen;
+  for(const [id,active] of [['trip_tab',!albumOpen],['album_tab',albumOpen]]){
+    const tab=document.getElementById(id);tab.classList.toggle('active',active);
+    if(active)tab.setAttribute('aria-current','page');else tab.removeAttribute('aria-current');
+  }
+  if(!albumOpen&&map)requestAnimationFrame(()=>map.invalidateSize());
+}
+document.querySelectorAll('.view_tab').forEach(tab=>tab.addEventListener('click',event=>{
+  event.preventDefault();
+  if(window.location.hash!==tab.getAttribute('href'))history.pushState(null,'',tab.getAttribute('href'));
+  syncPageTab();window.scrollTo(0,0);
+}));
+window.addEventListener('popstate',syncPageTab);
+window.addEventListener('hashchange',syncPageTab);
+document.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>select_day(b.dataset.day));document.querySelectorAll('input').forEach(i=>i.oninput=calculate);select_day('0');calculate();loadTripMemories();syncPageTab();
+</script></body></html>

@@ -12,8 +12,18 @@ WITH_DB=0; WITH_TB=0; REMOTE_BUILD=0
 for a in "$@"; do case "$a" in --db) WITH_DB=1;; --textbooks) WITH_TB=1;; --remote-build) REMOTE_BUILD=1;; *) echo "未知参数 $a"; exit 1;; esac; done
 cd "$(dirname "$0")/.."
 # 同机可能有多个会话同时部署（共用 /tmp/study-build 和线上机器）：用文件锁排队，不并发
-exec 9>/tmp/study-deploy.lock
-if ! flock -n 9; then echo "另一个部署正在进行，等待其完成…"; flock 9; fi
+if command -v flock >/dev/null 2>&1; then
+  exec 9>/tmp/study-deploy.lock
+  if ! flock -n 9; then echo "另一个部署正在进行，等待其完成…"; flock 9; fi
+else
+  # macOS 默认没有 flock；目录创建是原子的，可用于本机串行部署。
+  DEPLOY_LOCK_DIR=/tmp/study-deploy.lockdir
+  until mkdir "$DEPLOY_LOCK_DIR" 2>/dev/null; do
+    echo "另一个部署正在进行，等待其完成…"
+    sleep 5
+  done
+  trap 'rmdir "$DEPLOY_LOCK_DIR"' EXIT
+fi
 step() { printf '\n\033[1;36m==> %s\033[0m\n' "$*"; }
 # 跨国链路慢且会断：rsync 断点续传 + 超时 + 最多重试 5 次
 SSH_OPTS="-o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o ConnectTimeout=60"
@@ -31,7 +41,7 @@ if [ "$REMOTE_BUILD" = 0 ]; then
   step "本机构建（/tmp/study-build 副本）"
   BUILD=/tmp/study-build
   mkdir -p "$BUILD"
-  rsync -a --delete --exclude node_modules --exclude .next --exclude data --exclude .git --exclude '*.log' --exclude '*.tmp.ts' --exclude 'scripts/.*' ./ "$BUILD/"
+  rsync -a --delete --exclude node_modules --exclude .next --exclude data --exclude .git --exclude .local --exclude '.env*' --exclude '*.log' --exclude '*.tmp.ts' --exclude 'scripts/.*' ./ "$BUILD/"
   # 副本的 node_modules 是硬链接，里面的 .package-lock.json 会跟着本机一起变，不能拿它判断新旧；
   # 用拷贝时留下的 lock 快照对比，依赖变了（新装了包）就整个重建副本
   if [ ! -d "$BUILD/node_modules" ] || ! cmp -s package-lock.json "$BUILD/.lock-stamp"; then
@@ -40,7 +50,8 @@ if [ "$REMOTE_BUILD" = 0 ]; then
     cp package-lock.json "$BUILD/.lock-stamp"
   fi
   [ -e "$BUILD/data" ] || ln -s "$PWD/data" "$BUILD/data"
-  cp .env "$BUILD/.env"
+  rm -f "$BUILD/.env"
+  if [ -f .env ]; then cp .env "$BUILD/.env"; fi
   rm -rf "$BUILD/.next"
   (cd "$BUILD" && NODE_OPTIONS=--max-old-space-size=3072 npm run build 2>&1 | grep -E "Compiled|error|Error|✓|✗|warn" | tail -8)
   [ -f "$BUILD/.next/BUILD_ID" ] || { echo "本机构建失败，没有生成 .next/BUILD_ID"; exit 1; }
@@ -48,7 +59,7 @@ fi
 
 step "同步源码到 $HOST:$DIR"
 rs --delete \
-  --exclude node_modules --exclude .next --exclude data --exclude .git --exclude '*.tmp.ts' --exclude 'scripts/.*' \
+  --exclude node_modules --exclude .next --exclude data --exclude .git --exclude .local --exclude '.env*' --exclude '*.tmp.ts' --exclude 'scripts/.*' \
   ./ "$HOST:$DIR/"
 
 if [ "$REMOTE_BUILD" = 0 ]; then
