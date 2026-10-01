@@ -134,7 +134,21 @@ export class OpenAICompatClient implements AiProviderClient {
       if (e instanceof Error && /^HTTP 4\d\d/.test(e.message) && /response_format|json_object/i.test(e.message)) return this.postWithContinuation(body, messages);
       throw e;
     });
-    return { ...r, data: parseJsonText(schema, r.text) };
+    try {
+      return { ...r, data: parseJsonText(schema, r.text) };
+    } catch {
+      // 图片批改已经生成了内容，只让模型修正格式，避免再次传图和重复识别。
+      const repaired = await this.postWithContinuation(body, [
+        { role: "system", content: `修正用户提供的 JSON，使它严格符合下面的 JSON Schema。保留原有题目、答案和判断，不要添加或删除题目。只输出 JSON 对象。\n${jsonSchema}` },
+        { role: "user", content: r.text },
+      ]);
+      return {
+        ...repaired,
+        inputTokens: r.inputTokens + repaired.inputTokens,
+        outputTokens: r.outputTokens + repaired.outputTokens,
+        data: parseJsonText(schema, repaired.text),
+      };
+    }
   }
 
   async *stream(opts: ChatOptions): AsyncIterable<string> {
