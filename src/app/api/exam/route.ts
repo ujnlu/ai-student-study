@@ -6,6 +6,7 @@ import { STAGE_EXAMS, type ExamStage, type SecondarySubject } from "@/lib/second
 import { getOrCreateAdultLearner } from "@/lib/adult";
 import { createPaperSet } from "@/lib/papers";
 import { ADULT_EXAMS, type AdultSubject } from "@/lib/topics";
+import { canChildUsePaper, isCompatibleChildExamTopic, paperStageForGrade } from "@/lib/exam-eligibility";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -22,6 +23,11 @@ export async function POST(req: Request) {
     if (body.paperId) {
       const paper = await db.paper.findFirst({ where: { id: body.paperId, familyId: s.familyId } });
       if (!paper) return NextResponse.json({ error: "试卷不存在" }, { status: 404 });
+      if (s.role === "child") {
+        if (!s.childId) return NextResponse.json({ error: "未登录" }, { status: 401 });
+        const child = await db.child.findFirst({ where: { id: s.childId, familyId: s.familyId } });
+        if (!child || !canChildUsePaper(child.grade, paper.stage)) return NextResponse.json({ error: "这份试卷不适合当前年级" }, { status: 403 });
+      }
       const learnerId = s.childId ?? (s.role === "parent" ? (await getOrCreateAdultLearner(s.familyId)).id : null);
       if (!learnerId) return NextResponse.json({ error: "未登录" }, { status: 401 });
       const existing = await db.practiceSet.findFirst({ where: { childId: learnerId, kind: "exam", topic: `paper-${paper.id}`, status: "ready" }, orderBy: { createdAt: "desc" } });
@@ -40,6 +46,11 @@ export async function POST(req: Request) {
     }
     if (body.stage === "zhongkao" || body.stage === "gaokao") {
       const stage = body.stage as ExamStage;
+      if (s.role === "child") {
+        if (!s.childId) return NextResponse.json({ error: "未登录" }, { status: 401 });
+        const child = await db.child.findFirst({ where: { id: s.childId, familyId: s.familyId } });
+        if (!child || paperStageForGrade(child.grade) !== stage) return NextResponse.json({ error: "这套模拟卷不适合当前年级" }, { status: 403 });
+      }
       const subject = (body.subjectId ?? "math") as SecondarySubject;
       if (!STAGE_EXAMS[stage][subject]) return NextResponse.json({ error: "这个科目还没有模拟卷" }, { status: 404 });
       // 家长在家长端做中高考模拟卷：用隐藏的家长学习者
@@ -51,9 +62,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ id: set.id });
     }
     if (!s.childId) return NextResponse.json({ error: "请先用孩子身份登录" }, { status: 401 });
+    const child = await db.child.findFirst({ where: { id: s.childId, familyId: s.familyId } });
+    if (!child || paperStageForGrade(child.grade) !== "primary") return NextResponse.json({ error: "这套模拟卷不适合当前年级" }, { status: 403 });
     const scope = body.scope === "mid" ? "mid" : "final";
     const subjectId = body.subjectId ?? "math";
-    const existing = await db.practiceSet.findFirst({ where: { childId: s.childId, kind: "exam", status: "ready" }, orderBy: { createdAt: "desc" } });
+    const [pendingSets, papers] = await Promise.all([
+      db.practiceSet.findMany({ where: { childId: s.childId, kind: "exam", status: "ready" }, orderBy: { createdAt: "desc" } }),
+      db.paper.findMany({ where: { familyId: s.familyId, status: "ready" }, select: { id: true, stage: true } }),
+    ]);
+    const paperStages = new Map(papers.map((p) => [p.id, p.stage]));
+    const existing = pendingSets.find((set) => isCompatibleChildExamTopic(set.topic, child.grade, paperStages));
     if (existing) return NextResponse.json({ id: existing.id });
     const set = await createMockExam(s.childId, subjectId, scope);
     return NextResponse.json({ id: set.id });

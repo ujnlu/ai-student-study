@@ -11,6 +11,7 @@ import { Mascot } from "@/components/mascot";
 import { ResultFx } from "@/components/result-fx";
 import { WalkthroughBox } from "@/components/walkthrough-box";
 import { LEVEL_PASS } from "@/lib/level-test";
+import { isCompatibleChildExamTopic } from "@/lib/exam-eligibility";
 
 export default async function PracticeSetPage({ params }: { params: Promise<{ id: string }> }) {
   const { child } = await requireChild();
@@ -20,6 +21,12 @@ export default async function PracticeSetPage({ params }: { params: Promise<{ id
     include: { items: { include: { problem: true }, orderBy: { index: "asc" } }, mistake: true },
   });
   if (!set) notFound();
+  if (set.kind === "exam") {
+    const paperId = set.topic?.startsWith("paper-") ? set.topic.slice(6) : null;
+    const paper = paperId ? await db.paper.findFirst({ where: { id: paperId, familyId: child.familyId, status: "ready" }, select: { id: true, stage: true } }) : null;
+    const paperStages = new Map(paper ? [[paper.id, paper.stage]] : []);
+    if (!isCompatibleChildExamTopic(set.topic, child.grade, paperStages)) notFound();
+  }
   if (set.status === "pending_review") return <div className="card font-bold">这组题还在等爸爸妈妈审核。</div>;
 
   if (set.status !== "done") {

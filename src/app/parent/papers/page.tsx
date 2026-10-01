@@ -14,7 +14,7 @@ export default async function PapersPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">📄 真题卷</h1>
-        <p className="text-sm text-gray-500">把历年真题（PDF / 图片 / 文本）上传进来，AI 拆成题目入库。孩子端和家长自学里都能整卷限时做，做完逐题看解题讲解。仅供家庭自用。</p>
+        <p className="text-sm text-gray-500">把历年真题（PDF / 图片 / 文本）上传进来，AI 拆成题目入库。请选择对应学段；孩子端只显示与当前学段相符的试卷，家长仍可自学。仅供家庭自用。</p>
       </div>
       <section className="card">
         <h2 className="font-bold mb-3">上传一份试卷</h2>

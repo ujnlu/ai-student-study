@@ -4,19 +4,25 @@ import { requireChild } from "@/lib/auth";
 import { StartPracticeButton } from "@/components/start-practice-button";
 import { dueReviews } from "@/lib/practice";
 import { chapterPath, currentChapter } from "@/lib/sync";
+import { isCompatibleChildExamTopic } from "@/lib/exam-eligibility";
 
 const KIND: Record<string, string> = { oral: "口算", sync: "同步练", variant: "变式题", review: "复习", ai: "老师布置", pk: "PK", unit: "单元测", consolidate: "巩固练", weekly: "总复习", topic: "专项", olympiad: "奥数", leveltest: "定级测", exam: "模拟卷" };
 
 export default async function PracticePage() {
   const { child } = await requireChild();
   const hasChinese = child.textbooks.some((t) => t.subjectId === "chinese");
-  const [ready, recent, due, mathCh, cnCh] = await Promise.all([
+  const [readySets, recentSets, due, mathCh, cnCh, papers] = await Promise.all([
     db.practiceSet.findMany({ where: { childId: child.id, status: "ready" }, orderBy: { createdAt: "desc" }, include: { knowledgePoint: true } }),
-    db.practiceSet.findMany({ where: { childId: child.id, status: "done" }, orderBy: { completedAt: "desc" }, take: 8 }),
+    db.practiceSet.findMany({ where: { childId: child.id, status: "done" }, orderBy: { completedAt: "desc" }, take: 24 }),
     dueReviews(child.id),
     currentChapter(child.id, "math"),
     hasChinese ? currentChapter(child.id, "chinese") : null,
+    db.paper.findMany({ where: { familyId: child.familyId, status: "ready" }, select: { id: true, stage: true } }),
   ]);
+  const paperStages = new Map(papers.map((p) => [p.id, p.stage]));
+  const eligible = (set: { kind: string; topic: string | null }) => set.kind !== "exam" || isCompatibleChildExamTopic(set.topic, child.grade, paperStages);
+  const ready = readySets.filter(eligible);
+  const recent = recentSets.filter(eligible).slice(0, 8);
   const mathLesson = mathCh ? (await chapterPath(mathCh.id)).split(" › ").pop() : null;
   const cnLesson = cnCh ? (await chapterPath(cnCh.id)).split(" › ").pop() : null;
 

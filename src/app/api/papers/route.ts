@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { createPaper, parsePaper } from "@/lib/papers";
+import { createPaper, PAPER_STAGES, parsePaper } from "@/lib/papers";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -12,13 +12,15 @@ export async function POST(req: Request) {
   const form = await req.formData();
   const files = form.getAll("files").filter((f): f is File => f instanceof File && f.size > 0);
   const text = String(form.get("text") ?? "").trim();
+  const stage = String(form.get("stage") ?? "primary");
+  if (!Object.hasOwn(PAPER_STAGES, stage)) return NextResponse.json({ error: "请选择有效的考试学段" }, { status: 400 });
   if (files.length === 0 && !text) return NextResponse.json({ error: "请上传 PDF / 图片，或粘贴试卷文本" }, { status: 400 });
   if (files.some((f) => f.size > 40 * 1024 * 1024)) return NextResponse.json({ error: "单个文件不能超过 40MB" }, { status: 400 });
   try {
     const paper = await createPaper({
       familyId: s.familyId,
       title: String(form.get("title") ?? ""),
-      stage: String(form.get("stage") ?? "gaokao"),
+      stage,
       subject: String(form.get("subject") ?? "math"),
       year: Number(form.get("year")) || null,
       minutes: Math.min(180, Math.max(10, Number(form.get("minutes")) || 60)),

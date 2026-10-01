@@ -12,7 +12,7 @@ import { layoutText } from "@/lib/textbook-import";
 import { uploadAbsPath, uploadRoot } from "@/lib/uploads";
 import { SUBJECT_NAME, type TopicSubject } from "@/lib/topics";
 
-export const PAPER_STAGES: Record<string, string> = { gaokao: "高考", zhongkao: "中考", other: "其他" };
+export const PAPER_STAGES: Record<string, string> = { primary: "小学", zhongkao: "中考", gaokao: "高考", other: "其他（仅家长）" };
 export const paperCode = (id: string) => `paper-${id}`;
 const CHUNK = 1500; // 每段拆出的题目 JSON 要控制在模型单次输出上限内
 

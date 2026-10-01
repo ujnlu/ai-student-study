@@ -611,7 +611,7 @@ model Paper {
   id        String   @id @default(cuid())
   familyId  String
   title     String
-  stage     String // gaokao | zhongkao | other
+  stage     String // primary | zhongkao | gaokao | other（仅家长）
   subject   String // math | chinese | english | physics | ...
   year      Int?
   source    String   @default("pdf") // pdf | image | text

@@ -10,6 +10,7 @@ import { stageOf } from "@/lib/grade";
 import { STAGE_EXAMS, STAGE_EXAM_NAME, STAGE_SUBJECTS, SECONDARY_SUBJECT_NAME, type ExamStage, type SecondarySubject } from "@/lib/secondary-catalog";
 import { PAPER_STAGES } from "@/lib/papers";
 import { SUBJECT_NAME, type TopicSubject } from "@/lib/topics";
+import { isCompatibleChildExamTopic, paperStageForGrade } from "@/lib/exam-eligibility";
 
 const SUBJECTS = ["math", "chinese", "english"] as const;
 
@@ -21,12 +22,17 @@ export default async function ExamPage({ searchParams }: { searchParams: Promise
   const subject = (SUBJECTS as readonly string[]).includes(s ?? "") ? (s as (typeof SUBJECTS)[number]) : "math";
   const has = child.textbooks.map((t) => t.subjectId);
   const T = THEME[subject];
-  const [cur, pending, recent, papers] = await Promise.all([
+  const [cur, pendingSets, recentSets, familyPapers] = await Promise.all([
     has.includes(subject) ? currentChapter(child.id, subject) : null,
-    db.practiceSet.findFirst({ where: { childId: child.id, kind: "exam", status: "ready" }, orderBy: { createdAt: "desc" } }),
-    db.practiceSet.findMany({ where: { childId: child.id, kind: "exam", status: "done" }, orderBy: { completedAt: "desc" }, take: 6 }),
+    db.practiceSet.findMany({ where: { childId: child.id, kind: "exam", status: "ready" }, orderBy: { createdAt: "desc" } }),
+    db.practiceSet.findMany({ where: { childId: child.id, kind: "exam", status: "done" }, orderBy: { completedAt: "desc" }, take: 20 }),
     db.paper.findMany({ where: { familyId: child.familyId, status: "ready" }, orderBy: { createdAt: "desc" } }),
   ]);
+  const paperStages = new Map(familyPapers.map((p) => [p.id, p.stage]));
+  const eligible = (topic: string | null) => isCompatibleChildExamTopic(topic, child.grade, paperStages);
+  const pending = pendingSets.find((set) => eligible(set.topic));
+  const recent = recentSets.filter((set) => eligible(set.topic)).slice(0, 6);
+  const papers = familyPapers.filter((p) => p.stage === paperStageForGrade(child.grade) && p.subject === subject);
   const path = cur ? await chapterPath(cur.id) : null;
   const minutes = Math.round(EXAM_SECONDS / 60);
 
@@ -125,11 +131,16 @@ async function StageExamPage({ childId, familyId, grade, subject: sb }: { childI
   const cfg = STAGE_EXAMS[examStage][subject]!;
   const n = cfg.parts.reduce((a, [, c]) => a + c, 0);
   const T = THEME[subject as ThemeKey];
-  const [pending, recent, papers] = await Promise.all([
-    db.practiceSet.findFirst({ where: { childId, kind: "exam", status: "ready" }, orderBy: { createdAt: "desc" } }),
-    db.practiceSet.findMany({ where: { childId, kind: "exam", status: "done" }, orderBy: { completedAt: "desc" }, take: 8 }),
+  const [pendingSets, recentSets, familyPapers] = await Promise.all([
+    db.practiceSet.findMany({ where: { childId, kind: "exam", status: "ready" }, orderBy: { createdAt: "desc" } }),
+    db.practiceSet.findMany({ where: { childId, kind: "exam", status: "done" }, orderBy: { completedAt: "desc" }, take: 24 }),
     db.paper.findMany({ where: { familyId, status: "ready" }, orderBy: { createdAt: "desc" } }),
   ]);
+  const paperStages = new Map(familyPapers.map((p) => [p.id, p.stage]));
+  const eligible = (topic: string | null) => isCompatibleChildExamTopic(topic, grade, paperStages);
+  const pending = pendingSets.find((set) => eligible(set.topic));
+  const recent = recentSets.filter((set) => eligible(set.topic)).slice(0, 8);
+  const papers = familyPapers.filter((p) => p.stage === examStage && p.subject === subject);
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-2 flex-wrap">

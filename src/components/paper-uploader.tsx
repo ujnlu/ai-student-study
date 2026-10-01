@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const STAGES = [["gaokao", "高考"], ["zhongkao", "中考"], ["other", "其他"]] as const;
+const STAGES = [["primary", "小学"], ["zhongkao", "中考"], ["gaokao", "高考"], ["other", "其他（仅家长）"]] as const;
 const SUBJECTS = [["math", "数学"], ["chinese", "语文"], ["english", "英语"], ["physics", "物理"], ["chemistry", "化学"], ["biology", "生物"], ["history", "历史"], ["geography", "地理"], ["politics", "政治"]] as const;
 
 export function PaperUploader() {
@@ -31,7 +31,7 @@ export function PaperUploader() {
   return (
     <form onSubmit={submit} className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block"><span className="label">试卷名称</span><input name="title" className="input" placeholder="如：2025 年全国甲卷 数学" required /></label>
+        <label className="block"><span className="label">试卷名称</span><input name="title" className="input" placeholder="如：三年级上学期数学期末卷" required /></label>
         <label className="block"><span className="label">年份（可选）</span><input name="year" type="number" className="input" placeholder="2025" /></label>
         <label className="block"><span className="label">考试</span><select name="stage" className="input">{STAGES.map(([v, n]) => <option key={v} value={v}>{n}</option>)}</select></label>
         <label className="block"><span className="label">科目</span><select name="subject" className="input">{SUBJECTS.map(([v, n]) => <option key={v} value={v}>{n}</option>)}</select></label>
