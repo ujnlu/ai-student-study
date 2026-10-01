@@ -463,7 +463,7 @@ model TextbookPage {
   id         String   @id @default(cuid())
   textbookId String
   pageNo     Int // PDF 页码，1 起
-  text       String
+  text       String   @db.LongText
   imagePath  String?
   ocrStatus  String   @default("none") // none | pdf | ocr | failed
   textbook   Textbook @relation(fields: [textbookId], references: [id], onDelete: Cascade)
@@ -527,7 +527,7 @@ model Recitation {
   childId    String
   chapterId  String?
   title      String
-  text       String
+  text       String   @db.LongText
   transcript String? @db.LongText
   accuracy   Int              @default(0) // 0-100
   kind       String           @default("recite") // recite 背诵 | speaking 英语跟读
@@ -625,4 +625,79 @@ model Paper {
   updatedAt DateTime @updatedAt
 
   @@index([familyId, createdAt])
+}
+
+// ---------- NextAuth (Google OAuth) 用户体系 ----------
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime  @default(now())
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  @@unique([identifier, token])
+}
+
+// ---------- 卡通漫画 / 绘本 ----------
+model ComicBook {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String      @unique
+  description String?     @db.LongText
+  coverPath   String?     // 封面图相对路径
+  attribution String?     // 版权署名，如 "Book Dash (CC BY 4.0)"
+  lang        String      @default("en") // en | zh
+  gradeMin    Int         @default(1)
+  gradeMax    Int         @default(3)
+  pageCount   Int         @default(0)
+  sourceDir   String?     // 原始资源目录名
+  status      String      @default("ready") // ready | failed
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  pages       ComicPage[]
+  @@index([lang, gradeMin])
+}
+
+model ComicPage {
+  id        String    @id @default(cuid())
+  bookId    String
+  pageNo    Int       // 页码，1 起
+  imagePath String    // 图片相对路径
+  text      String?   @db.LongText // 该页文字（可用于朗读/翻译）
+  book      ComicBook @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  @@unique([bookId, pageNo])
+  @@index([bookId])
 }

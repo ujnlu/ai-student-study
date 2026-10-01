@@ -1,0 +1,49 @@
+{
+   "id": 38,
+   "original-language": "fr",
+   "supporters": 1084,
+   "published": "2023-04-26",
+   "pluxmlID": 967,
+   "background-color": "#242424",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article957/episode-38-production-report-1",
+        "https://www.davidrevoy.com/article962/future-episode-38-is-open-for-proofreading",
+        "https://www.peppercarrot.com/en/fan-art/fan-comics__Pepper-and-Carrot-Mini_by_Nartance~~en_PCMINI_E32P01_by-Nartance.html"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "beta-readers":[
+         "Arlo James Barnes <https://framagit.org/ArloJamesBarnes>",
+         "Bobby Hiltz <https://framagit.org/bbbhltz>",
+         "Christian Aribaud <https://framagit.org/Bhoren>",
+         "Craig Maloney <https://framagit.org/craigmaloney>",
+         "Estefania de Vasconcellos Guimaraes <https://framagit.org/estefania>",
+         "Frédéric Mora <https://framagit.org/fredericmora>",
+         "Erik Mondrian",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Rhombihexahedron",
+         "Valvin <https://framagit.org/valvin>",
+         "Vinay"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "5.1.5"
+      },
+      {
+         "name": "Inkscape",
+         "version": "1.2.1"
+      },
+      {
+         "name": "Fedora KDE",
+         "version": "37"
+      }
+   ]
+}

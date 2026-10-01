@@ -1,0 +1,62 @@
+{
+   "id": 19,
+   "original-language": "fr",
+   "supporters": 755,
+   "published": "2016-10-26",
+   "pluxmlID": 383,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        ""
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "script-doctor":[
+         "Craig Maloney <https://framagit.org/craigmaloney>"
+      ],
+      "beta-readers":[
+         "Alex Gryson <https://framagit.org/agryson>",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Seblediacre",
+         "Valvin <https://framagit.org/valvin>"
+      ],
+      "inspiration":[
+         "Scenario of Juan José Segura \"the book of secrets\""
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "3.0.1"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.91"
+      },
+      {
+         "name": "Arch Linux XFCE",
+         "version": "2016-10"
+      }
+   ],
+   "notes":[
+      {
+         "author": "David Revoy <https://framagit.org/Deevad>",
+         "text":[
+            "Episode 19 is an episode about pollution, and also about the fighting of Pepper against the tradition. It's an answer to episode 12 'Autumn Clearout' (with the black hole of potions) and also an answer to the bad behavior of the witches of Chaosah 'to bury everything'. I wanted to take an unusual point of view on this topic: about the embarassing 'history log' the pollution can leave in the layer of sediment soil. Also, in this episode, it's the first time Pepper really 'wins' against the three witches of Chaosah. But she doesn't win the way she tried to (by embarassing the witches) but because of the new situation.",
+            "This episode production was longer than usual because many topics:",
+            "- Happy ones like my wedding with Alicja and the honeymoon trip ♥",
+            "- 'Meh' ones, like the polemic in France about the printed version of Pepper&Carrot...",
+            "- A 'bonus' one, because the production in august of a very long free video tutorial on Youtube.",
+            "- A technical one: because I wanted to open the storyboard to collaborative work on our IRC channel, and that was a good move.",
+            "That was maybe too much for me ^_^ , and it made me dive in an 'over-busy' mode. Sorry for all unreplied emails, comments, etc... I'll work on it.",
+            "About the technique: This episode was painted fully digitally with Krita. For inking, I used the preset 'Pencil 2B' (from my '8.1' brushkit) at size 7px, the style was made to match the episode 12; colorful with a focus on the precision of drawing and inking, and not so much on painting this time. It was longer, out of my comfort zone but I learned a lot.",
+            "Many thanks to all who contributed to this episode, and all the patrons for funding Pepper&Carrot!"
+         ]
+      }
+   ]
+}

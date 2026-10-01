@@ -1,0 +1,53 @@
+{
+   "id": 34,
+   "original-language": "en",
+   "supporters": 1096,
+   "published": "2021-03-31",
+   "pluxmlID": 467,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article813/production-report-episode-34-wasabi",
+        "https://www.davidrevoy.com/article781/wasabi-character-design",
+        "https://www.davidrevoy.com/article786/the-main-temple-of-ah",
+        "https://www.davidrevoy.com/article787/shichimi-2020-model-sheet",
+        "https://www.davidrevoy.com/article807/quick-news-while-inking",
+        "https://www.davidrevoy.com/article836/krita-colorize-mask-advanced-tips",
+        "https://www.davidrevoy.com/article839/shading-workflow-for-comics-krita",
+        "https://www.peppercarrot.com/en/fan-art/fan-comics__Pepper-and-Carrot-Mini_by_Nartance~~en_PCMINI_E28P01_by-Nartance.html"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "beta-readers":[
+         "Arlo James Barnes <https://framagit.org/ArloJamesBarnes>",
+         "Carotte <https://framagit.org/Carotte>",
+         "Craig Maloney <https://framagit.org/craigmaloney>",
+         "Efrat b <https://framagit.org/efratb418>",
+         "GunChleoc <https://framagit.org/gunchleoc>",
+         "Karl Ove Hufthammer <https://framagit.org/huftis>",
+         "Martin Disch <https://framagit.org/martindisch>",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Parnikkapore <https://framagit.org/parnikkapore>",
+         "Valvin <https://framagit.org/valvin>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "4.4.1appimage"
+      },
+      {
+         "name": "Inkscape",
+         "version": "1.0.2"
+      },
+      {
+         "name": "Kubuntu",
+         "version": "20.04"
+      }
+   ]
+}

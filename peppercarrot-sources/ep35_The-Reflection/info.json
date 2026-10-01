@@ -1,0 +1,48 @@
+{
+   "id": 35,
+   "original-language": "en",
+   "supporters": 1054,
+   "published": "2021-06-18",
+   "pluxmlID": 468,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article832/studies-for-episode-35",
+        "https://www.davidrevoy.com/article833/timelapse-inking-a-comic-page-in-krita-uncommented",
+        "https://www.davidrevoy.com/article838/composition-studies",
+        "https://www.davidrevoy.com/article846/episode-35-wip-screenshot",
+        "https://www.davidrevoy.com/article848/process-for-panels-on-episode-35",
+        "https://www.peppercarrot.com/en/fan-art/fan-comics__Pepper-and-Carrot-Mini_by_Nartance~~en_PCMINI_E29P01_by-Nartance.html"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "beta-readers":[
+         "Arlo James Barnes <https://framagit.org/ArloJamesBarnes>",
+         "Craig Maloney <https://framagit.org/craigmaloney>",
+         "Karl Ove Hufthammer <https://framagit.org/huftis>",
+         "Martin Disch <https://framagit.org/martindisch>",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Parnikkapore <https://framagit.org/parnikkapore>",
+         "Valvin <https://framagit.org/valvin>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "4.4.2appimage"
+      },
+      {
+         "name": "Inkscape",
+         "version": "1.1"
+      },
+      {
+         "name": "Kubuntu",
+         "version": "20.04"
+      }
+   ]
+}

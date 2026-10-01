@@ -1,0 +1,47 @@
+{
+   "id": 30,
+   "original-language": "en",
+   "supporters": 973,
+   "published": "2019-09-03",
+   "pluxmlID": 463,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article724/production-report-ep30-storyboard"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "beta-readers":[
+         "Alina the Hedgehog",
+         "Craig Maloney <https://framagit.org/craigmaloney>",
+         "Jihoon Kim <https://framagit.org/imsesaok>",
+         "Parnikkapore",
+         "Martin Disch <https://framagit.org/martindisch>",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Valvin <https://framagit.org/valvin>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "4.2.x~git branch"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.92.3"
+      },
+      {
+         "name": "G'MIC",
+         "version": "2.4.3"
+      },
+      {
+         "name": "Kubuntu",
+         "version": "18.04.2"
+      }
+   ]
+}

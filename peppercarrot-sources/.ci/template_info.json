@@ -1,0 +1,54 @@
+{
+   "id": 0,
+   "original-language": "en",
+   "supporters": 0,
+   "published": "2017-12-15",
+   "tags": "peppercarrot",
+   "pluxmlID": 0,
+   "mastodonID": 113470921649014307,
+   "license": "cc-by",
+   "background-color": "#FFFFFF",
+   "public": 0,
+   "related-urls": [
+        "http://link1",
+        "http://link2"
+   ],
+   "credits": {
+      "art":[
+         "David Revoy"
+      ],
+      "scenario":[
+         "David Revoy"
+      ],
+      "beta-readers":[
+         "Nick",
+         "Name"
+      ],
+      "inspiration":[
+         "Paragraph 1 - no line breaks allowed in JSON"
+      ],
+      "script-doctor":[
+         "Nick",
+         "Name"
+      ],
+      "producer":[
+         "Nick",
+         "Name"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "3.2.3"
+      }
+   ],
+   "notes":[
+      {
+         "author": "The Artist",
+         "text":[
+            "Paragraph 1 - no line breaks allowed in JSON",
+            "Paragraph 2 - no line breaks allowed in JSON"
+         ]
+      }
+   ]
+}

@@ -336,6 +336,7 @@ export default async function ChildHome({ searchParams }: { searchParams: Promis
           { href: "/child/ask", icon: "💬", label: "问橙橙" },
           { href: "/child/mistakes", icon: "🎯", label: "错题本" },
           { href: "/child/shop", icon: "🎁", label: "星星商店" },
+          { href: "/child/comics", icon: "📚", label: "漫画绘本" },
         ].map((c) => (
           <Link key={c.href} href={c.href} className="tile flex-col items-center gap-1 border-line py-3 hover:-translate-y-0.5">
             <span className="text-2xl">{c.icon}</span>

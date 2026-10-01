@@ -1,0 +1,31 @@
+{
+   "title": "Title Here",
+   "credits": {
+      "translation":[
+         "Nick",
+         "Name"
+      ],
+      "proofreading":[
+         "Nick",
+         "Name"
+      ],
+      "contribution":[
+         "Nick",
+         "Name"
+		],
+      "notes":[
+         "Note 1 - paragraph with no line breaks allowed in JSON",
+         "Note 2 - paragraph with no line breaks allowed in JSON"
+      ]
+   },
+  "intro": "Paragraph in Markdown format - no line breaks allowed in JSON",
+   "notes":[
+      {
+         "author": "The Artist",
+         "text":[
+            "Paragraph 1 - no line breaks allowed in JSON",
+            "Paragraph 2 - no line breaks allowed in JSON"
+         ]
+      }
+   ]
+}

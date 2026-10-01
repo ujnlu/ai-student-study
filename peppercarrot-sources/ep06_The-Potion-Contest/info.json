@@ -1,0 +1,35 @@
+{
+   "id": 6,
+   "original-language": "fr",
+   "supporters": 245,
+   "published": "2015-03-28",
+   "pluxmlID": 271,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article269/making-of-episode-6",
+        "https://peertube.touhoppai.moe/w/g4Kni4fEskBSdurcY8K9AM"
+    ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "2.9.1"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.91"
+      },
+      {
+         "name": "Linux Mint",
+         "version": "17.1 LTS"
+      }
+   ]
+}

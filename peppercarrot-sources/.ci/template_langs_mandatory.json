@@ -1,0 +1,11 @@
+{
+   "translators": ["Nick", "Name"],
+   "name": "Chinese (Simplified)",
+   "local_name": "中文",
+   "iso_code": "zh",
+   "iso_version":1,
+   "font": {
+      "family": "Lohit Bengali",
+      "size": 36
+   }
+}

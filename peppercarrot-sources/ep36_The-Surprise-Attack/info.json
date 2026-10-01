@@ -1,0 +1,48 @@
+{
+   "id": 36,
+   "original-language": "fr",
+   "supporters": 1036,
+   "published": "2021-12-15",
+   "pluxmlID": 886,
+   "background-color": "#242424",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article882/episode-36-is-coming-soon",
+        "https://www.davidrevoy.com/article885/ep36-is-for-tomorrow",
+        "https://www.peppercarrot.com/en/fan-art/fan-comics__Pepper-and-Carrot-Mini_by_Nartance~~en_PCMINI_E30P01_by-Nartance.html"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "beta-readers":[
+         "Arlo James Barnes <https://framagit.org/ArloJamesBarnes>",
+         "Christian Aribaud <https://framagit.org/Bhoren>",
+         "Bobby Hiltz <https://framagit.org/bbbhltz>",
+         "Craig Maloney <https://framagit.org/craigmaloney>",
+         "Estefania de Vasconcellos Guimaraes <https://framagit.org/estefania>",
+         "GunChleoc <https://framagit.org/gunchleoc>",
+         "Karl Ove Hufthammer <https://framagit.org/huftis>",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Pierre-Antoine Angelini <https://framagit.org/paa20a>",
+         "Valvin <https://framagit.org/valvin>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "5.0.beta-appimage"
+      },
+      {
+         "name": "Inkscape",
+         "version": "1.1"
+      },
+      {
+         "name": "Kubuntu",
+         "version": "20.04"
+      }
+   ]
+}

@@ -1,0 +1,61 @@
+{
+   "id": 27,
+   "original-language": "en",
+   "supporters": 1060,
+   "published": "2018-10-31",
+   "pluxmlID": 451,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        ""
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "beta-readers":[
+         "Craig Maloney <https://framagit.org/craigmaloney>",
+         "Amyspark",
+         "Butterfly",
+         "Bhoren",
+         "CalimeroTeknik <https://framagit.org/calimeroteknik>",
+         "la gleki .arxokuna <https://framagit.org/lagleki>",
+         "Jookia",
+         "Martin Disch <https://framagit.org/martindisch>",
+         "Midgard <https://framagit.org/Midgard>",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Jihoon Kim <https://framagit.org/imsesaok>",
+         "Denis Prisukhin <https://framagit.org/uncleNight>",
+         "Valvin <https://framagit.org/valvin>",
+         "xHire <https://framagit.org/xHire>",
+         "Nikitin Stanislav <https://framagit.org/Zveryok>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "4.2-dev"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.92.3"
+      },
+      {
+         "name": "Kubuntu",
+         "version": "18.04"
+      }
+   ],
+   "notes":[
+      {
+         "author": "David Revoy <https://framagit.org/Deevad>",
+         "text":[
+            "Here is finally episode 27, the first episode of a trilogy of episodes about the coronation of Coriander. This first part happens before the ceremony. It shows us a bit more about Coriander. We already saw her on previous episodes, but never really understood she was a princess (except in the last panel of “The Pyjama Party”.) I never introduced her passion for robots either. This episode tries to (finally) solve that. We also see Qualicity for the first time.",
+            "This episode was done during the month of October as a challenge with a deadline. I'm happy to be able to post it today on the 31st after days (and a few nights) of hard work. I hope you'll like it and thanks you for your patience (moving to a new house and the DIY took me time).",
+            "Thanks again to the contributors, translators, the supporters and all the readers!"
+         ]
+      }
+   ]
+}

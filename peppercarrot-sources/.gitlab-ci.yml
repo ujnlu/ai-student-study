@@ -1,0 +1,69 @@
+variables:
+  LC_ALL: C.UTF-8
+  LANG: C.UTF-8
+  GIT_DEPTH: "1"
+
+image: python:3
+
+stages:
+  - test1
+  - test2
+  - generate
+
+# Failure of this test will result in broken rendering
+rendering:
+  stage: test1
+  script:
+    - .ci/check-rendering-prerequisites.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+
+# Failure of this test will result in broken transcripts
+transcripts:
+  stage: test1
+  script:
+    - apt update && apt install parallel diffutils -y
+    - 0_transcripts/validate-transcripts.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+      allow_failure: true
+  # The updated md files are used by the "status" job
+  artifacts:
+    name: "peppercarrot-$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - ep*/lang/*/*.md
+      - new-ep*/lang/*/*.md
+    when: always
+    expire_in: 20 minutes
+
+# Failure of this test will result in transcripts missing the latest translation fixes
+status:
+  stage: test2
+  script:
+    - .ci/git-status.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+      allow_failure: true
+
+# Self-service for translators who can't generate transcripts themselves
+# Allows optional specification of "lang" variable to generate for 1 locale only
+all-transcripts:
+  stage: generate
+  script:
+    - echo "Chosen language is ${lang}"
+    - 0_transcripts/generate-all-transcripts.sh $lang
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+      when: manual
+      allow_failure: true
+  artifacts:
+    name: "peppercarrot-$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    paths:
+      - ep*/lang/$lang*/*.md
+      - ep*/lang/$lang*/*.html
+      - ep*/hi-res/html/$lang*.html
+      - new-ep*/lang/$lang*/*.md
+      - new-ep*/lang/$lang*/*.html
+      - new-ep*/hi-res/html/$lang*.html
+    when: always
+    expire_in: 60 minutes

@@ -1,0 +1,37 @@
+{
+   "id": 10,
+   "original-language": "fr",
+   "supporters": 422,
+   "published": "2015-08-29",
+   "pluxmlID": 298,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article288/sketches-between-episode-9-and-10",
+        "https://www.davidrevoy.com/article299/photos-making-of-episode-8",
+        "https://www.davidrevoy.com/article301/making-of-episode-10"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "2.9.6"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.91"
+      },
+      {
+         "name": "Linux Mint",
+         "version": "17"
+      }
+   ]
+}
+

@@ -1,0 +1,24 @@
+{
+   "translators": ["Nick", "Name"],
+   "name": "Chinese (Simplified)",
+   "local_name": "中文",
+   "iso_code": "zh",
+   "iso_locale": "CN",
+   "iso_script": "Hans",
+   "iso_version":1,
+   "font": {
+      "family": "Lohit Bengali",
+      "size": 36,
+      "weight": "bold"
+   },
+   "title_regex": [
+      {
+         "pattern": "^i ([0-9]+) mo'o ",
+         "replacement": "ni'o \\1 mo'o "
+      },
+      {
+         "pattern": "foo",
+         "replacement": "bar"
+      }
+   ]
+}

@@ -1,0 +1,50 @@
+{
+   "id": 23,
+   "original-language": "fr",
+   "supporters": 879,
+   "published": "2017-08-10",
+   "pluxmlID": 421,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article334/making-of-episode-23"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "beta-readers":[
+         "Craig Maloney <https://framagit.org/craigmaloney>",
+         "CalimeroTeknik <https://framagit.org/calimeroteknik>",
+         "Alex Gryson <https://framagit.org/agryson>",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Valvin <https://framagit.org/valvin>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "3.1.4"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.92dev"
+      },
+      {
+         "name": "Linux Mint Cinnamon",
+         "version": "18.2"
+      }
+   ],
+   "notes":[
+      {
+         "author": "David Revoy <https://framagit.org/Deevad>",
+         "text":[
+            "Hi, here is my quick note (as usual now). This episode follows previous episode of the magic challenge and focuses on the result one week later. It's the last part of the trilogy. It splits a bit more the relation between Pepper and Saffron. This episode clearly shows the position of Pepper in regard to the tactics used by Saffron (and indirectly by Spirulina and Camomille) to win the magic challenge.",
+            "To compose this story, I worked around the theme of chance, success, effort and merit: how many opportunities did we miss because they did not conform to our idea of effort? To our idea of merit? Does it make the actions 'too obvious/easy path to success' the harder things to spot and grab? It is also a parody of the Deus ex Machina in ancient Greek tragedy, and a sweet arc to remotivate our Pepper to go further in her mastery of magic!"
+         ]
+      }
+   ]
+}

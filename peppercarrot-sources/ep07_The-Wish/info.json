@@ -1,0 +1,35 @@
+{
+   "id": 7,
+   "original-language": "fr",
+   "supporters": 273,
+   "published": "2015-04-30",
+   "pluxmlID": 273,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article270/making-of-episode-7",
+        "https://www.davidrevoy.com/article526/episode-7-sketches"
+   ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "2.9.3"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.91"
+      },
+      {
+         "name": "Linux Mint",
+         "version": "17.1"
+      }
+   ]
+}

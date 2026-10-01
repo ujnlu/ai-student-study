@@ -1,0 +1,35 @@
+{
+   "id": 9,
+   "original-language": "fr",
+   "supporters": 406,
+   "published": "2015-07-31",
+   "pluxmlID": 289,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article286/step-by-step-a-background-painting",
+        "https://www.davidrevoy.com/article287/making-of-episode-9"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "2.9.6"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.91"
+      },
+      {
+         "name": "Linux Mint",
+         "version": "17"
+      }
+   ]
+}

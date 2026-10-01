@@ -1,0 +1,47 @@
+{
+   "id": 22,
+   "original-language": "fr",
+   "supporters": 864,
+   "published": "2017-05-30",
+   "pluxmlID": 412,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article330/making-of-episode-22-the-voting-system"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "beta-readers":[
+         "Craig Maloney <https://framagit.org/craigmaloney>",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Valvin <https://framagit.org/valvin>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "3.1.3"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.92.1"
+      },
+      {
+         "name": "Linux Mint",
+         "version": "18.1"
+      }
+   ],
+   "notes":[
+      {
+         "author": "David Revoy <https://framagit.org/Deevad>",
+         "text":[
+            "Hi! A quick note: this episode is an obvious metaphor of the voting system proposed by any website on the internet; we 'like', 'downvote', 'upvote' and all of this in realtime. This system affects the content a lot. Our witches here discover the power of the 'cute witches' effect; a parody of a growing trend I see everywhere in anime culture nowaday, but also the load of 'sexy' content I see in digital art to get more 'likes' and 'upvotes' in general... Denunciating this practice with humor wasn't evident, but it was fun to try. :-) I hope you liked this episode!"
+         ]
+      }
+   ]
+}

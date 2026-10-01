@@ -1,0 +1,48 @@
+{
+   "id": 18,
+   "original-language": "fr",
+   "supporters": 720,
+   "published": "2016-08-05",
+   "pluxmlID": 379,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        ""
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "inspiration":[
+         "Two scenarios by Craig Maloney \"You found me, I choose You\" and \"Visit from Hippiah\""
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "3.0"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.91"
+      },
+      {
+         "name": "Manjaro XFCE",
+         "version": "16.06.1"
+      }
+   ],
+   "notes":[
+      {
+         "author": "David Revoy <https://framagit.org/Deevad>",
+         "text":[
+            "Hi! This is a special episode built around a flashback scene of an important time in the past of Pepper and Carrot. I really wanted to draw this episode, it was an opportunity to introduce many background elements around Pepper; how she started at the Hippiah school, how she met Carrot, how she was found by the witches of Chaosah and a hint about her hidden enormous potential as a witch... So, we go back in time with this flashback, not very far before episode 1; that's why you probably are already familiar with the color of the Hippiah dress.",
+            "From a technical point of view, this episode has a large amount of panels, almost two times the amount of a usual episode. All these additional panels were necessary to smooth the storytelling and get a more cinematic feeling (and not a comic-strip one). That's why I'm posting this episode not at the end of July as planed at first, but at the end of the first week of August. A proof I always put priority on quality. :)",
+            "Before jumping on the production of the next episode (in September), I will focus a bit on adding new tutorial and maintaining the YouTube channel. But first, I have a little week of holidays in August. :)",
+            "I hope you liked this episode! Thanks again for all your comments, reshares, contributions and support!"
+         ]
+      }
+   ]
+}

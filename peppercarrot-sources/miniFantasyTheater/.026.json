@@ -1,0 +1,19 @@
+{
+  "published": "2025-11-05",
+  "tags": "Poetic",
+  "original-language": "en",
+  "pluxmlID": 404,
+  "mastodonID": 404,
+  "public": 1,
+   "related-urls": [
+        ""
+  ],
+  "credits": {
+    "art":[
+      "David Revoy <https://framagit.org/Deevad>"
+    ],
+    "scenario":[
+      "ShouldbeWriting <https://mastodon.art/@vanellopemint>"
+    ]
+  }
+}

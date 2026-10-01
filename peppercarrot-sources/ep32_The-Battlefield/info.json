@@ -1,0 +1,48 @@
+{
+   "id": 32,
+   "original-language": "en",
+   "supporters": 1121,
+   "published": "2020-03-31",
+   "pluxmlID": 465,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article755/preparatory-drawings-for-peppercarrot-episode-32",
+        "https://www.davidrevoy.com/article760/ep32-wip-screenshot",
+        "https://www.davidrevoy.com/article765/ep32-wip-screenshot-colors",
+        "https://www.davidrevoy.com/article766/ep32-wip-color-adjustments",
+        "https://www.peppercarrot.com/en/fan-art/fan-comics__Pepper-and-Carrot-Mini_by_Nartance~~en_PCMINI_E26P01_by-Nartance.html"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "beta-readers":[
+         "Craig Maloney <https://framagit.org/craigmaloney>",
+         "Martin Disch <https://framagit.org/martindisch>",
+         "Arlo James Barnes",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Parnikkapore",
+         "Stephen Paul Weber",
+         "Valvin <https://framagit.org/valvin>",
+         "Vejvej"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "4.2.9-beta"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.92.3"
+      },
+      {
+         "name": "Kubuntu",
+         "version": "19.10"
+      }
+   ]
+}

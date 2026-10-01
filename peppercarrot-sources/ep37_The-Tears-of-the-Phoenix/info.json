@@ -1,0 +1,52 @@
+{
+   "id": 37,
+   "original-language": "fr",
+   "supporters": 1058,
+   "published": "2022-08-03",
+   "pluxmlID": 920,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article894/the-market",
+        "https://www.davidrevoy.com/article899/work-in-progress-screenshot-ep-37",
+        "https://www.davidrevoy.com/article906/ep37-production-report-style",
+        "https://www.davidrevoy.com/article908/ep37-production-report-desk-setup",
+        "https://www.davidrevoy.com/article919/episode-37-production-report-part-2",
+        "https://www.peppercarrot.com/en/fan-art/fan-comics__Pepper-and-Carrot-Mini_by_Nartance~~en_PCMINI_E31P01_by-Nartance.html"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "beta-readers":[
+         "Arlo James Barnes <https://framagit.org/ArloJamesBarnes>",
+         "Benjamin Loubet <https://framagit.org/bsl>",
+         "Bobby Hiltz <https://framagit.org/bbbhltz>",
+         "Chloé <https://framagit.org/valvin>",
+         "Craig Maloney <https://framagit.org/craigmaloney>",
+         "Estefania de Vasconcellos Guimaraes <https://framagit.org/estefania>",
+         "GunChleoc <https://framagit.org/gunchleoc>",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Olivier Jolly <https://framagit.org/zeo>",
+         "Rhombihexahedron",
+         "Valvin <https://framagit.org/valvin>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "5.1(dev)"
+      },
+      {
+         "name": "Inkscape",
+         "version": "1.2"
+      },
+      {
+         "name": "Fedora KDE Spin",
+         "version": "36"
+      }
+   ]
+}

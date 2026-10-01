@@ -1,0 +1,58 @@
+{
+   "id": 26,
+   "original-language": "en",
+   "supporters": 1098,
+   "published": "2018-07-28",
+   "pluxmlID": 445,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article361/comic-page-timelapse-episode-26"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "beta-readers":[
+         "Jihoon Kim <https://framagit.org/imsesaok>",
+         "Jookia",
+         "Midgard <https://framagit.org/Midgard>",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Popolon",
+         "R J Quiralta <https://framagit.org/RJQuiralta>",
+         "Valvin <https://framagit.org/valvin>",
+         "xHire <https://framagit.org/xHire>",
+         "Zeograd"
+      ],
+      "script-doctor":[
+         "Craig Maloney <https://framagit.org/craigmaloney>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "4.1"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.92.3"
+      },
+      {
+         "name": "Kubuntu",
+         "version": "17.10"
+      }
+   ],
+   "notes":[
+      {
+         "author": "David Revoy <https://framagit.org/Deevad>",
+         "text":[
+            "Hi! At the end of the previous episode (25), Pepper had to read stacks of books. A possible interpretation was that 'books are boring'!...  Episode 26 was created to do away with this faulty interpretation.",
+            "That's how 'Books Are Great' was born. This episode shows without obviously telling how Pepper is slowly growing and evolving. This episode also fills an undetermined period of time after the rebuild of the house. So, it will let me jump directly to a new arc on the next episode.",
+            "I hope you'll like this episode with its mix of adventure and comedy."
+         ]
+      }
+   ]
+}

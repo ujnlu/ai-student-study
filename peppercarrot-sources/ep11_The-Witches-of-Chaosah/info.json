@@ -1,0 +1,42 @@
+{
+   "id": 11,
+   "original-language": "fr",
+   "supporters": 502,
+   "published": "2015-09-30",
+   "pluxmlID": 301,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article309/making-of-episode-11",
+        "https://www.davidrevoy.com/article265/things-i-learned-after-drawing-10-episodes",
+        "https://www.davidrevoy.com/article302/doodle-character-creation-for-episode-11",
+        "https://www.davidrevoy.com/article303/pencil-artworks-during-the-episode-11"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "2.9.7"
+      },
+      {
+         "name": "G'MIC",
+         "version": "1.6.5.2"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.91"
+      },
+      {
+         "name": "Linux Mint",
+         "version": "17"
+      }
+   ]
+}
+

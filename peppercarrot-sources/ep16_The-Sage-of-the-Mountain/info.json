@@ -1,0 +1,46 @@
+{
+   "id": 16,
+   "original-language": "fr",
+   "supporters": 671,
+   "published": "2016-04-30",
+   "pluxmlID": 369,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article317/timelapse-demo-comic-page-inking-with-krita"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "2.9.11"
+      },
+      {
+         "name": "Blender",
+         "version": "2.76b"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.91"
+      },
+      {
+         "name": "Ubuntu",
+         "version": "16.04 Beta"
+      }
+   ],
+   "notes":[
+      {
+         "author": "David Revoy <https://framagit.org/Deevad>",
+         "text":[
+            "After a *very* intensive production time, I'm happy to release episode 16, 'The Sage of the Mountain'. In this new episode, I tried to produce a visual direction more looking like an animation; with painted landscapes and almost thin line cell-shaded characters. A challenge! The episode features Saffron, Thyme, Cayenne and of course Pepper and Carrot. Also, 16 translations are available at release, thanks to the very active and lovely translation team."
+         ]
+      }
+   ]
+}

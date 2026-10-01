@@ -1,0 +1,46 @@
+{
+   "id": 39,
+   "original-language": "en",
+   "supporters": 1106,
+   "published": "2025-11-12",
+   "pluxmlID": 1100,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article1078/episode-39-production-report"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "beta-readers":[
+         "Bobby Hiltz <https://framagit.org/bbbhltz>",
+         "Estefania de Vasconcellos Guimaraes <https://framagit.org/estefania>",
+         "Marno van der Maas <https://framagit.org/MarnovanderMaas>",
+         "Karl Ove Hufthammer <https://framagit.org/huftis>",
+         "Christian Aribaud <https://framagit.org/Bhoren>",
+         "Emmiline <https://framagit.org/emmilinette>",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Olivier Jolly <https://framagit.org/zeo>",
+         "Rimas Kudelis <https://framagit.org/rimas>",
+         "Valvin <https://framagit.org/valvin>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "5.2"
+      },
+      {
+         "name": "Inkscape",
+         "version": "1.2"
+      },
+      {
+         "name": "Debian KDE",
+         "version": "12"
+      }
+   ]
+}

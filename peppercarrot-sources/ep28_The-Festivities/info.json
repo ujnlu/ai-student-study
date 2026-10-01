@@ -1,0 +1,52 @@
+{
+   "id": 28,
+   "original-language": "en",
+   "supporters": 960,
+   "published": "2019-01-24",
+   "pluxmlID": 460,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        ""
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "beta-readers":[
+         "Craig Maloney <https://framagit.org/craigmaloney>",
+         "CalimeroTeknik <https://framagit.org/calimeroteknik>",
+         "Martin Disch <https://framagit.org/martindisch>",
+         "Midgard <https://framagit.org/Midgard>",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Valvin <https://framagit.org/valvin>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "4.1.5"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.92.3"
+      },
+      {
+         "name": "Kubuntu",
+         "version": "18.04.1"
+      }
+   ],
+   "notes":[
+      {
+         "author": "David Revoy <https://framagit.org/Deevad>",
+         "text":[
+            "After a long time, here is episode 28, the second part of the trilogy about the Coronation of Coriander. This one took me a long time to produce (thank you for your patience) and believe me, I've been working on it full time since half November 2018.",
+            "In real life, I'm not someone to be very active at parties and I like the bench, sitting in the dark, outside, hearing the music and people having fun from a distance. I probably spent a lot of time thinking this way during parties. That's a place I like and I hope those who also like these moments will recognize that in this episode. This episode resolves all the jealousy Pepper had about her friends and brings more story background in a subtle way; we meet Shichimi's school (with the first appearance of Wasabi, her master, a character I want to reuse later), it gives a glimpse of what Coriander will have to manage, and also introduces the new personality of Saffron-as-a-superstar. This episode also erases the last bit of shame Pepper had about her own magic family. Pepper really evolved a lot and now she is ready to be a powerful witch of Chaosah. :) I like it when the conclusion of a story happens not after a fight, but when characters just change their point of view.",
+            "I hope you liked this episode 28; now let's get started with the production of ep29! Thanks again to all translators, contributors and patrons to let me draw Pepper&Carrot!"
+         ]
+      }
+   ]
+}

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.125.0",
+    "@auth/prisma-adapter": "^2.11.3",
     "@prisma/adapter-better-sqlite3": "^7.10.0",
     "@prisma/adapter-mariadb": "^7.10.0",
     "@prisma/adapter-pg": "^7.10.0",
@@ -22,6 +23,7 @@
     "katex": "^0.18.7",
     "mysql2": "^3.24.4",
     "next": "16.3.5",
+    "next-auth": "^4.24.15",
     "pdfjs-dist": "^6.3.289",
     "pg": "^8.23.0",
     "react": "19.2.8",

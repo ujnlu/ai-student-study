@@ -1,0 +1,38 @@
+{
+  "id": 40,
+  "original-language": "fr",
+  "supporters": 9999,
+  "published": "2042-12-31",
+  "pluxmlID": 999,
+  "background-color": "#FFFFFF",
+  "public": 0,
+  "related-urls": [
+    ""
+  ],
+  "credits": {
+    "art":[
+      "David Revoy <https://framagit.org/Deevad>"
+  ],
+  "scenario":[
+    "David Revoy <https://framagit.org/Deevad>"
+  ],
+  "beta-readers":[
+    "Alpha <https://framagit.org/Alpha>",
+    "Beta <https://framagit.org/Beta>"
+  ]
+},
+"software":[
+  {
+    "name": "Krita",
+    "version": "5.3.1 (git 9069dbc)"
+  },
+  {
+    "name": "Inkscape",
+    "version": "1.4.4"
+  },
+  {
+    "name": "KDE neon",
+    "version": "User Edition"
+  }
+]
+}

@@ -1,0 +1,37 @@
+{
+   "id": 8,
+   "original-language": "fr",
+   "supporters": 354,
+   "published": "2015-06-28",
+   "pluxmlID": 285,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article282/sketch-between-episode-7-and-8",
+        "https://www.davidrevoy.com/article527/raw-comic-storyboard-a4-scan-ep7-and-8",
+        "https://www.davidrevoy.com/article520/making-of-episode-8",
+        "https://www.davidrevoy.com/article285/episode-8-black-and-white-version"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "2.9.5"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.91"
+      },
+      {
+         "name": "Linux Mint",
+         "version": "17.1"
+      }
+   ]
+}

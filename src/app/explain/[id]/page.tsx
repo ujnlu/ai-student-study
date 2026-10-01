@@ -21,8 +21,16 @@ export default async function ExplainPage({ params }: { params: Promise<{ id: st
   } catch {
     parseError = true;
   }
-  const back = s.role === "parent" ? "/parent" : "/child/mistakes";
   const mistake = ex.problem.mistakes[0];
+  // Build smart back link: return to the specific mistake page if available
+  let back: string;
+  if (mistake) {
+    back = `/child/mistakes/${mistake.id}`;
+  } else if (s.role === "parent") {
+    back = "/parent";
+  } else {
+    back = "/child/mistakes";
+  }
   const isFailed = ex.status === "failed" || parseError;
   return (
     <main className="flex-1 mx-auto w-full max-w-3xl px-4 py-5 space-y-4">

@@ -1,0 +1,43 @@
+{
+   "id": 17,
+   "original-language": "fr",
+   "supporters": 719,
+   "published": "2016-06-30",
+   "pluxmlID": 377,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        ""
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "3.0.0beta"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.91"
+      },
+      {
+         "name": "Linux Mint",
+         "version": "18"
+      }
+   ],
+   "notes":[
+      {
+         "author": "David Revoy <https://framagit.org/Deevad>",
+         "text":[
+            "Hi! It's a longer episode than usual with 7 pages. The episode already has 16 translations (at release time) thanks to the super translation team. The production of all panels with this level of rendering was a real challenge. Wind, beams of light, a lot of different color palettes... not easy to paint. I spent a lot of nights and days on polishing this one. ;-)",
+            "I'm even a little sad to leave this ep17 now: I had good times painting the various scenes, expressions, places and characters of this story. I hope you'll like it!"
+         ]
+      }
+   ]
+}

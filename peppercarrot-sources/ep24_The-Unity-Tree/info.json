@@ -1,0 +1,55 @@
+{
+   "id": 24,
+   "original-language": "en",
+   "supporters": 810,
+   "published": "2017-12-15",
+   "pluxmlID": 433,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        ""
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "beta-readers":[
+         "Craig Maloney <https://framagit.org/craigmaloney>",
+         "CalimeroTeknik <https://framagit.org/calimeroteknik>",
+         "Jookia",
+         "Alex Gryson <https://framagit.org/agryson>",
+         "Jihoon Kim <https://framagit.org/imsesaok>",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Valvin <https://framagit.org/valvin>",
+         "Nikitin Stanislav <https://framagit.org/Zveryok>",
+         "xHire <https://framagit.org/xHire>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "3.2.3"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.92.2"
+      },
+      {
+         "name": "Ubuntu",
+         "version": "17.10"
+      }
+   ],
+   "notes":[
+      {
+         "author": "David Revoy <https://framagit.org/Deevad>",
+         "text":[
+            "Here is a new episode of Pepper&Carrot. Thank you all for your patience!",
+            "Behind this little parody about Xmas I hope you noticed the metaphor about the creative process described in the steps of this story: the desire, the frustration, the combination of resources, the isolation, the trial and error, the following and breaking of the rules, and the eventual deployment. And when it's deployed there's the chance that it will explode and change your whole lifestyle. It's a common idea that creation and destruction are two sides of the same coin, and by adding a new episode to Pepper&Carrot this is always what I worry about the most: destroying a part of the charm of the series itself. I hope you'll like this episode!",
+            "(Note: There is also a cameo of Ubuntu's Unity desktop environment, discontinued by Canonical in 2017. This is a warm goodbye and thanks to this desktop environment. I liked it. The other cameo will probably be noticed by the more technical minds; it relates to technologies like Docker, Snapcraft, Flatpak, and AppImage.)"
+         ]
+      }
+   ]
+}

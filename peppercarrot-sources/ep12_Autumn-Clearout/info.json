@@ -1,0 +1,48 @@
+{
+   "id": 12,
+   "original-language": "fr",
+   "supporters": 575,
+   "published": "2015-10-31",
+   "pluxmlID": 331,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article307/penciling-on-episode-12",
+        "https://www.davidrevoy.com/article305/tons-of-potions-part-1-3d",
+        "https://www.davidrevoy.com/article306/tons-of-potions-part-2-multifill"
+   ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "2.9.8"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.91"
+      },
+      {
+         "name": "Blender",
+         "version": "2.71"
+      },
+      {
+         "name": "GIMP",
+         "version": "2.8.14"
+      },
+      {
+         "name": "G'MIC",
+         "version": "1.6.7"
+      },
+      {
+         "name": "Linux Mint",
+         "version": "17.2"
+      }
+   ]
+}

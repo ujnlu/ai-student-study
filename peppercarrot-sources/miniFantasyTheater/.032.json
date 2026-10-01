@@ -1,0 +1,19 @@
+{
+  "published": "2025-12-24",
+  "tags": "Avian-Intelligence",
+  "original-language": "en",
+  "pluxmlID": 404,
+  "mastodonID": 404,
+  "public": 1,
+   "related-urls": [
+        ""
+  ],
+  "credits": {
+    "art":[
+      "David Revoy <https://framagit.org/Deevad>"
+    ],
+    "scenario":[
+      "David Revoy <https://framagit.org/Deevad>"
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+# Pepper&Carrot local specific
+# ============================
+# root folders
+/0_archives
+/0ther
+/New
+# files
+/.episodes-list.md
+/episodes*.json
+*.kra
+*.blend
+/ep*/*.png
+/ep*/*.gif
+/ep*/*.svg
+# episodes
+animation
+backup
+cache
+hi-res
+low-res
+wip
+zip
+# ad-hoc renders
+render
+
+# OS generated
+# ============
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.directory
+desktop.ini
+*.iml
+.idea
+*~
+*.bak
+*.log*

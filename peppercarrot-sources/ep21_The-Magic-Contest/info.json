@@ -1,0 +1,42 @@
+{
+   "id": 21,
+   "original-language": "fr",
+   "supporters": 816,
+   "published": "2017-02-23",
+   "pluxmlID": 400,
+   "background-color": "#FFFFFF",
+   "public": 1,
+   "related-urls": [
+        "https://www.davidrevoy.com/article325/the-chaotic-making-of-episode-21"
+  ],
+   "credits": {
+      "art":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "scenario":[
+         "David Revoy <https://framagit.org/Deevad>"
+      ],
+      "beta-readers":[
+         "Craig Maloney <https://framagit.org/craigmaloney>",
+         "Nicolas Artance <https://framagit.org/Nartance>",
+         "Valvin <https://framagit.org/valvin>",
+         "R J Quiralta <https://framagit.org/RJQuiralta>",
+         "talime",
+         "Jookia"
+      ]
+   },
+   "software":[
+      {
+         "name": "Krita",
+         "version": "3.2.1"
+      },
+      {
+         "name": "Inkscape",
+         "version": "0.91"
+      },
+      {
+         "name": "Linux Mint XFCE",
+         "version": "18.1"
+      }
+   ]
+}
